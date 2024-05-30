@@ -76,7 +76,7 @@ class Main:
         )
 
     def recognize(self):
-        data = self.stream.read(4096)
+        data = self.stream.read(4096*2)
         if self.recognizer.AcceptWaveform(data):
             result_text = self.recognizer.FinalResult()
             result_size = len(str(result_text))
