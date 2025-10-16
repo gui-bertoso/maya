@@ -25,38 +25,82 @@ class App:
         self.recognition_thread = None
         self.render_thread = None
 
+        self.window = None
+
         self.stop_event = threading.Event()
+
+        self.init_window()
 
         new_log.create_log("Running base")
         self.init_subthreads()
-
         self.process_function()
+
+    def init_window(self):
+        self.window = pygame.display.set_mode(
+            (SCREEN_WIDTH, SCREEN_HEIGHT),
+            pygame.NOFRAME
+        )
+        pygame.display.set_caption("mayaProject")
+
 
     def init_subthreads(self) -> None:
         #init subthreads for functions
-        new_log.create_log("Initializing subthreads")
+        new_log.create_log("Settings subthread references")
         self.voice_thread = threading.Thread(target=self.speak_function)
         self.recognition_thread = threading.Thread(target=self.recognition_function)
         self.render_thread = threading.Thread(target=self.render_function)
 
-    def process_function(self) -> None:
-        while not self.stop_event.is_set():
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
+        new_log.create_log("Starting render subthread")
+        self.render_thread.start()
+        new_log.create_log("Starting voice subthread")
+        self.voice_thread.start()
+        new_log.create_log("Starting recognition subthread")
+        self.recognition_thread.start()
+
+        new_log.create_log("All subthread ready")
+
+    def catch_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                if not self.stop_event.is_set():
                     self.stop_event.set()
                     pygame.quit()
+            if event.type == pygame.MOUSEBUTTONUP:
+                if event.button == 1:
+                    if self.is_on_button(((SCREEN_WIDTH / 2)-10, (SCREEN_HEIGHT / 2)-10), (20, 20)):
+                        if not self.stop_event.is_set():
+                            self.stop_event.set()
+                            pygame.quit()
+
+    def process_function(self) -> None:
+        while not self.stop_event.is_set():
+            self.catch_events()
 
     def render_function(self) -> None:
         while not self.stop_event.is_set():
-            pass
+            pygame.draw.rect(self.window, (255, 0, 0), ((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 2), 20, 20))
+            pygame.display.flip()
+        if self.render_thread.is_alive():
+            self.render_thread.join()
 
     def speak_function(self) -> None:
         while not self.stop_event.is_set():
-            pass
+            self.catch_events()
+        if self.voice_thread.is_alive():
+            self.voice_thread.join()
 
     def recognition_function(self) -> None:
         while not self.stop_event.is_set():
-            pass
+            self.catch_events()
+        if self.recognition_thread.is_alive():
+            self.recognition_thread.join()
+
+    def is_on_button(self, position: tuple, size: tuple) -> bool:
+        mouse_position = pygame.mouse.get_pos()
+        if position[0] + size[0] < mouse_position[0] > position[0] and position[1] + size[1] < mouse_position[1] > position[1]:
+            return True
+        else:
+            return False
 
 
 if __name__ == "__main__":
