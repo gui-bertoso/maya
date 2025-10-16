@@ -27,5 +27,3 @@ def create_log(message):
         f"\nLOG: {message}"
         f"\n-----------------------------------------------------------------"
     )
-
-create_log("aaaa")
