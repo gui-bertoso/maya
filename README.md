@@ -1,6 +1,6 @@
 **maya-project**
 
-##Welcome
+##I'm GUI
 
 This is my virtual assistant project.
 I also plan to add features like self-learning based on usage and optimizations so it runs on the local machine without crashes and with fast responses.
