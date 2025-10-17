@@ -4,4 +4,4 @@ VOICE_ENGINE_VOLUME = 0.8
 SCREEN_WIDTH = 200
 SCREEN_HEIGHT = 220
 
-LOGS_PATH = "voice_log.txt"
+LOGS_PATH = "logs.txt"

@@ -60,17 +60,20 @@ class App:
         new_log.create_log("All subthread ready")
 
     def catch_events(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                if not self.stop_event.is_set():
-                    self.stop_event.set()
-                    pygame.quit()
-            if event.type == pygame.MOUSEBUTTONUP:
-                if event.button == 1:
-                    if self.is_on_button(((SCREEN_WIDTH / 2)-10, (SCREEN_HEIGHT / 2)-10), (20, 20)):
-                        if not self.stop_event.is_set():
-                            self.stop_event.set()
-                            pygame.quit()
+        try:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    if not self.stop_event.is_set():
+                        self.stop_event.set()
+                        pygame.quit()
+                if event.type == pygame.MOUSEBUTTONUP:
+                    if event.button == 1:
+                        if self.is_on_button(((SCREEN_WIDTH / 2)-10, (SCREEN_HEIGHT / 2)-10), (20, 20)):
+                            if not self.stop_event.is_set():
+                                self.stop_event.set()
+                                pygame.quit()
+        except Exception as error:
+            new_log.create_log("ERROR: " + str(error))
 
     def process_function(self) -> None:
         while not self.stop_event.is_set():
@@ -80,20 +83,29 @@ class App:
         while not self.stop_event.is_set():
             pygame.draw.rect(self.window, (255, 0, 0), ((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 2), 20, 20))
             pygame.display.flip()
-        if self.render_thread.is_alive():
-            self.render_thread.join()
+        try:
+            if self.render_thread.is_alive():
+                self.render_thread.join()
+        except Exception as error:
+            new_log.create_log("ERROR: render_function - " + str(error))
 
     def speak_function(self) -> None:
         while not self.stop_event.is_set():
             self.catch_events()
-        if self.voice_thread.is_alive():
-            self.voice_thread.join()
+        try:
+            if self.voice_thread.is_alive():
+                self.voice_thread.join()
+        except Exception as error:
+            new_log.create_log("ERROR: speak_function - " + str(error))
 
     def recognition_function(self) -> None:
         while not self.stop_event.is_set():
             self.catch_events()
-        if self.recognition_thread.is_alive():
-            self.recognition_thread.join()
+        try:
+            if self.recognition_thread.is_alive():
+                self.recognition_thread.join()
+        except Exception as error:
+            new_log.create_log("ERROR: recognition_function - " + str(error))
 
     def is_on_button(self, position: tuple, size: tuple) -> bool:
         mouse_position = pygame.mouse.get_pos()
