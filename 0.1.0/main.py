@@ -1,24 +1,24 @@
 import pygame
 import threading
 import pyttsx3
-from new_settings import *
-import new_log
+from settings import *
+import log
 
 
 class App:
     def __init__(self) -> None:
-        new_log.create_log("Initializing packages")
+        log.create_log("Initializing packages")
         pygame.init()
         pygame.mixer.init()
         pygame.font.init()
         pyttsx3.init()
 
-        new_log.create_log("Initializing voice engine")
+        log.create_log("Initializing voice engine")
         self.voice_engine = pyttsx3.Engine()
         self.voice_engine.setProperty("rate", VOICE_ENGINE_RATE)
         self.voice_engine.setProperty("volume", VOICE_ENGINE_VOLUME)
 
-        new_log.create_log("Setting variables")
+        log.create_log("Setting variables")
         self.voice_thread = None
         self.recognition_thread = None
         self.render_thread = None
@@ -39,7 +39,7 @@ class App:
 
         self.init_window()
 
-        new_log.create_log("Running base")
+        log.create_log("Running base")
         self.init_subthreads()
         self.process_function()
 
@@ -53,19 +53,19 @@ class App:
 
 
     def init_subthreads(self) -> None:
-        new_log.create_log("Settings subthread references")
+        log.create_log("Settings subthread references")
         self.voice_thread = threading.Thread(target=self.speak_function)
         self.recognition_thread = threading.Thread(target=self.recognition_function)
         self.render_thread = threading.Thread(target=self.render_function)
 
-        new_log.create_log("Starting render subthread")
+        log.create_log("Starting render subthread")
         self.render_thread.start()
-        new_log.create_log("Starting voice subthread")
+        log.create_log("Starting voice subthread")
         self.voice_thread.start()
-        new_log.create_log("Starting recognition subthread")
+        log.create_log("Starting recognition subthread")
         self.recognition_thread.start()
 
-        new_log.create_log("All subthread ready")
+        log.create_log("All subthread ready")
 
     def catch_events(self):
         try:
@@ -81,7 +81,7 @@ class App:
                                 self.stop_event.set()
                                 pygame.quit()
         except Exception as error:
-            new_log.create_log("ERROR: " + str(error))
+            log.create_log("ERROR: " + str(error))
 
     def process_function(self) -> None:
         while not self.stop_event.is_set():
@@ -105,7 +105,7 @@ class App:
             if self.render_thread.is_alive():
                 self.render_thread.join()
         except Exception as error:
-            new_log.create_log("ERROR: render_function - " + str(error))
+            log.create_log("ERROR: render_function - " + str(error))
 
     def speak_function(self) -> None:
         while not self.stop_event.is_set():
@@ -114,7 +114,7 @@ class App:
             if self.voice_thread.is_alive():
                 self.voice_thread.join()
         except Exception as error:
-            new_log.create_log("ERROR: speak_function - " + str(error))
+            log.create_log("ERROR: speak_function - " + str(error))
 
     def recognition_function(self) -> None:
         while not self.stop_event.is_set():
@@ -123,7 +123,7 @@ class App:
             if self.recognition_thread.is_alive():
                 self.recognition_thread.join()
         except Exception as error:
-            new_log.create_log("ERROR: recognition_function - " + str(error))
+            log.create_log("ERROR: recognition_function - " + str(error))
 
     def is_on_button(self, position: tuple, size: tuple) -> bool:
         mouse_position = pygame.mouse.get_pos()
@@ -175,5 +175,5 @@ class App:
                 pygame.draw.rect(self.window, color, (position[0], position[1], size[0], size[1]))
 
 if __name__ == "__main__":
-    new_log.create_log("Starting application")
+    log.create_log("Starting application")
     app = App()
