@@ -25,6 +25,8 @@ class App:
         self.clock = pygame.time.Clock()
         self.in_loading = True
         self.loading_value = 0.0
+        self.core_position_offset: tuple = (0, 0)
+        self.core_size_offset: tuple = (1, 1)
 
         self.default_font = pygame.font.SysFont("Arial", 20)
 
@@ -95,11 +97,9 @@ class App:
         while not self.stop_event.is_set():
             self.clear_window()
             if self.in_loading:
-                pygame.draw.rect(self.window, (100, 100, 100), (0, (SCREEN_HEIGHT-20), SCREEN_WIDTH, 20))
-                pygame.draw.rect(self.window, (0, 255, 0), (0, (SCREEN_HEIGHT-20), self.loading_value, 20))
-                self.window.blit(self.main_text, ((SCREEN_WIDTH / 2)-55, (SCREEN_HEIGHT / 2)-30))
+                self.loading_screen()
             else:
-                self.button(((SCREEN_WIDTH / 2)-10, (SCREEN_HEIGHT-40)), "rect", (20, 20), QUIT_BUTTON_COLOR)
+                self.main_screen()
             self.update_window()
         try:
             if self.render_thread.is_alive():
@@ -132,6 +132,26 @@ class App:
         else:
             return False
 
+    def loading_screen(self):
+        pygame.draw.rect(self.window, (100, 100, 100), (0, (SCREEN_HEIGHT - 20), SCREEN_WIDTH, 20))
+        pygame.draw.rect(self.window, (0, 255, 0), (0, (SCREEN_HEIGHT - 20), self.loading_value, 20))
+        self.window.blit(self.main_text, ((SCREEN_WIDTH / 2) - 55, (SCREEN_HEIGHT / 2) - 30))
+
+    def main_screen(self):
+        pygame.draw.circle(
+            self.window,
+            (255, 255, 255),
+            ((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 2)-20),
+            60,
+            10
+        )
+
+    def settings_screen(self):
+        pygame.draw.rect(self.window, (100, 100, 100), (0, (SCREEN_HEIGHT - 20), SCREEN_WIDTH, 20))
+        pygame.draw.rect(self.window, (0, 255, 0), (0, (SCREEN_HEIGHT - 20), self.loading_value, 20))
+        self.window.blit(self.main_text, ((SCREEN_WIDTH / 2) - 55, (SCREEN_HEIGHT / 2) - 30))
+        self.button(((SCREEN_WIDTH / 2)-10, (SCREEN_HEIGHT-40)), "rect", (20, 20), QUIT_BUTTON_COLOR)
+
     def get_delta(self) -> float:
         return self.clock.get_time()
 
@@ -157,5 +177,3 @@ class App:
 if __name__ == "__main__":
     new_log.create_log("Starting application")
     app = App()
-
-#####This code is unstable and can crash or freeze your pc, run with your account is risk, if do want can run a 0.0.1 version

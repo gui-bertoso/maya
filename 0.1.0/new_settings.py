@@ -8,7 +8,7 @@ SCREEN_HEIGHT = 220
 
 FRAME_TIME = 75
 
-LOGS_PATH = "logs.txt"
+LOGS_PATH = "temporary_data/logs.txt"
 
 APP_DATA: Dict[str, str] = {
     "name": "Maya",
@@ -19,3 +19,6 @@ APP_DATA: Dict[str, str] = {
 BACKGROUND_COLOR = (0, 0, 0)
 DEFAULT_FONT_COLOR = (255, 255, 255)
 QUIT_BUTTON_COLOR = (255, 0, 0)
+
+INPUT_DEVICE_INDEX = 0
+OUTPUT_DEVICE_INDEX = 1
