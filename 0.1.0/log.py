@@ -1,24 +1,24 @@
 import datetime
 import os.path
-import new_settings
+import settings
 
 
 def create_log(message):
-    if os.path.exists(new_settings.LOGS_PATH):
+    if os.path.exists(settings.LOGS_PATH):
         file = open(
-            new_settings.LOGS_PATH,
+            settings.LOGS_PATH,
             "a"
         )
     else:
         file = open(
-            new_settings.LOGS_PATH,
+            settings.LOGS_PATH,
             "w+"
         )
         file.write("-----------------------------------------------------------------")
         file.close()
 
         file = open(
-            new_settings.LOGS_PATH,
+            settings.LOGS_PATH,
             "a"
         )
 
