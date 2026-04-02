@@ -1,3 +1,5 @@
+import os
+
 class Process:
     def __init__(self):
         self.input_size = 0
@@ -7,6 +9,7 @@ class Process:
 
     def run(self):
         while self.running:
+            os.system("cls")
             my_input = input(">> ").strip()
 
             if not my_input:
@@ -17,11 +20,11 @@ class Process:
 
             if my_input == "exit":
                 self.running = False
-                if self.parent:
+                if self.parent is not None:
                     self.parent.send_event("exit")
                 continue
 
-            if self.parent:
+            if self.parent is not None:
                 particles_amount = self.parent.get_data("particles_amount") or 0
 
                 if particles_amount < self.input_size:
@@ -29,7 +32,6 @@ class Process:
                         "spawn_particle",
                         self.input_size - particles_amount
                     )
-
                 elif particles_amount > self.input_size:
                     self.parent.send_event(
                         "despawn_particle",
