@@ -28,6 +28,7 @@ class App:
         if data == "particles_amount":
             return len(self.renderer.particles)
         return None
+    
 
 
 if __name__ == "__main__":
