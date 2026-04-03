@@ -57,6 +57,9 @@ class Renderer:
         pyglet.clock.schedule_interval(self.update, 1 / 60)
         pyglet.app.run()
 
+    def get_fps(self):
+        return self.fps_label.label.text
+
     def on_draw(self):
         self.window.clear()
         self.grid_batch.draw()
