@@ -1,23 +1,21 @@
 from renderer import Renderer
 from process import Process
-import threading
 import queue
+import vocabulary_manager
 
 
 class App:
     def __init__(self):
+        vocabulary_manager.load_vocabulary()
         self.events = queue.Queue()
 
-        self.renderer = Renderer(self.events)
         self.process = Process()
-
         self.process.parent = self
 
-        self.process_thread = threading.Thread(
-            target=self.process.run,
-            daemon=True
+        self.renderer = Renderer(
+            self.events,
+            submit_input_callback=self.process.handle_input
         )
-        self.process_thread.start()
 
         self.renderer.run()
 
@@ -28,9 +26,8 @@ class App:
         if data == "particles_amount":
             return len(self.renderer.particles)
         if data == "fps":
-            return len(self.renderer.get_fps())
+            return self.renderer.get_fps()
         return None
-    
 
 
 if __name__ == "__main__":
