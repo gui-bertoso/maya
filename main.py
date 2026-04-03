@@ -27,6 +27,8 @@ class App:
     def get_data(self, data):
         if data == "particles_amount":
             return len(self.renderer.particles)
+        if data == "fps":
+            return len(self.renderer.get_fps())
         return None
     
 
