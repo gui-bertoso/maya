@@ -1,11 +1,13 @@
 import random
 import pyglet
 from pyglet import shapes
+from pyglet.window import key
 
 
 class Renderer:
-    def __init__(self, events):
+    def __init__(self, events, submit_input_callback):
         self.events = events
+        self.submit_input_callback = submit_input_callback
 
         self.grid_width = 30
         self.grid_height = 30
@@ -23,14 +25,22 @@ class Renderer:
             0, 0, 1, 1, 1, 0, 0, 0, 0, 0,
         ]
 
-        self.particles_amount = 60
         self.particles = []
         self.grid_points = []
         self.active_points = []
 
+        self.current_intent = "unknown"
+        self.intent_force_multiplier = 1.0
+        self.intent_damping = 0.82
+
         self.particle_radius = 4
         self.grid_size = 10
         self.interference_radius = 60
+
+        self.input_text_value = ""
+        self.intent_text_value = ""
+        self.response_text_value = ""
+        self.live_input = ""
 
         self.window_size_x = 800
         self.window_size_y = 600
@@ -47,10 +57,94 @@ class Renderer:
         self.particles_batch = pyglet.graphics.Batch()
         self.grid_batch = pyglet.graphics.Batch()
         self.grid_points_batch = pyglet.graphics.Batch()
+        self.hud_bg_batch = pyglet.graphics.Batch()
+        self.hud_batch = pyglet.graphics.Batch()
+
+        self.hud_background = shapes.Rectangle(
+            x=0,
+            y=0,
+            width=360,
+            height=118,
+            color=(8, 12, 18),
+            batch=self.hud_bg_batch
+        )
+        self.hud_background.opacity = 190
+
+        self.input_label = pyglet.text.Label(
+            "input: ",
+            x=12,
+            y=92,
+            anchor_x="left",
+            anchor_y="bottom",
+            color=(255, 255, 255, 255),
+            batch=self.hud_batch
+        )
+
+        self.intent_label = pyglet.text.Label(
+            "intent: ",
+            x=12,
+            y=66,
+            anchor_x="left",
+            anchor_y="bottom",
+            color=(100, 255, 100, 255),
+            batch=self.hud_batch
+        )
+
+        self.response_label = pyglet.text.Label(
+            "response: ",
+            x=12,
+            y=40,
+            anchor_x="left",
+            anchor_y="bottom",
+            color=(100, 180, 255, 255),
+            batch=self.hud_batch
+        )
+
+        self.live_input_label = pyglet.text.Label(
+            "> ",
+            x=12,
+            y=12,
+            anchor_x="left",
+            anchor_y="bottom",
+            color=(255, 220, 120, 255),
+            batch=self.hud_batch
+        )
 
         @self.window.event
         def on_draw():
-            self.on_draw()
+            self.draw_scene()
+
+        @self.window.event
+        def on_text(text):
+            if text in ("\r", "\n"):
+                return
+
+            if text.isprintable():
+                self.live_input += text
+                self.update_live_input_label()
+
+        @self.window.event
+        def on_key_press(symbol, modifiers):
+            if symbol == key.BACKSPACE:
+                self.live_input = self.live_input[:-1]
+                self.update_live_input_label()
+
+            elif symbol == key.ENTER:
+                submitted_text = self.live_input.strip()
+
+                if submitted_text:
+                    if submitted_text == "exit":
+                        pyglet.app.exit()
+                        return
+
+                    self.submit_input_callback(submitted_text)
+
+                self.live_input = ""
+                self.update_live_input_label()
+
+    def update_live_input_label(self):
+        display_value = self.live_input[:70] + "..." if len(self.live_input) > 70 else self.live_input
+        self.live_input_label.text = f"> {display_value}"
 
     def run(self):
         self.create_grid()
@@ -60,11 +154,33 @@ class Renderer:
     def get_fps(self):
         return self.fps_label.label.text
 
-    def on_draw(self):
+    def set_intent_state(self, intent):
+        self.current_intent = intent
+
+        if intent == "greeting":
+            self.intent_force_multiplier = 1.35
+            self.intent_damping = 0.88
+
+        elif intent == "farewell":
+            self.intent_force_multiplier = -0.35
+            self.intent_damping = 0.96
+
+        elif intent == "status_question":
+            self.intent_force_multiplier = 0.55
+            self.intent_damping = 0.90
+
+        else:
+            self.intent_force_multiplier = 1.0
+            self.intent_damping = 0.82
+
+    def draw_scene(self):
         self.window.clear()
         self.grid_batch.draw()
         self.grid_points_batch.draw()
         self.particles_batch.draw()
+        self.hud_bg_batch.draw()
+        self.hud_batch.draw()
+        self.fps_label.draw()
 
     def update(self, dt):
         self.handle_events()
@@ -76,19 +192,31 @@ class Renderer:
         while not self.events.empty():
             event, value = self.events.get()
 
-            if event == "spawn_particle":
-                self.spawn_particles(value)
+            if event == "set_particles":
+                self.set_particles(value)
 
-            elif event == "despawn_particle":
-                self.despawn_particles(value)
+            elif event == "intent":
+                self.set_intent_state(value)
+                self.intent_text_value = value
+                self.intent_label.text = f"intent: {value}"
+
+            elif event == "input_text":
+                self.input_text_value = value
+                display_value = value[:70] + "..." if len(value) > 70 else value
+                self.input_label.text = f"input: {display_value}"
+
+            elif event == "response_text":
+                self.response_text_value = value
+                display_value = value[:70] + "..." if len(value) > 70 else value
+                self.response_label.text = f"response: {display_value}"
 
             elif event == "exit":
                 pyglet.app.exit()
 
     def apply_particles_physics(self, dt):
         for particle in self.particles:
-            particle.vx *= 0.82
-            particle.vy *= 0.82
+            particle.vx *= self.intent_damping
+            particle.vy *= self.intent_damping
 
             particle.x += particle.vx * min(dt * 60.0, 2.0)
             particle.y += particle.vy * min(dt * 60.0, 2.0)
@@ -139,29 +267,10 @@ class Renderer:
                 if 0 < dist_sq <= radius_sq:
                     dist = dist_sq ** 0.5
                     falloff = 1.0 - (dist / radius)
-                    force = falloff * value * 0.18
+                    force = falloff * value * 0.18 * self.intent_force_multiplier
 
                     particle.vx += dx * force * dt * 60.0
                     particle.vy += dy * force * dt * 60.0
-
-    def spawn_particles(self, amount, x=400, y=300):
-        for _ in range(amount):
-            particle = shapes.Circle(
-                x, y,
-                self.particle_radius,
-                color=(255, 255, 255),
-                batch=self.particles_batch
-            )
-            particle.vx = 0.0
-            particle.vy = 0.0
-            self.particles.append(particle)
-
-    def despawn_particles(self, amount):
-        amount = min(amount, len(self.particles))
-
-        for _ in range(amount):
-            particle = self.particles.pop()
-            particle.delete()
 
     def create_grid(self):
         self.grid_points.clear()
@@ -185,7 +294,7 @@ class Renderer:
                     color=(255, 255, 255),
                     batch=self.grid_points_batch,
                 )
-                circle.opacity = 28 if value > 0 else 0
+                circle.opacity = 12 if value > 0 else 0
 
                 label = pyglet.text.Label(
                     str(value),
@@ -204,13 +313,52 @@ class Renderer:
                     self.active_points.append(item)
 
     @staticmethod
+    def get_particle_color(particle_type):
+        if particle_type == "vocab":
+            return (0, 255, 0)
+        return (255, 255, 255)
+
+    def set_particles(self, particle_types, x=400, y=300):
+        current_amount = len(self.particles)
+        target_amount = len(particle_types)
+
+        if current_amount < target_amount:
+            for _ in range(target_amount - current_amount):
+                particle = shapes.Circle(
+                    x, y,
+                    self.particle_radius,
+                    color=(255, 255, 255),
+                    batch=self.particles_batch
+                )
+                particle.vx = 0.0
+                particle.vy = 0.0
+                self.particles.append(particle)
+
+        elif current_amount > target_amount:
+            for _ in range(current_amount - target_amount):
+                particle = self.particles.pop()
+                particle.delete()
+
+        for particle, particle_type in zip(self.particles, particle_types):
+            particle.color = self.get_particle_color(particle_type)
+
+            if self.current_intent == "greeting":
+                particle.opacity = 255
+            elif self.current_intent == "farewell":
+                particle.opacity = 170
+            elif self.current_intent == "status_question":
+                particle.opacity = 210
+            else:
+                particle.opacity = 255
+
+    @staticmethod
     def get_color_per_force(force):
         match force:
             case 1:
-                return 0, 255, 0, 255
+                return 120, 255, 120, 180
             case 2:
-                return 255, 255, 0, 255
+                return 255, 255, 120, 180
             case 3:
-                return 255, 80, 80, 255
+                return 255, 120, 120, 180
             case _:
-                return 255, 255, 255, 100
+                return 180, 180, 180, 70
