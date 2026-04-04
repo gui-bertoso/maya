@@ -3,6 +3,7 @@ import time
 import threading
 import numpy as np
 import sounddevice as sd
+from config import get_env
 
 def get_rms(audio_data):
     audio_np = np.frombuffer(audio_data, dtype=np.int16)
@@ -25,9 +26,14 @@ class ClapDetector:
         self.debug_counter = 0
         self.clap_count = 0
 
+        self.DEBUG_MODE = get_env("DEBUG_MODE", "false").lower() == "true"
+        self.UI_MODE = get_env("UI_MODE", "maya")
+        self.LANGUAGE = get_env("LANGUAGE", "en")
+
     def audio_callback(self, indata, frames, time_info, status):
         if status:
-            print("clap audio status:", status)
+            if self.DEBUG_MODE:
+                print("clap audio status:", status)
 
         self.audio_queue.put(bytes(indata))
 
@@ -40,7 +46,8 @@ class ClapDetector:
         rms = np.sqrt(np.mean(audio_np.astype(np.float32) ** 2))
         self.debug_counter += 1
         if self.debug_counter % 10 == 0:
-            print("rms:", int(rms))
+            if self.DEBUG_MODE:
+                print("rms:", int(rms))
         return rms > self.threshold, rms
 
     def process_audio(self, on_double_clap=None, on_clap=None):
@@ -54,7 +61,8 @@ class ClapDetector:
                 channels=self.channels,
                 callback=self.audio_callback
             ):
-                print("clap detector listening...")
+                if self.DEBUG_MODE:
+                    print("clap detector listening...")
 
                 while self.is_running:
                     audio_data = self.audio_queue.get()
@@ -81,7 +89,8 @@ class ClapDetector:
                             self.clap_count = 0
                             self.first_clap_time = 0.0
 
-                            print("double clap detected")
+                            if self.DEBUG_MODE:
+                                print("double clap detected")
                             if on_double_clap:
                                 on_double_clap()
                         else:
@@ -97,7 +106,8 @@ class ClapDetector:
 
         finally:
             self.is_running = False
-            print("clap detector stopped")
+            if self.DEBUG_MODE:
+                print("clap detector stopped")
 
     def start(self, on_double_clap=None, on_clap=None):
         if self.thread and self.thread.is_alive():

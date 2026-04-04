@@ -3,6 +3,7 @@ import random
 import vocabulary_manager
 from memory import Memory
 from responses import RESPONSES
+from config import get_env
 
 class Assistant:
     def __init__(self):
@@ -25,6 +26,10 @@ class Process:
         self.parent = None
         self.weights_amount = 128
         self.memory = None
+
+        self.DEBUG_MODE = get_env("DEBUG_MODE", "false").lower() == "true"
+        self.UI_MODE = get_env("UI_MODE", "maya")
+        self.LANGUAGE = get_env("LANGUAGE", "en")
 
     def generate_response(self, text, patterns):
         user_name = self.memory.get_user_name() if self.memory else None
@@ -80,7 +85,9 @@ class Process:
                 vocabulary_manager.write_text(data, self.generate_weights())
 
         encoded_input = self.encode_text(my_input)
-        print(f"encoded[:8] = {encoded_input[:8]}")
+
+        if self.DEBUG_MODE:
+            print(f"encoded[:8] = {encoded_input[:8]}")
 
         intent = self.detect_intent(data_array)
         patterns = self.detect_patterns(my_input.lower())
@@ -95,8 +102,9 @@ class Process:
         if self.memory:
             self.memory.add_message("assistant", response)
 
-        print("intent:", intent)
-        print("response:", response)
+        if self.DEBUG_MODE:
+            print("intent:", intent)
+            print("response:", response)
 
         if self.parent is not None:
             self.parent.send_event("set_particles", particle_types)
