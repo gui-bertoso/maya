@@ -110,14 +110,12 @@ class MayaRing:
             ix1, iy1 = inner[i]
             ix2, iy2 = inner[j]
 
-            # triângulo 1
             vertices.extend([
                 ox1, oy1, 0.0,
                 ox2, oy2, 0.0,
                 ix1, iy1, 0.0,
             ])
 
-            # triângulo 2
             vertices.extend([
                 ix1, iy1, 0.0,
                 ox2, oy2, 0.0,

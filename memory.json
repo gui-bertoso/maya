@@ -3,7 +3,7 @@
     "short_term": [
         {
             "role": "user",
-            "content": "what's her name"
+            "content": "what's my name"
         },
         {
             "role": "assistant",
@@ -11,15 +11,15 @@
         },
         {
             "role": "user",
-            "content": "what's your name"
+            "content": "my name is good"
         },
         {
             "role": "assistant",
-            "content": "i'm maya, your virtual assistant."
+            "content": "nice to meet you, good."
         },
         {
             "role": "user",
-            "content": "what's her name"
+            "content": "open loach bed"
         },
         {
             "role": "assistant",
@@ -27,15 +27,15 @@
         },
         {
             "role": "user",
-            "content": "what's your name"
+            "content": "please open not bed"
         },
         {
             "role": "assistant",
-            "content": "i'm maya, your virtual assistant."
+            "content": "i'm still learning, but i'm here with you."
         },
         {
             "role": "user",
-            "content": "what's her name"
+            "content": "how are you"
         },
         {
             "role": "assistant",
@@ -43,7 +43,7 @@
         }
     ],
     "long_term": {
-        "user_name": "Killing",
+        "user_name": "Good",
         "preferences": [],
         "known_facts": []
     },

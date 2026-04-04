@@ -3,6 +3,7 @@ import queue
 import threading
 import sounddevice as sd
 import vosk
+from config import get_env
 
 
 class Voice:
@@ -21,6 +22,10 @@ class Voice:
         self.status = "idle"
         self.last_error = None
 
+        self.DEBUG_MODE = get_env("DEBUG_MODE", "false").lower() == "true"
+        self.UI_MODE = get_env("UI_MODE", "maya")
+        self.LANGUAGE = get_env("LANGUAGE", "en")
+
     def set_status(self, status, on_status_change=None):
         self.status = status
         if on_status_change:
@@ -33,12 +38,14 @@ class Voice:
         self.set_status("loading", on_status_change)
 
         try:
-            print("loading vosk...")
+            if self.DEBUG_MODE:
+                print("loading vosk...")
             self.model = vosk.Model(self.model_path)
             self.recognizer = vosk.KaldiRecognizer(self.model, self.sample_rate)
             self.is_loaded = True
             self.set_status("ready", on_status_change)
-            print("vosk loaded")
+            if self.DEBUG_MODE:
+                print("vosk loaded")
 
         except Exception as error:
             self.last_error = str(error)
@@ -47,7 +54,8 @@ class Voice:
 
     def audio_callback(self, indata, frames, time, status):
         if status:
-            print("audio status:", status)
+            if self.DEBUG_MODE:
+                print("audio status:", status)
 
         self.audio_queue.put(bytes(indata))
 
@@ -67,7 +75,8 @@ class Voice:
                 channels=1,
                 callback=self.audio_callback
             ):
-                print("voice listening...")
+                if self.DEBUG_MODE:
+                    print("voice listening...")
 
                 while self.is_listening:
                     data = self.audio_queue.get()
@@ -80,7 +89,8 @@ class Voice:
                             if on_status_change:
                                 on_status_change("ready")
 
-                            print("final:", text)
+                            if self.DEBUG_MODE:
+                                print("final:", text)
 
                             if on_final_text:
                                 on_final_text(text)
@@ -99,13 +109,16 @@ class Voice:
         except Exception as error:
             self.last_error = str(error)
             self.set_status("error", on_status_change)
+
             print("voice runtime error:", error)
 
         finally:
             self.is_listening = False
             if self.status != "error":
                 self.set_status("ready", on_status_change)
-            print("voice stopped")
+
+            if self.DEBUG_MODE:
+                print("voice stopped")
 
     def start_background(self, on_final_text=None, on_partial_text=None, on_status_change=None):
         if self.thread and self.thread.is_alive():
