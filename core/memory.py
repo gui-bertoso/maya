@@ -1,6 +1,8 @@
-import json
 import os
+from helpers.backup_manager import safe_json_dump, safe_json_load
+from helpers.config import get_path
 
+MEMORY_PATH = get_path("MEMORY_PATH", "data/memory.json")
 
 class Memory:
     def __init__(self, short_term_limit=10):
@@ -14,7 +16,8 @@ class Memory:
         }
         self.state = {
             "mood": "neutral",
-            "last_topic": None
+            "last_topic": None,
+            "pending_learning": None
         }
 
     def add_message(self, role, content):
@@ -105,7 +108,20 @@ class Memory:
     def get_last_topic(self):
         return self.state["last_topic"]
 
-    def save(self, file_path="memory.json"):
+    def set_pending_learning(self, question):
+        if not question:
+            self.state["pending_learning"] = None
+            return
+
+        self.state["pending_learning"] = question.strip()
+
+    def get_pending_learning(self):
+        return self.state.get("pending_learning")
+
+    def clear_pending_learning(self):
+        self.state["pending_learning"] = None
+
+    def save(self, file_path=MEMORY_PATH):
         data = {
             "short_term_limit": self.short_term_limit,
             "short_term": self.short_term,
@@ -113,15 +129,13 @@ class Memory:
             "state": self.state
         }
 
-        with open(file_path, "w", encoding="utf-8") as file:
-            json.dump(data, file, indent=4, ensure_ascii=False)
+        safe_json_dump(file_path, data)
 
-    def load(self, file_path="memory.json"):
+    def load(self, file_path=MEMORY_PATH):
         if not os.path.exists(file_path):
             return
 
-        with open(file_path, "r", encoding="utf-8") as file:
-            data = json.load(file)
+        data = safe_json_load(file_path, {})
 
         self.short_term_limit = data.get("short_term_limit", 10)
         self.short_term = data.get("short_term", [])
@@ -132,7 +146,8 @@ class Memory:
         })
         self.state = data.get("state", {
             "mood": "neutral",
-            "last_topic": None
+            "last_topic": None,
+            "pending_learning": None
         })
 
     def reset_all(self):
@@ -144,7 +159,8 @@ class Memory:
         }
         self.state = {
             "mood": "neutral",
-            "last_topic": None
+            "last_topic": None,
+            "pending_learning": None
         }
 
     def get_context(self):

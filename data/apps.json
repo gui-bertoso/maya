@@ -1,0 +1,47 @@
+{
+  "pycharm": {
+    "display_name": "PyCharm",
+    "aliases": ["pycharm", "py charm"],
+    "command": "C:\\Program Files\\JetBrains\\PyCharm*\\bin\\pycharm64.exe"
+  },
+  "vscode": {
+    "display_name": "VS Code",
+    "aliases": ["vscode", "vs code", "code"],
+    "command": "C:\\Users\\{username}\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe"
+  },
+  "notepad": {
+    "display_name": "Notepad",
+    "aliases": ["notepad"],
+    "command": "notepad"
+  },
+  "firefox": {
+    "display_name": "Firefox",
+    "aliases": ["firefox"],
+    "command": "C:\\Program Files\\Mozilla Firefox\\firefox.exe"
+  },
+  "steam": {
+    "display_name": "Steam",
+    "aliases": ["steam"],
+    "command": "C:\\Program Files (x86)\\Steam\\steam.exe"
+  },
+  "spotify": {
+    "display_name": "Spotify",
+    "aliases": ["spotify"],
+    "command": "spotify"
+  },
+  "github_desktop": {
+    "display_name": "GitHub Desktop",
+    "aliases": ["github desktop", "github", "desktop github"],
+    "command": "C:\\Users\\{username}\\AppData\\Local\\GitHubDesktop\\app-*\\GitHubDesktop.exe"
+  },
+  "norton_vpn": {
+    "display_name": "Norton VPN",
+    "aliases": ["norton vpn", "norton secure vpn", "vpn"],
+    "command": "NortonSecureVPN"
+  },
+  "whatsapp": {
+    "display_name": "WhatsApp",
+    "aliases": ["whatsapp", "whats app"],
+    "command": "WhatsApp"
+  }
+}

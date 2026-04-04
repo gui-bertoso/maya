@@ -1,6 +1,8 @@
-import json
 from helpers import vocabulary
+from helpers.backup_manager import safe_json_dump, safe_json_load
+from helpers.config import get_path
 
+VOCAB_PATH = get_path("VOCAB_PATH", "data/vocabulary.json")
 
 def get_text():
     return f"{vocabulary.dictionary}"
@@ -20,14 +22,8 @@ def write_text(text, value):
 
 
 def save_vocabulary():
-    with open("../data/vocabulary.json", "w", encoding="utf-8") as file:
-        json.dump(vocabulary.dictionary, file, ensure_ascii=False, indent=2)
+    safe_json_dump(VOCAB_PATH, vocabulary.dictionary)
 
 
 def load_vocabulary():
-    try:
-        with open("../data/vocabulary.json", "r", encoding="utf-8") as file:
-            loaded_vocabulary = json.load(file)
-        vocabulary.dictionary = loaded_vocabulary
-    except FileNotFoundError:
-        vocabulary.dictionary = {}
+    vocabulary.dictionary = safe_json_load(VOCAB_PATH, {})

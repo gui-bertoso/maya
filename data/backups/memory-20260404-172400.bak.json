@@ -1,0 +1,55 @@
+{
+  "short_term_limit": 10,
+  "short_term": [
+    {
+      "role": "user",
+      "content": "what's her name"
+    },
+    {
+      "role": "assistant",
+      "content": "What's Her Face! was a line of customizable dolls that straddled the line between traditional fashion dolls and creative activity toys."
+    },
+    {
+      "role": "user",
+      "content": "bear"
+    },
+    {
+      "role": "assistant",
+      "content": "i'm not fully there yet, Gui, but i'm listening."
+    },
+    {
+      "role": "user",
+      "content": "hey maya"
+    },
+    {
+      "role": "assistant",
+      "content": "hello, Gui. good to hear from you again."
+    },
+    {
+      "role": "user",
+      "content": "how are you"
+    },
+    {
+      "role": "assistant",
+      "content": "i'm doing friendly, Gui. thanks for asking."
+    },
+    {
+      "role": "user",
+      "content": "open vs code"
+    },
+    {
+      "role": "assistant",
+      "content": "sure, opening VS Code now."
+    }
+  ],
+  "long_term": {
+    "user_name": "Gui",
+    "preferences": [],
+    "known_facts": []
+  },
+  "state": {
+    "mood": "friendly",
+    "last_topic": "apps",
+    "pending_learning": null
+  }
+}
