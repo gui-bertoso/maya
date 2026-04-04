@@ -3,15 +3,7 @@
     "short_term": [
         {
             "role": "user",
-            "content": "my name is killer hear me"
-        },
-        {
-            "role": "assistant",
-            "content": "nice to meet you, killer."
-        },
-        {
-            "role": "user",
-            "content": "you were a"
+            "content": "what's her name"
         },
         {
             "role": "assistant",
@@ -19,7 +11,15 @@
         },
         {
             "role": "user",
-            "content": "you were a"
+            "content": "what's your name"
+        },
+        {
+            "role": "assistant",
+            "content": "i'm maya, your virtual assistant."
+        },
+        {
+            "role": "user",
+            "content": "what's her name"
         },
         {
             "role": "assistant",
@@ -27,15 +27,15 @@
         },
         {
             "role": "user",
-            "content": "what's are very soon"
+            "content": "what's your name"
         },
         {
             "role": "assistant",
-            "content": "i'm still learning, but i'm here with you."
+            "content": "i'm maya, your virtual assistant."
         },
         {
             "role": "user",
-            "content": "please open google foot"
+            "content": "what's her name"
         },
         {
             "role": "assistant",
@@ -43,7 +43,7 @@
         }
     ],
     "long_term": {
-        "user_name": "Killer",
+        "user_name": "Killing",
         "preferences": [],
         "known_facts": []
     },
