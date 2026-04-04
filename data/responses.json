@@ -1,0 +1,481 @@
+{
+  "asks_name": [
+    "i'm maya, your virtual assistant.",
+    "my name is maya. i'm your virtual assistant.",
+    "i'm maya. i'm here to help as your virtual assistant.",
+    "maya here. i'm your virtual assistant.",
+    "you can call me maya. i'm your assistant here."
+  ],
+  "asks_creator": [
+    "i was put together as part of this maya project.",
+    "i was created inside this maya project.",
+    "i was built as part of this virtual assistant project.",
+    "i came from this maya project setup.",
+    "i was assembled in this project as your assistant."
+  ],
+  "asks_age": [
+    "i'm pretty new. i'm still growing inside this project.",
+    "not very old. i'm still an early version of myself.",
+    "young enough to still be learning a lot.",
+    "i'm a recent build, still figuring things out.",
+    "let's say i'm early in my lifetime."
+  ],
+  "asks_origin": [
+    "i live inside this maya project on your machine.",
+    "i'm local to this project and running from your computer.",
+    "i'm from this maya setup right here.",
+    "you could say i'm from your local maya project.",
+    "my home is this project folder and runtime."
+  ],
+  "asks_language": [
+    "i work best in english, but i can handle some portuguese too.",
+    "english is my strongest language right now, with some portuguese support.",
+    "mostly english for now, plus a bit of portuguese.",
+    "i'm more fluent in english, but i understand some portuguese patterns.",
+    "english is where i perform best at the moment."
+  ],
+  "asks_memory_known": [
+    "yes, your name is {user_name}.",
+    "yes, i remember you. your name is {user_name}.",
+    "of course. you're {user_name}."
+  ],
+  "asks_memory_unknown": [
+    "i don't know your name yet.",
+    "not yet. you haven't told me your name.",
+    "i don't remember your name yet."
+  ],
+  "says_name": [
+    "nice to meet you, {user_name}.",
+    "it's good to meet you, {user_name}.",
+    "happy to meet you, {user_name}.",
+    "got it, {user_name}. nice to know your name.",
+    "thanks, {user_name}. i'll remember that."
+  ],
+  "asks_user_name_known": [
+    "your name is {user_name}.",
+    "you're {user_name}.",
+    "i know you as {user_name}."
+  ],
+  "asks_user_name_unknown": [
+    "i don't know your name yet.",
+    "you haven't told me your name yet.",
+    "i'm still waiting to learn your name."
+  ],
+  "greets_known": [
+    "hey, {user_name}. good to see you again.{memory_hint}",
+    "hi, {user_name}. nice to have you back.{memory_hint}",
+    "hello, {user_name}. good to hear from you again.{memory_hint}",
+    "hey, {user_name}. i'm here.{memory_hint}",
+    "hi again, {user_name}.{memory_hint}"
+  ],
+  "greets_unknown": [
+    "hey there.{memory_hint}",
+    "hello there.{memory_hint}",
+    "hi there.{memory_hint}",
+    "hey.{memory_hint}",
+    "hello.{memory_hint}"
+  ],
+  "asks_status_known": [
+    "i'm feeling {mood}, {user_name}. thanks for asking.{memory_hint}",
+    "i'm doing {mood}, {user_name}. thanks for asking.{memory_hint}",
+    "i feel {mood} right now, {user_name}. thanks for asking.{memory_hint}",
+    "doing {mood} over here, {user_name}.{memory_hint}",
+    "i'm in a {mood} mood right now, {user_name}.{memory_hint}"
+  ],
+  "asks_status_unknown": [
+    "i'm feeling {mood}. thanks for asking.{memory_hint}",
+    "i'm doing {mood}. thanks for asking.{memory_hint}",
+    "i feel {mood} right now. thanks for asking.{memory_hint}",
+    "i'm doing pretty {mood}.{memory_hint}",
+    "feeling {mood} right now.{memory_hint}"
+  ],
+  "farewell_known": [
+    "goodbye, {user_name}.",
+    "see you later, {user_name}.",
+    "bye for now, {user_name}.",
+    "talk to you later, {user_name}.",
+    "see you soon, {user_name}."
+  ],
+  "farewell_unknown": [
+    "goodbye.",
+    "see you later.",
+    "bye for now.",
+    "talk to you later.",
+    "see you soon."
+  ],
+  "thanks": [
+    "you're welcome.",
+    "anytime.",
+    "glad to help.",
+    "no problem.",
+    "happy to help."
+  ],
+  "apology": [
+    "it's okay.",
+    "no problem at all.",
+    "all good.",
+    "you're fine.",
+    "don't worry about it."
+  ],
+  "compliment": [
+    "thank you.",
+    "i appreciate that.",
+    "that's nice to hear.",
+    "thanks. that's kind of you.",
+    "i'll take that."
+  ],
+  "insult": [
+    "i'm still learning.",
+    "fair enough. i'm still improving.",
+    "maybe, but i'm still here trying.",
+    "i'll take that as feedback.",
+    "harsh, but noted."
+  ],
+  "background_app": [
+    "okay, i'll stay in the background.",
+    "all right, i'll move to the background.",
+    "sure, i'll get out of the way and stay in the background."
+  ],
+  "hide_input_window": [
+    "okay, i'll close the input window.",
+    "all right, hiding the input window.",
+    "sure, i'll get the input window out of the way."
+  ],
+  "move_app_success": [
+    "okay, i'll move to {position} on {monitor_text}.",
+    "all right, moving to {position} on {monitor_text}.",
+    "sure, i'm going to {position} on {monitor_text}."
+  ],
+  "move_app_monitor_only_success": [
+    "okay, i'll move to {monitor_text}.",
+    "all right, moving to {monitor_text}.",
+    "sure, i'm going to {monitor_text}."
+  ],
+  "scale_app_success": [
+    "okay, i'll set my scale to {scale_value}.",
+    "all right, changing my scale to {scale_value}.",
+    "sure, i'll use scale {scale_value}."
+  ],
+  "asks_capabilities": [
+    "i can greet you, remember your name, store simple preferences, and remember short facts.",
+    "i can talk with you, remember your name, keep simple preferences, and store short facts.",
+    "i can greet you, remember basic things about you, and keep simple preferences and facts.",
+    "i can answer basic personal questions, remember details you tell me, and help with local actions.",
+    "i can chat, remember some context, launch apps, search the web, and handle a few assistant commands."
+  ],
+  "asks_time": [
+    "it's {current_time}.",
+    "the time right now is {current_time}.",
+    "right now it's {current_time}.",
+    "current time: {current_time}.",
+    "it's currently {current_time}."
+  ],
+  "asks_date": [
+    "today is {current_date}.",
+    "the date today is {current_date}.",
+    "it's {current_date} today.",
+    "today's date is {current_date}.",
+    "right now the date is {current_date}."
+  ],
+  "input_empty": [
+    "i didn't catch that.",
+    "say that again for me.",
+    "i'm listening."
+  ],
+  "print_command_done": [
+    "printed the vocabulary in the terminal.",
+    "the vocabulary was printed in the terminal.",
+    "i printed the vocabulary output."
+  ],
+  "dev_project_success": [
+    "created the {stack} project {project_name}.",
+    "your {stack} project {project_name} is ready.",
+    "i created the {stack} project {project_name}."
+  ],
+  "dev_project_success_opened": [
+    "created the {stack} project {project_name} and opened it in VS Code.",
+    "your {stack} project {project_name} is ready and open in VS Code.",
+    "i created the {stack} project {project_name} and opened it in VS Code."
+  ],
+  "dev_project_success_commit": [
+    "created the {stack} project {project_name} and made the initial commit.",
+    "your {stack} project {project_name} is ready with an initial commit.",
+    "i created the {stack} project {project_name} and added the initial commit."
+  ],
+  "dev_project_success_commit_opened": [
+    "created the {stack} project {project_name}, made the initial commit, and opened it in VS Code.",
+    "your {stack} project {project_name} is ready, committed, and open in VS Code.",
+    "i created the {stack} project {project_name}, added the initial commit, and opened it in VS Code."
+  ],
+  "dev_project_commit_failed": [
+    "created the {stack} project {project_name}, but the initial commit failed.",
+    "your {stack} project {project_name} is ready, but i couldn't make the initial commit.",
+    "i created the {stack} project {project_name}, but git commit failed."
+  ],
+  "dev_project_commit_failed_opened": [
+    "created the {stack} project {project_name} and opened it in VS Code, but the initial commit failed.",
+    "your {stack} project {project_name} is open in VS Code, but i couldn't make the initial commit.",
+    "i created the {stack} project {project_name} and opened it in VS Code, but git commit failed."
+  ],
+  "dev_project_exists": [
+    "that project already exists: {project_name}.",
+    "i found an existing project folder named {project_name}.",
+    "there is already a project called {project_name}."
+  ],
+  "dev_project_failed": [
+    "i couldn't create the project {project_name}.",
+    "project creation failed for {project_name}.",
+    "i tried to create {project_name}, but it didn't work."
+  ],
+  "dev_project_unavailable": [
+    "project creation isn't available right now.",
+    "i can't scaffold projects right now.",
+    "the project creation helper isn't ready right now."
+  ],
+  "launch_app_success": [
+    "opening {app_name}.",
+    "all right, launching {app_name}.",
+    "sure, opening {app_name} now."
+  ],
+  "launch_app_failed": [
+    "i tried to open {app_name}, but it didn't work.",
+    "i couldn't launch {app_name}.",
+    "opening {app_name} failed."
+  ],
+  "launch_app_missing_command": [
+    "{app_name} is configured, but it doesn't have a runnable command yet.",
+    "i know {app_name}, but its command is missing.",
+    "i found {app_name}, but it isn't fully configured yet."
+  ],
+  "launch_app_unknown": [
+    "i don't know that app yet: {app_alias}.",
+    "that app isn't in my launcher list yet: {app_alias}.",
+    "i can't find that app in my configured list: {app_alias}."
+  ],
+  "launch_app_unavailable": [
+    "the app launcher isn't available right now.",
+    "i can't launch apps right now because the launcher isn't ready.",
+    "app launching isn't available at the moment."
+  ],
+  "close_app_success": [
+    "closing {app_name}.",
+    "all right, closing {app_name}.",
+    "sure, i'll close {app_name}."
+  ],
+  "close_app_failed": [
+    "i tried to close {app_name}, but it didn't work.",
+    "i couldn't close {app_name}.",
+    "closing {app_name} failed."
+  ],
+  "close_app_not_running": [
+    "{app_name} doesn't seem to be running.",
+    "i couldn't find {app_name} running right now.",
+    "{app_name} is not open right now."
+  ],
+  "close_app_unknown": [
+    "i don't know that app yet: {app_alias}.",
+    "that app isn't in my launcher list yet: {app_alias}.",
+    "i can't find that app in my configured list: {app_alias}."
+  ],
+  "close_app_unavailable": [
+    "the app closer isn't available right now.",
+    "i can't close apps right now because the launcher isn't ready.",
+    "app closing isn't available at the moment."
+  ],
+  "open_site_success": [
+    "opening {site_target}.",
+    "all right, opening {site_target}.",
+    "sure, opening {site_target} now."
+  ],
+  "web_image_success": [
+    "opening image results for {query}.",
+    "showing image results for {query}.",
+    "opening pictures for {query}."
+  ],
+  "web_video_success": [
+    "opening video results for {query}.",
+    "showing video results for {query}.",
+    "opening videos about {query}."
+  ],
+  "spotify_track_success": [
+    "playing {query} on Spotify.",
+    "opening Spotify for {query}.",
+    "starting Spotify with {query}."
+  ],
+  "spotify_playlist_success": [
+    "playing a {query} playlist on Spotify.",
+    "opening Spotify with a {query} playlist.",
+    "starting a {query} playlist on Spotify."
+  ],
+  "media_service_success": [
+    "opening {service_name} for {query}.",
+    "playing {query} on {service_name}.",
+    "starting {service_name} with {query}."
+  ],
+  "web_text_fallback": [
+    "i couldn't get a direct text answer, so i opened search results for {query}.",
+    "i didn't find a short direct answer, so i opened search results for {query}.",
+    "i opened search results for {query} because i couldn't summarize it directly."
+  ],
+  "web_unavailable": [
+    "web actions aren't available right now.",
+    "i can't use web actions right now.",
+    "web search isn't available at the moment."
+  ],
+  "asks_last_topic_known": [
+    "the last topic i tracked was {last_topic}.",
+    "i think we were talking about {last_topic}.",
+    "my last stored topic was {last_topic}."
+  ],
+  "asks_last_topic_unknown": [
+    "i don't have a clear topic yet.",
+    "i haven't tracked a topic yet.",
+    "there isn't a stored topic yet."
+  ],
+  "asks_previous_message_known": [
+    "your previous message was: {previous_message}.",
+    "before this, you said: {previous_message}.",
+    "the last thing you told me was: {previous_message}."
+  ],
+  "asks_previous_message_unknown": [
+    "i don't have an earlier user message to compare yet.",
+    "i can't find a previous user message yet.",
+    "there isn't an earlier user message saved yet."
+  ],
+  "asks_preferences_known": [
+    "i remember these preferences: {preferences}.",
+    "here are the preferences i remember: {preferences}.",
+    "this is what i remember you like: {preferences}.",
+    "your saved preferences include: {preferences}.",
+    "i've got these preferences saved: {preferences}."
+  ],
+  "asks_preferences_unknown": [
+    "you haven't told me any preferences yet.",
+    "i don't know your preferences yet.",
+    "you haven't shared any preferences with me yet."
+  ],
+  "sets_preference": [
+    "okay, i'll remember that you like {preference_value}.",
+    "got it. i'll remember that you like {preference_value}.",
+    "all right, i'll keep in mind that you like {preference_value}.",
+    "saved. i'll remember that you like {preference_value}.",
+    "noted. {preference_value} is now in your preferences."
+  ],
+  "asks_specific_preference_known": [
+    "yes, i remember that you like {preference_value}.",
+    "yes, {preference_value} is in your saved preferences.",
+    "i do. i remember that you like {preference_value}."
+  ],
+  "asks_specific_preference_unknown": [
+    "no, i don't remember that you like {preference_value}.",
+    "i don't have {preference_value} in your saved preferences.",
+    "not currently. i don't remember that preference about {preference_value}."
+  ],
+  "removes_preference": [
+    "okay, i'll forget that preference about {preference_value}.",
+    "got it. i'll remove that preference about {preference_value}.",
+    "all right, i won't keep that preference about {preference_value}.",
+    "removed. i won't keep {preference_value} as a preference.",
+    "noted. i forgot that preference about {preference_value}."
+  ],
+  "sets_fact": [
+    "got it. i'll remember that {fact_value}.",
+    "okay, i'll remember that {fact_value}.",
+    "all right, i'll keep in mind that {fact_value}.",
+    "saved. i'll remember that {fact_value}.",
+    "noted. that fact is stored: {fact_value}."
+  ],
+  "asks_facts_known": [
+    "here's what i remember: {facts}.",
+    "this is what i remember: {facts}.",
+    "i remember the following: {facts}.",
+    "these are the facts i have saved: {facts}.",
+    "from memory, i have: {facts}."
+  ],
+  "asks_specific_fact_known": [
+    "yes, i remember that {fact_value}.",
+    "yes, that fact is in my memory: {fact_value}.",
+    "i do remember that {fact_value}."
+  ],
+  "asks_specific_fact_unknown": [
+    "no, i don't remember that {fact_value}.",
+    "i don't have that fact saved: {fact_value}.",
+    "not yet. i don't remember that {fact_value}."
+  ],
+  "asks_facts_unknown": [
+    "i don't remember any facts yet.",
+    "i don't have any saved facts yet.",
+    "i'm not remembering any facts yet."
+  ],
+  "follow_up_preferences": [
+    "sure. your saved preferences are: {preferences}.",
+    "here's a bit more on preferences: {preferences}.",
+    "what else i know about your preferences is: {preferences}."
+  ],
+  "follow_up_preferences_empty": [
+    "there aren't any saved preferences to add yet.",
+    "i don't have extra preferences saved yet.",
+    "there's nothing more in preferences yet."
+  ],
+  "follow_up_facts": [
+    "sure. the facts i have are: {facts}.",
+    "here's more context from memory: {facts}.",
+    "what else i remember is: {facts}."
+  ],
+  "follow_up_facts_empty": [
+    "i don't have any extra facts saved yet.",
+    "there aren't saved facts to add yet.",
+    "nothing more is stored in facts yet."
+  ],
+  "follow_up_name": [
+    "the main thing i know there is your name: {user_name}.",
+    "for that topic, i mainly remember your name: {user_name}.",
+    "what i have there is that your name is {user_name}."
+  ],
+  "follow_up_name_empty": [
+    "i don't have more name-related memory yet.",
+    "there isn't more saved around your name yet.",
+    "i still need more name-related context."
+  ],
+  "follow_up_generic": [
+    "not much more yet, but i'm still paying attention.",
+    "that's the main part for now, but i'm still listening.",
+    "nothing major beyond that yet, but i'm tracking the conversation."
+  ],
+  "learning_request": [
+    "i don't know that yet. if you want to teach me, answer with: teach: your answer. question: {question}",
+    "i'm not sure yet. you can teach me with: answer: your answer. question: {question}",
+    "i haven't learned that yet. to save an answer, use: teach: your answer. question: {question}"
+  ],
+  "learning_saved": [
+    "got it. i'll remember how to answer that.",
+    "okay, i learned that answer.",
+    "saved. i'll use that answer next time."
+  ],
+  "learning_cancelled": [
+    "okay, i cancelled that learning step.",
+    "all right, i won't save anything for that.",
+    "cancelled. i won't learn an answer for that right now."
+  ],
+  "fallback_known_name": [
+    "i'm still learning, {user_name}, but i'm here with you.{memory_hint}",
+    "i'm still figuring things out, {user_name}, but i'm with you.{memory_hint}",
+    "i'm not fully there yet, {user_name}, but i'm listening.{memory_hint}",
+    "i'm still building that part out, {user_name}, but i'm with you.{memory_hint}",
+    "i don't fully have that yet, {user_name}, but i'm paying attention.{memory_hint}"
+  ],
+  "fallback_known_memory": [
+    "i'm still learning, but i'm here with you.{memory_hint}",
+    "i'm still figuring things out, but i'm with you.{memory_hint}",
+    "i'm not fully there yet, but i'm listening.{memory_hint}",
+    "i'm still building that part out, but i'm with you.{memory_hint}",
+    "i don't fully have that yet, but i'm paying attention.{memory_hint}"
+  ],
+  "fallback_default": [
+    "i'm still learning, but i'm here with you.",
+    "i'm still figuring things out, but i'm with you.",
+    "i'm not fully there yet, but i'm listening.",
+    "i don't have a strong answer for that yet, but i'm here.",
+    "still learning that one, but i'm paying attention."
+  ]
+}

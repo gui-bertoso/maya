@@ -1,0 +1,6 @@
+numpy
+PySide6
+pyttsx3
+python-dotenv
+sounddevice
+vosk
