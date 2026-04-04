@@ -124,3 +124,9 @@ class Voice:
 
     def stop(self):
         self.is_listening = False
+
+        while not self.audio_queue.empty():
+            try:
+                self.audio_queue.get_nowait()
+            except Exception:
+                break
