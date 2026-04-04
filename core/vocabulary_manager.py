@@ -1,5 +1,5 @@
 import json
-import vocabulary
+from helpers import vocabulary
 
 
 def get_text():
@@ -20,13 +20,13 @@ def write_text(text, value):
 
 
 def save_vocabulary():
-    with open("vocabulary.json", "w", encoding="utf-8") as file:
+    with open("../data/vocabulary.json", "w", encoding="utf-8") as file:
         json.dump(vocabulary.dictionary, file, ensure_ascii=False, indent=2)
 
 
 def load_vocabulary():
     try:
-        with open("vocabulary.json", "r", encoding="utf-8") as file:
+        with open("../data/vocabulary.json", "r", encoding="utf-8") as file:
             loaded_vocabulary = json.load(file)
         vocabulary.dictionary = loaded_vocabulary
     except FileNotFoundError:

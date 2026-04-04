@@ -2,8 +2,7 @@ import re
 import random
 import vocabulary_manager
 from memory import Memory
-from responses import RESPONSES
-from config import get_env
+from helpers.config import get_env
 
 class Assistant:
     def __init__(self):
