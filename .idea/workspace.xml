@@ -5,8 +5,25 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1d9022ad-9e4f-46d0-b868-c1f5444aa2b6" name="Changes" comment="better responses and vocabulary 2">
-      <change afterPath="$PROJECT_DIR$/.env" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/data/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/helpers/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/input/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/output/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/clap_detector.py" beforeDir="false" afterPath="$PROJECT_DIR$/input/clap_detector.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/helpers/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/memory.json" beforeDir="false" afterPath="$PROJECT_DIR$/data/memory.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/memory.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/memory.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/process.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/process.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/renderer.py" beforeDir="false" afterPath="$PROJECT_DIR$/output/renderer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/responses.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/speaker.py" beforeDir="false" afterPath="$PROJECT_DIR$/output/speaker.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vocabulary.json" beforeDir="false" afterPath="$PROJECT_DIR$/data/vocabulary.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vocabulary.py" beforeDir="false" afterPath="$PROJECT_DIR$/helpers/vocabulary.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vocabulary_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/vocabulary_manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/voice.py" beforeDir="false" afterPath="$PROJECT_DIR$/input/voice.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -81,9 +98,11 @@
       <recent name="C:\Users\guilh\OneDrive\Documents\GitHub\maya" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\guilh\OneDrive\Documents\GitHub\maya\models\vosk-model-en-us-0.42-gigaspeech" />
+      <recent name="C:\Users\guilh\OneDrive\Documents\GitHub\maya\helpers" />
       <recent name="C:\Users\guilh\OneDrive\Documents\GitHub\maya" />
-      <recent name="C:\Users\guilh\OneDrive\Documents\GitHub\maya\models" />
+      <recent name="C:\Users\guilh\OneDrive\Documents\GitHub\maya\data" />
+      <recent name="C:\Users\guilh\OneDrive\Documents\GitHub\maya\output" />
+      <recent name="C:\Users\guilh\OneDrive\Documents\GitHub\maya\input" />
     </key>
   </component>
   <component name="RunManager">
@@ -137,7 +156,7 @@
       <workItem from="1775152165236" duration="225000" />
       <workItem from="1775158345628" duration="2241000" />
       <workItem from="1775198635115" duration="54000" />
-      <workItem from="1775315345121" duration="4926000" />
+      <workItem from="1775315345121" duration="5452000" />
     </task>
     <task id="LOCAL-00001" summary="aa">
       <option name="closed" value="true" />
@@ -176,7 +195,7 @@
     <option name="LAST_COMMIT_MESSAGE" value="better responses and vocabulary 2" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/maya$main.coverage" NAME="app Coverage Results" MODIFIED="1775319972019" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/maya$main.coverage" NAME="app Coverage Results" MODIFIED="1775320760360" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/PythonProject6$renderer.coverage" NAME="renderer Coverage Results" MODIFIED="1775149702355" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/PythonProject6$main.coverage" NAME="main Coverage Results" MODIFIED="1775151810155" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>

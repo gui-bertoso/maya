@@ -1,14 +1,14 @@
-from renderer import Renderer
-from process import Process
-from memory import Memory
-from voice import Voice
+from output.renderer import Renderer
+from core.process import Process
+from core.memory import Memory
+from input.voice import Voice
 import queue
-import vocabulary_manager
-from clap_detector import ClapDetector
+from core import vocabulary_manager
+from input.clap_detector import ClapDetector
 import time
 import pyglet
-from speaker import Speaker
-from config import get_env
+from output.speaker import Speaker
+from helpers.config import get_env
 
 
 class App:
