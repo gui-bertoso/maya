@@ -3,7 +3,7 @@ import queue
 import threading
 import sounddevice as sd
 import vosk
-from config import get_env
+from helpers.config import get_env
 
 
 class Voice:
