@@ -6,17 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="1d9022ad-9e4f-46d0-b868-c1f5444aa2b6" name="Changes" comment="better responses and vocabulary 2">
       <change afterPath="$PROJECT_DIR$/.env" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/clap_detector.py" beforeDir="false" afterPath="$PROJECT_DIR$/clap_detector.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/memory.json" beforeDir="false" afterPath="$PROJECT_DIR$/memory.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/process.py" beforeDir="false" afterPath="$PROJECT_DIR$/process.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/renderer.py" beforeDir="false" afterPath="$PROJECT_DIR$/renderer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/speaker.py" beforeDir="false" afterPath="$PROJECT_DIR$/speaker.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vocabulary.json" beforeDir="false" afterPath="$PROJECT_DIR$/vocabulary.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/voice.py" beforeDir="false" afterPath="$PROJECT_DIR$/voice.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -87,7 +77,12 @@
   }
 }]]></component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\guilh\OneDrive\Documents\GitHub\maya" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\guilh\OneDrive\Documents\GitHub\maya\models\vosk-model-en-us-0.42-gigaspeech" />
+      <recent name="C:\Users\guilh\OneDrive\Documents\GitHub\maya" />
       <recent name="C:\Users\guilh\OneDrive\Documents\GitHub\maya\models" />
     </key>
   </component>
@@ -142,7 +137,7 @@
       <workItem from="1775152165236" duration="225000" />
       <workItem from="1775158345628" duration="2241000" />
       <workItem from="1775198635115" duration="54000" />
-      <workItem from="1775315345121" duration="4817000" />
+      <workItem from="1775315345121" duration="4926000" />
     </task>
     <task id="LOCAL-00001" summary="aa">
       <option name="closed" value="true" />
