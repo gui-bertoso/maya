@@ -1,13 +1,60 @@
 import re
 import random
 import vocabulary_manager
+from memory import Memory
 from responses import RESPONSES
 
+class Assistant:
+    def __init__(self):
+        self.memory = Memory()
+
+    def process_input(self, text):
+        text_lower = text.lower().strip()
+
+        self.memory.add_message("user", text)
+
+        patterns = self.detect_patterns(text_lower)
+        self.apply_memory_updates(patterns, text)
+        response = self.generate_response(text, patterns)
+
+        self.memory.add_message("assistant", response)
+        return response
 
 class Process:
     def __init__(self):
         self.parent = None
         self.weights_amount = 128
+        self.memory = None
+
+    def generate_response(self, text, patterns):
+        user_name = self.memory.get_user_name() if self.memory else None
+
+        if patterns["asks_name"]:
+            return "i'm maya, your virtual assistant."
+
+        if patterns["asks_memory"]:
+            if user_name:
+                return f"yes, your name is {user_name}."
+            return "i don't know your name yet."
+
+        if patterns["says_name"]:
+            return f"nice to meet you, {patterns['user_name']}."
+
+        if patterns["greets"]:
+            if user_name:
+                return f"hey, {user_name}. good to see you again."
+            return "hey there."
+
+        return "i'm still learning, but i'm here with you."
+
+    def apply_memory_updates(self, patterns, original_text):
+        if not self.memory:
+            return
+
+        if patterns["says_name"]:
+            self.memory.set_user_name(patterns["user_name"])
+
+        self.memory.set_last_topic("conversation")
 
     def handle_input(self, my_input):
         my_input = my_input.strip()
@@ -36,7 +83,17 @@ class Process:
         print(f"encoded[:8] = {encoded_input[:8]}")
 
         intent = self.detect_intent(data_array)
-        response = self.get_response(intent, my_input, data_array)
+        patterns = self.detect_patterns(my_input.lower())
+
+        if self.memory:
+            self.memory.add_message("user", my_input)
+
+        self.apply_memory_updates(patterns, my_input)
+
+        response = self.generate_response(my_input, patterns)
+
+        if self.memory:
+            self.memory.add_message("assistant", response)
 
         print("intent:", intent)
         print("response:", response)
@@ -45,6 +102,8 @@ class Process:
             self.parent.send_event("set_particles", particle_types)
             self.parent.send_event("intent", intent)
             self.parent.send_event("response_text", response)
+
+        return response
 
     def detect_intent(self, tokens):
         if any(t in tokens for t in ["oi", "ola", "hello", "hey", "hi"]):
@@ -60,28 +119,6 @@ class Process:
             return "status_question"
 
         return "unknown"
-
-    def get_response(self, intent, text, tokens):
-        patterns = self.detect_patterns(text, tokens)
-
-        response_parts = []
-
-        if intent == "greeting":
-            response_parts.append(random.choice(RESPONSES["greeting"]))
-
-        if patterns["says_name"] and patterns["user_name"]:
-            response_parts.append(f"nice to meet you, {patterns['user_name']}")
-
-        if patterns["asks_name"]:
-            response_parts.append("my name is maya")
-
-        if intent == "status_question":
-            response_parts.append(random.choice(RESPONSES["status_question"]))
-
-        if not response_parts:
-            response_parts.append(random.choice(RESPONSES["unknown"]))
-
-        return ", ".join(response_parts)
 
     def generate_weights(self):
         return [random.uniform(-1, 1) for _ in range(self.weights_amount)]
@@ -109,29 +146,22 @@ class Process:
 
         return result
 
-    def detect_patterns(self, text, tokens):
-        text_lower = text.lower()
-
+    def detect_patterns(self, text_lower):
         patterns = {
             "asks_name": False,
             "says_name": False,
             "user_name": None,
+            "asks_memory": False,
+            "greets": False
         }
 
-        if "what's your name" in text_lower or "what is your name" in text_lower:
-            patterns["asks_name"] = True
-
-        if "your name" in text_lower:
-            patterns["asks_name"] = True
-
-        if "who are you" in text_lower:
+        if "who are you" in text_lower or "your name" in text_lower:
             patterns["asks_name"] = True
 
         if "my name is " in text_lower:
             parts = text_lower.split("my name is ", 1)
             if len(parts) > 1:
-                name_part = parts[1].strip()
-                name = name_part.split(" ")[0].strip(".,!?")
+                name = parts[1].split(" ")[0].strip(".,!?")
                 if name:
                     patterns["says_name"] = True
                     patterns["user_name"] = name
@@ -139,11 +169,16 @@ class Process:
         if "i am " in text_lower:
             parts = text_lower.split("i am ", 1)
             if len(parts) > 1:
-                name_part = parts[1].strip()
-                name = name_part.split(" ")[0].strip(".,!?")
+                name = parts[1].split(" ")[0].strip(".,!?")
                 if name:
                     patterns["says_name"] = True
                     patterns["user_name"] = name
+
+        if any(word in text_lower for word in ["hello", "hi", "hey"]):
+            patterns["greets"] = True
+
+        if "do you remember me" in text_lower or "remember my name" in text_lower:
+            patterns["asks_memory"] = True
 
         return patterns
 

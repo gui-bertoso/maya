@@ -63,8 +63,8 @@ class Renderer:
         self.hud_background = shapes.Rectangle(
             x=0,
             y=0,
-            width=360,
-            height=118,
+            width=420,
+            height=170,
             color=(8, 12, 18),
             batch=self.hud_bg_batch
         )
@@ -110,6 +110,37 @@ class Renderer:
             batch=self.hud_batch
         )
 
+        self.voice_status_value = "idle"
+        self.voice_partial_value = ""
+
+        self.voice_label = pyglet.text.Label(
+            "voice: idle",
+            x=12,
+            y=118,
+            anchor_x="left",
+            anchor_y="bottom",
+            color=(255, 120, 120, 255),
+            batch=self.hud_batch
+        )
+
+        self.voice_partial_label = pyglet.text.Label(
+            "heard: ",
+            x=12,
+            y=144,
+            anchor_x="left",
+            anchor_y="bottom",
+            color=(180, 255, 180, 255),
+            batch=self.hud_batch
+        )
+        self.voice_indicator = shapes.Circle(
+            x=390,
+            y=145,
+            radius=10,
+            color=(255, 0, 0),
+            batch=self.hud_batch
+        )
+        self.voice_indicator.opacity = 220
+
         @self.window.event
         def on_draw():
             self.draw_scene()
@@ -145,6 +176,39 @@ class Renderer:
     def update_live_input_label(self):
         display_value = self.live_input[:70] + "..." if len(self.live_input) > 70 else self.live_input
         self.live_input_label.text = f"> {display_value}"
+
+    def set_voice_status(self, status):
+        self.voice_status_value = status
+        self.voice_label.text = f"voice: {status}"
+
+        if status == "loading":
+            self.voice_indicator.color = (255, 60, 60)
+            self.voice_label.color = (255, 120, 120, 255)
+
+        elif status == "ready":
+            self.voice_indicator.color = (60, 255, 100)
+            self.voice_label.color = (120, 255, 120, 255)
+
+        elif status == "hearing":
+            self.voice_indicator.color = (255, 220, 80)
+            self.voice_label.color = (255, 220, 120, 255)
+
+        elif status == "error":
+            self.voice_indicator.color = (120, 120, 120)
+            self.voice_label.color = (180, 180, 180, 255)
+
+        else:
+            self.voice_indicator.color = (255, 0, 0)
+            self.voice_label.color = (255, 120, 120, 255)
+
+    def set_voice_partial(self, text):
+        self.voice_partial_value = text
+        display_value = text[:50] + "..." if len(text) > 50 else text
+        self.voice_partial_label.text = f"heard: {display_value}"
+
+    def clear_voice_partial(self):
+        self.voice_partial_value = ""
+        self.voice_partial_label.text = "heard: "
 
     def run(self):
         self.create_grid()
@@ -209,6 +273,15 @@ class Renderer:
                 self.response_text_value = value
                 display_value = value[:70] + "..." if len(value) > 70 else value
                 self.response_label.text = f"response: {display_value}"
+
+            elif event == "voice_status":
+                self.set_voice_status(value)
+
+            elif event == "voice_partial":
+                self.set_voice_partial(value)
+
+            elif event == "voice_final":
+                self.clear_voice_partial()
 
             elif event == "exit":
                 pyglet.app.exit()
