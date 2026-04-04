@@ -1,7 +1,175 @@
-import random
+import math
 import pyglet
-from pyglet import shapes
+from pyglet import gl
 from pyglet.window import key
+
+
+class MayaRing:
+    def __init__(self, x, y, radius=110, thickness=24, points=96):
+        self.x = x
+        self.y = y
+
+        self.base_radius = radius
+        self.base_thickness = thickness
+        self.points = points
+
+        self.time = 0.0
+        self.energy = 0.0
+        self.target_energy = 2.0
+
+        self.state = "idle"
+        self.state_timer = 0.0
+
+        self.base_color = (255, 255, 255)
+        self.state_color = (255, 255, 255)
+
+    def set_state(self, state, duration=0.0):
+        self.state = state
+        self.state_timer = duration
+
+        if state == "idle":
+            self.target_energy = 1.8
+            self.state_color = (255, 255, 255)
+
+        elif state == "ready":
+            self.target_energy = 4.0
+            self.state_color = (100, 255, 140)
+
+        elif state == "hearing":
+            self.target_energy = 14.0
+            self.state_color = (255, 220, 90)
+
+        elif state == "speaking":
+            self.target_energy = 9.0
+            self.state_color = (100, 180, 255)
+
+        elif state == "error":
+            self.target_energy = 8.0
+            self.state_color = (255, 90, 90)
+
+        elif state == "wake":
+            self.target_energy = 22.0
+            self.state_color = (180, 120, 255)
+
+        else:
+            self.target_energy = 3.0
+            self.state_color = (220, 220, 220)
+
+    def update(self, dt):
+        self.time += dt
+        self.energy += (self.target_energy - self.energy) * min(dt * 7.0, 1.0)
+
+        if self.state_timer > 0.0:
+            self.state_timer -= dt
+            if self.state_timer <= 0.0:
+                if self.state in ("wake", "speaking"):
+                    self.set_state("ready")
+
+    def get_ring_points(self, radius_offset=0.0, thickness=20.0, wave_scale=1.0, time_offset=0.0):
+        outer = []
+        inner = []
+
+        for i in range(self.points):
+            angle = (i / self.points) * math.pi * 2.0
+
+            wave1 = math.sin(angle * 3.0 + (self.time + time_offset) * 1.8) * (self.energy * 1.0 * wave_scale)
+            wave2 = math.sin(angle * 5.0 - (self.time + time_offset) * 1.25) * (self.energy * 0.45 * wave_scale)
+            wave3 = math.sin(angle * 2.0 + (self.time + time_offset) * 0.7) * 1.5
+
+            radius = self.base_radius + radius_offset + wave1 + wave2 + wave3
+
+            outer_radius = radius
+            inner_radius = radius - thickness
+
+            ox = self.x + math.cos(angle) * outer_radius
+            oy = self.y + math.sin(angle) * outer_radius
+            ix = self.x + math.cos(angle) * inner_radius
+            iy = self.y + math.sin(angle) * inner_radius
+
+            outer.append((ox, oy))
+            inner.append((ix, iy))
+
+        return outer, inner
+
+    def draw_ring(self, radius_offset, thickness, color, opacity=255, wave_scale=1.0, time_offset=0.0):
+        outer, inner = self.get_ring_points(
+            radius_offset=radius_offset,
+            thickness=thickness,
+            wave_scale=wave_scale,
+            time_offset=time_offset
+        )
+
+        vertices = []
+        colors = []
+
+        for i in range(self.points):
+            j = (i + 1) % self.points
+
+            ox1, oy1 = outer[i]
+            ox2, oy2 = outer[j]
+            ix1, iy1 = inner[i]
+            ix2, iy2 = inner[j]
+
+            # triângulo 1
+            vertices.extend([
+                ox1, oy1, 0.0,
+                ox2, oy2, 0.0,
+                ix1, iy1, 0.0,
+            ])
+
+            # triângulo 2
+            vertices.extend([
+                ix1, iy1, 0.0,
+                ox2, oy2, 0.0,
+                ix2, iy2, 0.0,
+            ])
+
+            for _ in range(6):
+                colors.extend([color[0], color[1], color[2], opacity])
+
+        pyglet.graphics.draw(
+            len(vertices) // 3,
+            gl.GL_TRIANGLES,
+            position=("f", vertices),
+            colors=("Bn", colors)
+        )
+
+    def draw(self):
+        self.draw_ring(
+            radius_offset=26,
+            thickness=10,
+            color=self.state_color,
+            opacity=26,
+            wave_scale=1.2,
+            time_offset=1.2
+        )
+
+        self.draw_ring(
+            radius_offset=14,
+            thickness=5,
+            color=self.state_color,
+            opacity=90,
+            wave_scale=1.15,
+            time_offset=0.8
+        )
+
+        self.draw_ring(
+            radius_offset=0,
+            thickness=self.base_thickness,
+            color=self.base_color,
+            opacity=255,
+            wave_scale=1.0,
+            time_offset=0.0
+        )
+
+        self.draw_ring(
+            radius_offset=-14,
+            thickness=6,
+            color=self.state_color,
+            opacity=120,
+            wave_scale=0.65,
+            time_offset=0.35
+        )
 
 
 class Renderer:
@@ -9,137 +177,69 @@ class Renderer:
         self.events = events
         self.submit_input_callback = submit_input_callback
 
-        self.grid_width = 30
-        self.grid_height = 30
-
-        self.attraction_grid = [
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 2, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 2, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 2, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
-            0, 0, 1, 1, 1, 0, 0, 0, 0, 0,
-        ]
-
-        self.particles = []
-        self.grid_points = []
-        self.active_points = []
-
-        self.current_intent = "unknown"
-        self.intent_force_multiplier = 1.0
-        self.intent_damping = 0.82
-
-        self.particle_radius = 4
-        self.grid_size = 10
-        self.interference_radius = 60
-
-        self.input_text_value = ""
-        self.intent_text_value = ""
-        self.response_text_value = ""
-        self.live_input = ""
-
-        self.window_size_x = 800
-        self.window_size_y = 600
+        self.window_size_x = 900
+        self.window_size_y = 700
 
         self.window = pyglet.window.Window(
             self.window_size_x,
             self.window_size_y,
             caption="maya",
-            vsync=False
+            vsync=True
         )
 
-        self.fps_label = pyglet.window.FPSDisplay(self.window)
+        self.live_input = ""
+        self.heard_text = ""
+        self.response_text = ""
+        self.voice_status = "idle"
 
-        self.particles_batch = pyglet.graphics.Batch()
-        self.grid_batch = pyglet.graphics.Batch()
-        self.grid_points_batch = pyglet.graphics.Batch()
-        self.hud_bg_batch = pyglet.graphics.Batch()
-        self.hud_batch = pyglet.graphics.Batch()
-
-        self.hud_background = shapes.Rectangle(
-            x=0,
-            y=0,
-            width=420,
-            height=170,
-            color=(8, 12, 18),
-            batch=self.hud_bg_batch
+        self.ring = MayaRing(
+            x=self.window_size_x // 2,
+            y=self.window_size_y // 2 + 30,
+            radius=105,
+            thickness=24,
+            points=100
         )
-        self.hud_background.opacity = 190
+        self.ring.set_state("idle")
 
-        self.input_label = pyglet.text.Label(
-            "input: ",
-            x=12,
-            y=92,
-            anchor_x="left",
-            anchor_y="bottom",
-            color=(255, 255, 255, 255),
-            batch=self.hud_batch
+        self.status_label = pyglet.text.Label(
+            "idle",
+            x=self.window_size_x // 2,
+            y=120,
+            anchor_x="center",
+            anchor_y="center",
+            color=(170, 170, 170, 255),
+            font_size=12
         )
 
-        self.intent_label = pyglet.text.Label(
-            "intent: ",
-            x=12,
-            y=66,
-            anchor_x="left",
-            anchor_y="bottom",
-            color=(100, 255, 100, 255),
-            batch=self.hud_batch
+        self.heard_label = pyglet.text.Label(
+            "",
+            x=self.window_size_x // 2,
+            y=90,
+            anchor_x="center",
+            anchor_y="center",
+            color=(130, 130, 130, 255),
+            font_size=10
         )
 
         self.response_label = pyglet.text.Label(
-            "response: ",
-            x=12,
-            y=40,
-            anchor_x="left",
-            anchor_y="bottom",
-            color=(100, 180, 255, 255),
-            batch=self.hud_batch
+            "",
+            x=self.window_size_x // 2,
+            y=60,
+            anchor_x="center",
+            anchor_y="center",
+            color=(210, 210, 210, 255),
+            font_size=11
         )
 
-        self.live_input_label = pyglet.text.Label(
+        self.input_label = pyglet.text.Label(
             "> ",
-            x=12,
-            y=12,
-            anchor_x="left",
-            anchor_y="bottom",
-            color=(255, 220, 120, 255),
-            batch=self.hud_batch
+            x=self.window_size_x // 2,
+            y=28,
+            anchor_x="center",
+            anchor_y="center",
+            color=(255, 255, 255, 255),
+            font_size=12
         )
-
-        self.voice_status_value = "idle"
-        self.voice_partial_value = ""
-
-        self.voice_label = pyglet.text.Label(
-            "voice: idle",
-            x=12,
-            y=118,
-            anchor_x="left",
-            anchor_y="bottom",
-            color=(255, 120, 120, 255),
-            batch=self.hud_batch
-        )
-
-        self.voice_partial_label = pyglet.text.Label(
-            "heard: ",
-            x=12,
-            y=144,
-            anchor_x="left",
-            anchor_y="bottom",
-            color=(180, 255, 180, 255),
-            batch=self.hud_batch
-        )
-        self.voice_indicator = shapes.Circle(
-            x=390,
-            y=145,
-            radius=10,
-            color=(255, 0, 0),
-            batch=self.hud_batch
-        )
-        self.voice_indicator.opacity = 220
 
         @self.window.event
         def on_draw():
@@ -175,106 +275,52 @@ class Renderer:
 
     def update_live_input_label(self):
         display_value = self.live_input[:70] + "..." if len(self.live_input) > 70 else self.live_input
-        self.live_input_label.text = f"> {display_value}"
+        self.input_label.text = f"> {display_value}"
 
     def set_voice_status(self, status):
-        self.voice_status_value = status
-        self.voice_label.text = f"voice: {status}"
+        self.voice_status = status
+        self.status_label.text = status
 
         if status == "loading":
-            self.voice_indicator.color = (255, 60, 60)
-            self.voice_label.color = (255, 120, 120, 255)
+            self.status_label.color = (255, 120, 120, 255)
+            self.ring.set_state("idle")
 
         elif status == "ready":
-            self.voice_indicator.color = (60, 255, 100)
-            self.voice_label.color = (120, 255, 120, 255)
+            self.status_label.color = (120, 255, 160, 255)
+            self.ring.set_state("ready")
 
         elif status == "hearing":
-            self.voice_indicator.color = (255, 220, 80)
-            self.voice_label.color = (255, 220, 120, 255)
+            self.status_label.color = (255, 220, 120, 255)
+            self.ring.set_state("hearing")
 
         elif status == "error":
-            self.voice_indicator.color = (120, 120, 120)
-            self.voice_label.color = (180, 180, 180, 255)
+            self.status_label.color = (255, 100, 100, 255)
+            self.ring.set_state("error")
 
         else:
-            self.voice_indicator.color = (255, 0, 0)
-            self.voice_label.color = (255, 120, 120, 255)
+            self.status_label.color = (170, 170, 170, 255)
+            self.ring.set_state("idle")
 
     def set_voice_partial(self, text):
-        self.voice_partial_value = text
-        display_value = text[:50] + "..." if len(text) > 50 else text
-        self.voice_partial_label.text = f"heard: {display_value}"
+        display_value = text[:60] + "..." if len(text) > 60 else text
+        self.heard_label.text = display_value
 
     def clear_voice_partial(self):
-        self.voice_partial_value = ""
-        self.voice_partial_label.text = "heard: "
+        self.heard_label.text = ""
 
-    def run(self):
-        self.create_grid()
-        pyglet.clock.schedule_interval(self.update, 1 / 60)
-        pyglet.app.run()
+    def set_response_text(self, text):
+        display_value = text[:72] + "..." if len(text) > 72 else text
+        self.response_label.text = display_value
+        self.ring.set_state("speaking", duration=0.6)
 
-    def get_fps(self):
-        return self.fps_label.label.text
-
-    def set_intent_state(self, intent):
-        self.current_intent = intent
-
-        if intent == "greeting":
-            self.intent_force_multiplier = 1.35
-            self.intent_damping = 0.88
-
-        elif intent == "farewell":
-            self.intent_force_multiplier = -0.35
-            self.intent_damping = 0.96
-
-        elif intent == "status_question":
-            self.intent_force_multiplier = 0.55
-            self.intent_damping = 0.90
-
-        else:
-            self.intent_force_multiplier = 1.0
-            self.intent_damping = 0.82
-
-    def draw_scene(self):
-        self.window.clear()
-        self.grid_batch.draw()
-        self.grid_points_batch.draw()
-        self.particles_batch.draw()
-        self.hud_bg_batch.draw()
-        self.hud_batch.draw()
-        self.fps_label.draw()
-
-    def update(self, dt):
-        self.handle_events()
-        self.apply_interference_radius(dt)
-        self.apply_particles_repulsion()
-        self.apply_particles_physics(dt)
+    def trigger_wake(self):
+        self.ring.set_state("wake", duration=0.45)
 
     def handle_events(self):
         while not self.events.empty():
             event, value = self.events.get()
 
-            if event == "set_particles":
-                self.set_particles(value)
-
-            elif event == "intent":
-                self.set_intent_state(value)
-                self.intent_text_value = value
-                self.intent_label.text = f"intent: {value}"
-
-            elif event == "input_text":
-                self.input_text_value = value
-                display_value = value[:70] + "..." if len(value) > 70 else value
-                self.input_label.text = f"input: {display_value}"
-
-            elif event == "response_text":
-                self.response_text_value = value
-                display_value = value[:70] + "..." if len(value) > 70 else value
-                self.response_label.text = f"response: {display_value}"
-
-            elif event == "voice_status":
+            if event == "voice_status":
                 self.set_voice_status(value)
 
             elif event == "voice_partial":
@@ -283,155 +329,41 @@ class Renderer:
             elif event == "voice_final":
                 self.clear_voice_partial()
 
+            elif event == "response_text":
+                self.set_response_text(value)
+
+            elif event == "double_clap":
+                self.trigger_wake()
+
+            elif event == "input_text":
+                pass
+
+            elif event == "intent":
+                pass
+
+            elif event == "set_particles":
+                pass
+
             elif event == "exit":
                 pyglet.app.exit()
 
-    def apply_particles_physics(self, dt):
-        for particle in self.particles:
-            particle.vx *= self.intent_damping
-            particle.vy *= self.intent_damping
+    def draw_scene(self):
+        self.window.clear()
+        gl.glClearColor(0.0, 0.0, 0.0, 1.0)
 
-            particle.x += particle.vx * min(dt * 60.0, 2.0)
-            particle.y += particle.vy * min(dt * 60.0, 2.0)
+        self.ring.draw()
+        self.status_label.draw()
+        self.heard_label.draw()
+        self.response_label.draw()
+        self.input_label.draw()
 
-    def apply_particles_repulsion(self):
-        min_dist = self.particle_radius * 2.2
-        min_dist_sq = min_dist * min_dist
-        push_strength = 0.25
+    def update(self, dt):
+        self.handle_events()
+        self.ring.update(dt)
 
-        for i in range(len(self.particles)):
-            p1 = self.particles[i]
-            for j in range(i + 1, len(self.particles)):
-                p2 = self.particles[j]
+    def run(self):
+        pyglet.clock.schedule_interval(self.update, 1 / 60)
+        pyglet.app.run()
 
-                dx = p2.x - p1.x
-                dy = p2.y - p1.y
-                dist_sq = dx * dx + dy * dy
-
-                if dist_sq == 0:
-                    dx = random.uniform(-1.0, 1.0)
-                    dy = random.uniform(-1.0, 1.0)
-                    dist_sq = dx * dx + dy * dy + 0.0001
-
-                if dist_sq < min_dist_sq:
-                    dist = dist_sq ** 0.5
-                    nx = dx / dist
-                    ny = dy / dist
-
-                    overlap = min_dist - dist
-                    push = overlap * push_strength * 0.5
-
-                    p1.x -= nx * push
-                    p1.y -= ny * push
-                    p2.x += nx * push
-                    p2.y += ny * push
-
-    def apply_interference_radius(self, dt):
-        for _, circle, value in self.active_points:
-            cx, cy = circle.x, circle.y
-            radius = circle.radius
-            radius_sq = radius * radius
-
-            for particle in self.particles:
-                dx = cx - particle.x
-                dy = cy - particle.y
-                dist_sq = dx * dx + dy * dy
-
-                if 0 < dist_sq <= radius_sq:
-                    dist = dist_sq ** 0.5
-                    falloff = 1.0 - (dist / radius)
-                    force = falloff * value * 0.18 * self.intent_force_multiplier
-
-                    particle.vx += dx * force * dt * 60.0
-                    particle.vy += dy * force * dt * 60.0
-
-    def create_grid(self):
-        self.grid_points.clear()
-        self.active_points.clear()
-
-        cell_width = self.window_size_x / self.grid_size
-        cell_height = self.window_size_y / self.grid_size
-
-        for y in range(self.grid_size):
-            for x in range(self.grid_size):
-                pos_x = x * cell_width + cell_width / 2
-                pos_y = (self.grid_size - 1 - y) * cell_height + cell_height / 2
-
-                index = y * self.grid_size + x
-                value = self.attraction_grid[index]
-
-                circle = shapes.Circle(
-                    x=pos_x,
-                    y=pos_y,
-                    radius=max(1, self.interference_radius * value),
-                    color=(255, 255, 255),
-                    batch=self.grid_points_batch,
-                )
-                circle.opacity = 12 if value > 0 else 0
-
-                label = pyglet.text.Label(
-                    str(value),
-                    x=pos_x,
-                    y=pos_y,
-                    anchor_x="center",
-                    anchor_y="center",
-                    batch=self.grid_batch,
-                    color=self.get_color_per_force(value),
-                )
-
-                item = (label, circle, value)
-                self.grid_points.append(item)
-
-                if value > 0:
-                    self.active_points.append(item)
-
-    @staticmethod
-    def get_particle_color(particle_type):
-        if particle_type == "vocab":
-            return (0, 255, 0)
-        return (255, 255, 255)
-
-    def set_particles(self, particle_types, x=400, y=300):
-        current_amount = len(self.particles)
-        target_amount = len(particle_types)
-
-        if current_amount < target_amount:
-            for _ in range(target_amount - current_amount):
-                particle = shapes.Circle(
-                    x, y,
-                    self.particle_radius,
-                    color=(255, 255, 255),
-                    batch=self.particles_batch
-                )
-                particle.vx = 0.0
-                particle.vy = 0.0
-                self.particles.append(particle)
-
-        elif current_amount > target_amount:
-            for _ in range(current_amount - target_amount):
-                particle = self.particles.pop()
-                particle.delete()
-
-        for particle, particle_type in zip(self.particles, particle_types):
-            particle.color = self.get_particle_color(particle_type)
-
-            if self.current_intent == "greeting":
-                particle.opacity = 255
-            elif self.current_intent == "farewell":
-                particle.opacity = 170
-            elif self.current_intent == "status_question":
-                particle.opacity = 210
-            else:
-                particle.opacity = 255
-
-    @staticmethod
-    def get_color_per_force(force):
-        match force:
-            case 1:
-                return 120, 255, 120, 180
-            case 2:
-                return 255, 255, 120, 180
-            case 3:
-                return 255, 120, 120, 180
-            case _:
-                return 180, 180, 180, 70
+    def get_fps(self):
+        return "vsync"
