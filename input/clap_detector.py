@@ -3,7 +3,7 @@ import time
 import threading
 import numpy as np
 import sounddevice as sd
-from config import get_env
+from helpers.config import get_env
 
 def get_rms(audio_data):
     audio_np = np.frombuffer(audio_data, dtype=np.int16)
