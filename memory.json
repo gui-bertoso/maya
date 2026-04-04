@@ -1,0 +1,54 @@
+{
+    "short_term_limit": 10,
+    "short_term": [
+        {
+            "role": "user",
+            "content": "my name is killer hear me"
+        },
+        {
+            "role": "assistant",
+            "content": "nice to meet you, killer."
+        },
+        {
+            "role": "user",
+            "content": "you were a"
+        },
+        {
+            "role": "assistant",
+            "content": "i'm still learning, but i'm here with you."
+        },
+        {
+            "role": "user",
+            "content": "you were a"
+        },
+        {
+            "role": "assistant",
+            "content": "i'm still learning, but i'm here with you."
+        },
+        {
+            "role": "user",
+            "content": "what's are very soon"
+        },
+        {
+            "role": "assistant",
+            "content": "i'm still learning, but i'm here with you."
+        },
+        {
+            "role": "user",
+            "content": "please open google foot"
+        },
+        {
+            "role": "assistant",
+            "content": "i'm still learning, but i'm here with you."
+        }
+    ],
+    "long_term": {
+        "user_name": "Killer",
+        "preferences": [],
+        "known_facts": []
+    },
+    "state": {
+        "mood": "neutral",
+        "last_topic": "conversation"
+    }
+}
