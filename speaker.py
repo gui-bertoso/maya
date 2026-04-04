@@ -66,7 +66,6 @@ class Speaker:
         self.queue.put(text)
 
     def stop(self):
-        # limpa fila pendente
         while not self.queue.empty():
             try:
                 self.queue.get_nowait()

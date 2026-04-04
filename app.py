@@ -8,6 +8,7 @@ from clap_detector import ClapDetector
 import time
 import pyglet
 from speaker import Speaker
+from config import get_env
 
 
 class App:
@@ -22,17 +23,21 @@ class App:
         self.process.parent = self
         self.process.memory = self.memory
 
+        self.DEBUG_MODE = get_env("DEBUG_MODE", "false").lower() == "true"
+        self.UI_MODE = get_env("UI_MODE", "maya")
+        self.LANGUAGE = get_env("LANGUAGE", "en")
+
         self.speaker = Speaker(rate=180)
 
         self.clap_detector = ClapDetector(
-            threshold=150,
-            cooldown=0.18,
-            double_clap_window=0.75
+            threshold=get_env("CLAP_THRESHOLD", 150, int),
+            cooldown=get_env("CLAP_COOLDOWN", 0.18, float),
+            double_clap_window=get_env("CLAP_WINDOW", 0.75, float)
         )
 
         self.voice = Voice(
-            model_path="models/vosk-model-small-en-us-0.15",
-            sample_rate=16000
+            model_path=get_env("VOSK_MODEL_PATH"),
+            sample_rate=get_env("VOICE_SAMPLE_RATE", 16000, int)
         )
 
         self.voice_active = False
@@ -77,7 +82,8 @@ class App:
         self.voice_active = False
         self.send_event("voice_status", "idle")
         self.send_event("voice_partial", "")
-        print("maya sleeping again")
+        if self.DEBUG_MODE:
+            print("maya sleeping again")
 
     def update_app_state(self, dt):
         if self.voice_active and time.time() > self.maya_awake_until:
@@ -87,7 +93,8 @@ class App:
         self.send_event("clap", rms)
 
     def handle_double_clap(self):
-        print("WAKE UP MAYA")
+        if self.DEBUG_MODE:
+            print("WAKE UP MAYA")
         self.wake_maya()
 
     def handle_voice_input(self, text):
@@ -96,7 +103,7 @@ class App:
         return self.handle_input(text)
 
     def handle_partial_voice(self, text):
-        self.speaker.stop()  # 🔥 evita sobreposição
+        self.speaker.stop()
         self.maya_awake_until = time.time() + self.wake_duration
         self.send_event("voice_partial", text)
 
@@ -110,8 +117,9 @@ class App:
         response = self.process.handle_input(text)
         self.memory.save()
 
-        print("input:", repr(text))
-        print("response:", repr(response))
+        if self.DEBUG_MODE:
+            print("input:", repr(text))
+            print("response:", repr(response))
 
         if response:
             self.speaker.stop()
