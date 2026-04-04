@@ -1,54 +1,55 @@
 {
-    "short_term_limit": 10,
-    "short_term": [
-        {
-            "role": "user",
-            "content": "what's my name"
-        },
-        {
-            "role": "assistant",
-            "content": "i'm still learning, but i'm here with you."
-        },
-        {
-            "role": "user",
-            "content": "my name is good"
-        },
-        {
-            "role": "assistant",
-            "content": "nice to meet you, good."
-        },
-        {
-            "role": "user",
-            "content": "open loach bed"
-        },
-        {
-            "role": "assistant",
-            "content": "i'm still learning, but i'm here with you."
-        },
-        {
-            "role": "user",
-            "content": "please open not bed"
-        },
-        {
-            "role": "assistant",
-            "content": "i'm still learning, but i'm here with you."
-        },
-        {
-            "role": "user",
-            "content": "how are you"
-        },
-        {
-            "role": "assistant",
-            "content": "i'm still learning, but i'm here with you."
-        }
-    ],
-    "long_term": {
-        "user_name": "Good",
-        "preferences": [],
-        "known_facts": []
+  "short_term_limit": 10,
+  "short_term": [
+    {
+      "role": "user",
+      "content": "how are you"
     },
-    "state": {
-        "mood": "neutral",
-        "last_topic": "conversation"
+    {
+      "role": "assistant",
+      "content": "i'm doing friendly, Gui. thanks for asking."
+    },
+    {
+      "role": "user",
+      "content": "open vs code"
+    },
+    {
+      "role": "assistant",
+      "content": "sure, opening VS Code now."
+    },
+    {
+      "role": "user",
+      "content": "hide yourself"
+    },
+    {
+      "role": "assistant",
+      "content": "okay, i'll stay in the background."
+    },
+    {
+      "role": "user",
+      "content": "how are you"
+    },
+    {
+      "role": "assistant",
+      "content": "i'm feeling friendly, Gui. thanks for asking."
+    },
+    {
+      "role": "user",
+      "content": "create your new project in python over scored"
+    },
+    {
+      "role": "assistant",
+      "content": "i created the python project python_project_4."
     }
+  ],
+  "long_term": {
+    "user_name": "Gui",
+    "preferences": [],
+    "known_facts": []
+  },
+  "state": {
+    "mood": "friendly",
+    "last_topic": "dev",
+    "pending_learning": null
+  }
 }

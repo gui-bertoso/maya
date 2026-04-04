@@ -26,6 +26,19 @@ class Voice:
         self.UI_MODE = get_env("UI_MODE", "maya")
         self.LANGUAGE = get_env("LANGUAGE", "en")
 
+    def has_input_device(self):
+        try:
+            devices = sd.query_devices()
+        except Exception as error:
+            self.last_error = str(error)
+            return False
+
+        for device in devices:
+            if device.get("max_input_channels", 0) > 0:
+                return True
+
+        return False
+
     def set_status(self, status, on_status_change=None):
         self.status = status
         if on_status_change:
@@ -122,7 +135,11 @@ class Voice:
 
     def start_background(self, on_final_text=None, on_partial_text=None, on_status_change=None):
         if self.thread and self.thread.is_alive():
-            return
+            return True
+
+        if not self.has_input_device():
+            self.set_status("unavailable", on_status_change)
+            return False
 
         self.thread = threading.Thread(
             target=self._listen_loop,
@@ -134,6 +151,7 @@ class Voice:
             daemon=True
         )
         self.thread.start()
+        return True
 
     def stop(self):
         self.is_listening = False
