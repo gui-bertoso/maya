@@ -1,0 +1,55 @@
+{
+  "short_term_limit": 10,
+  "short_term": [
+    {
+      "role": "user",
+      "content": "how are you"
+    },
+    {
+      "role": "assistant",
+      "content": "i'm doing friendly, Gui. thanks for asking."
+    },
+    {
+      "role": "user",
+      "content": "open vs code"
+    },
+    {
+      "role": "assistant",
+      "content": "sure, opening VS Code now."
+    },
+    {
+      "role": "user",
+      "content": "hide yourself"
+    },
+    {
+      "role": "assistant",
+      "content": "okay, i'll stay in the background."
+    },
+    {
+      "role": "user",
+      "content": "how are you"
+    },
+    {
+      "role": "assistant",
+      "content": "i'm feeling friendly, Gui. thanks for asking."
+    },
+    {
+      "role": "user",
+      "content": "create your new project in python over scored"
+    },
+    {
+      "role": "assistant",
+      "content": "i created the python project python_project_4."
+    }
+  ],
+  "long_term": {
+    "user_name": "Gui",
+    "preferences": [],
+    "known_facts": []
+  },
+  "state": {
+    "mood": "friendly",
+    "last_topic": "dev",
+    "pending_learning": null
+  }
+}
