@@ -1,0 +1,1591 @@
+import json
+import re
+import random
+import datetime
+from core import vocabulary_manager
+from core.knowledge_base import KnowledgeBase
+from core.memory import Memory
+from helpers.config import get_env, get_path
+
+RESPONSES_PATH = get_path("RESPONSES_PATH", "data/responses.json")
+
+class Assistant:
+    def __init__(self):
+        self.memory = Memory()
+
+    def process_input(self, text):
+        text_lower = text.lower().strip()
+
+        self.memory.add_message("user", text)
+
+        patterns = self.detect_patterns(text_lower)
+        self.apply_memory_updates(patterns, text)
+        response = self.generate_response(text, patterns)
+
+        self.memory.add_message("assistant", response)
+        return response
+
+class Process:
+    def __init__(self):
+        self.parent = None
+        self.weights_amount = 128
+        self.memory = None
+        self.app_launcher = None
+        self.dev_assistant = None
+        self.web_assistant = None
+        self.spotify_assistant = None
+        self.knowledge_base = KnowledgeBase()
+
+        self.DEBUG_MODE = get_env("DEBUG_MODE", "false").lower() == "true"
+        self.UI_MODE = get_env("UI_MODE", "maya")
+        self.LANGUAGE = get_env("LANGUAGE", "en")
+        self.responses = self.load_responses()
+
+    @staticmethod
+    def _choose(options):
+        return random.choice(options)
+
+    def load_responses(self):
+        with open(RESPONSES_PATH, "r", encoding="utf-8") as file:
+            return json.load(file)
+
+    def pick_response(self, key, **values):
+        templates = self.responses.get(key, [])
+        if not templates:
+            raise KeyError(f"missing response templates for key: {key}")
+        return self._choose(templates).format(**values)
+
+    @staticmethod
+    def _first_or_none(items):
+        return items[0] if items else None
+
+    def _build_memory_hint(self, preferences, known_facts):
+        preference = self._first_or_none(preferences)
+        fact = self._first_or_none(known_facts)
+
+        if preference and fact:
+            return f" i remember that you like {preference}, and that {fact}."
+
+        if preference:
+            return f" i remember that you like {preference}."
+
+        if fact:
+            return f" i remember that {fact}."
+
+        return ""
+
+    def _find_previous_user_message(self, current_text):
+        if not self.memory:
+            return None
+
+        recent_messages = self.memory.get_recent_messages(8)
+        for message in reversed(recent_messages[:-1]):
+            if message.get("role") == "user":
+                content = message.get("content", "").strip()
+                if content and content != current_text.strip():
+                    return content
+        return None
+
+    def _topic_follow_up(self, last_topic, preferences, known_facts, user_name):
+        if last_topic == "preferences":
+            if preferences:
+                return self.pick_response("follow_up_preferences", preferences=", ".join(preferences))
+            return self.pick_response("follow_up_preferences_empty")
+
+        if last_topic == "facts":
+            if known_facts:
+                return self.pick_response("follow_up_facts", facts="; ".join(known_facts[:3]))
+            return self.pick_response("follow_up_facts_empty")
+
+        if last_topic == "name":
+            if user_name:
+                return self.pick_response("follow_up_name", user_name=user_name)
+            return self.pick_response("follow_up_name_empty")
+
+        return self.pick_response("follow_up_generic")
+
+    def _build_personal_fallback(self, user_name, preferences, known_facts):
+        if user_name:
+            return self.pick_response(
+                "fallback_known_name",
+                user_name=user_name,
+                memory_hint=self._build_memory_hint(preferences, known_facts),
+            )
+
+        if preferences or known_facts:
+            return self.pick_response(
+                "fallback_known_memory",
+                memory_hint=self._build_memory_hint(preferences, known_facts),
+            )
+
+        return self.pick_response("fallback_default")
+
+    @staticmethod
+    def get_current_time_text():
+        return datetime.datetime.now().strftime("%H:%M")
+
+    @staticmethod
+    def get_current_date_text():
+        return datetime.datetime.now().strftime("%B %d, %Y")
+
+    @staticmethod
+    def is_knowledge_request(text_lower):
+        knowledge_starters = (
+            "what's ",
+            "whats ",
+            "what is ",
+            "who is ",
+            "where is ",
+            "when is ",
+            "why is ",
+            "how does ",
+            "how do ",
+            "explain ",
+            "define ",
+            "translate ",
+            "meaning of ",
+            "tell me about ",
+            "summarize ",
+        )
+        return text_lower.startswith(knowledge_starters)
+
+    @staticmethod
+    def contains_any(text, phrases):
+        return any(phrase in text for phrase in phrases)
+
+    @staticmethod
+    def starts_with_any(text, phrases):
+        return any(text.startswith(phrase) for phrase in phrases)
+
+    @staticmethod
+    def strip_polite_prefixes(text):
+        return re.sub(r"^(?:please|hey maya|maya|can you|could you|would you)\s+", "", text.strip(), flags=re.IGNORECASE)
+
+    @staticmethod
+    def extract_browser_clause(text):
+        known_browser_aliases = {
+            "firefox",
+            "chrome",
+            "edge",
+            "opera",
+            "brave",
+            "browser",
+            "internet browser",
+        }
+        stripped = text.strip()
+        lowered = stripped.lower()
+
+        for browser_alias in sorted(known_browser_aliases, key=len, reverse=True):
+            for connector in (" using ", " in ", " on "):
+                suffix = f"{connector}{browser_alias}"
+                if lowered.endswith(suffix):
+                    return stripped[: -len(suffix)].strip(), browser_alias
+
+        return stripped, None
+
+    def parse_natural_media_action(self, text_lower):
+        cleaned = self.strip_polite_prefixes(text_lower)
+        without_browser, browser_alias = self.extract_browser_clause(cleaned)
+        tokens = self.tokenize(without_browser)
+        token_set = set(tokens)
+
+        if not token_set.intersection({"play", "open", "search", "find", "show"}):
+            return None
+
+        if "youtube music" in without_browser:
+            query = re.sub(r"\s+on\s+youtube music$", "", without_browser, flags=re.IGNORECASE).strip()
+            query = re.sub(r"^(?:play|open|search|find|show)\s+", "", query, flags=re.IGNORECASE).strip()
+            query = re.sub(r"^(?:some|a)\s+", "", query, flags=re.IGNORECASE).strip()
+            if query:
+                return {
+                    "kind": "media",
+                    "service": "youtube_music",
+                    "query": query,
+                    "browser_alias": browser_alias,
+                }
+
+        if "spotify" in without_browser and self.spotify_assistant:
+            spotify_request = self.spotify_assistant.parse_request(without_browser)
+            if spotify_request:
+                spotify_request["kind"] = "spotify"
+                return spotify_request
+
+        video_tokens = {"video", "videos", "clip", "clips"}
+        image_tokens = {"image", "images", "picture", "pictures", "photo", "photos", "pics"}
+
+        if token_set.intersection(video_tokens):
+            query = re.sub(r"^(?:play|open|search|find|show(?: me)?)\s+", "", without_browser, flags=re.IGNORECASE).strip()
+            query = re.sub(r"^(?:some|a)\s+", "", query, flags=re.IGNORECASE).strip()
+            query = re.sub(r"^(?:video|videos|clip|clips)\b", "", query, flags=re.IGNORECASE).strip()
+            query = re.sub(r"\s+(?:video|videos|clip|clips)\b", "", query, flags=re.IGNORECASE).strip()
+            query = re.sub(r"^(?:of|for|about)\s+", "", query, flags=re.IGNORECASE).strip()
+            query = re.sub(r"\s+on\s+youtube$", "", query, flags=re.IGNORECASE).strip()
+            if query:
+                return {
+                    "kind": "web",
+                    "mode": "video",
+                    "query": query,
+                    "browser_alias": browser_alias,
+                }
+
+        if token_set.intersection(image_tokens):
+            query = re.sub(r"^(?:open|search|find|show(?: me)?|look up)\s+", "", without_browser, flags=re.IGNORECASE).strip()
+            query = re.sub(r"^(?:some|a)\s+", "", query, flags=re.IGNORECASE).strip()
+            query = re.sub(r"^(?:image|images|picture|pictures|photo|photos|pics)\b", "", query, flags=re.IGNORECASE).strip()
+            query = re.sub(r"\s+(?:image|images|picture|pictures|photo|photos|pics)\b", "", query, flags=re.IGNORECASE).strip()
+            query = re.sub(r"^(?:of|for)\s+", "", query, flags=re.IGNORECASE).strip()
+            if query:
+                return {
+                    "kind": "web",
+                    "mode": "image",
+                    "query": query,
+                    "browser_alias": browser_alias,
+                }
+
+        return None
+
+    def parse_natural_site_action(self, text_lower):
+        cleaned = self.strip_polite_prefixes(text_lower)
+        without_browser, browser_alias = self.extract_browser_clause(cleaned)
+        match = re.match(r"^(?:open|go to|visit)\s+(.+)$", without_browser, flags=re.IGNORECASE)
+        if not match:
+            return None
+
+        target = match.group(1).strip()
+        explicit_site = bool(re.match(r"^(?:the\s+)?(?:site|website)\s+", target, flags=re.IGNORECASE))
+        target = re.sub(r"^(?:the\s+)?(?:site|website)\s+", "", target, flags=re.IGNORECASE).strip()
+        if not target:
+            return None
+
+        if not browser_alias and not explicit_site and "." not in target and not re.match(r"^https?://", target, flags=re.IGNORECASE):
+            return None
+
+        if any(token in target for token in [" video", " image", " playlist", "spotify", "youtube music"]):
+            return None
+
+        if re.search(r"\b(?:project|app)\b", target):
+            return None
+
+        return {
+            "mode": "site",
+            "query": target,
+            "browser_alias": browser_alias,
+        }
+
+    @staticmethod
+    def normalize_move_position(raw_position):
+        mapping = {
+            "top left": "top_left",
+            "upper left": "top_left",
+            "canto superior esquerdo": "top_left",
+            "top": "top",
+            "top center": "top",
+            "top middle": "top",
+            "top right": "top_right",
+            "upper right": "top_right",
+            "canto superior direito": "top_right",
+            "left": "left",
+            "esquerda": "left",
+            "center": "center",
+            "middle": "center",
+            "centro": "center",
+            "right": "right",
+            "direita": "right",
+            "bottom left": "bottom_left",
+            "lower left": "bottom_left",
+            "canto inferior esquerdo": "bottom_left",
+            "bottom": "bottom",
+            "bottom center": "bottom",
+            "bottom right": "bottom_right",
+            "lower right": "bottom_right",
+            "canto inferior direito": "bottom_right",
+        }
+        return mapping.get(raw_position.strip().lower())
+
+    def parse_window_move_request(self, text_lower):
+        patterns = [
+            r"(?:move|go|put|place|send)\s+(?:maya|yourself|the window)?\s*(?:to\s+)?(.+?)\s+(?:on|to)\s+(?:monitor|display|screen)\s+(\d+)$",
+            r"(?:vai|va|fica|move)\s+(?:a maya|a janela|você)?\s*(?:para\s+)?(.+?)\s+(?:no|na)\s+(?:monitor|tela|display)\s+(\d+)$",
+        ]
+
+        for pattern in patterns:
+            match = re.search(pattern, text_lower, flags=re.IGNORECASE)
+            if not match:
+                continue
+
+            position = self.normalize_move_position(match.group(1))
+            if not position:
+                continue
+
+            monitor = int(match.group(2))
+            return {
+                "position": position,
+                "monitor": max(1, monitor),
+                "monitor_text": f"monitor {max(1, monitor)}",
+            }
+
+        monitor_only_patterns = [
+            r"(?:move|go|send)\s+(?:maya|yourself|the window)?\s*(?:to\s+)?(?:monitor|display|screen)\s+(\d+)$",
+            r"(?:vai|va|move)\s+(?:a maya|a janela|você)?\s*(?:para\s+)?(?:o\s+)?(?:monitor|display|tela)\s+(\d+)$",
+        ]
+
+        for pattern in monitor_only_patterns:
+            match = re.search(pattern, text_lower, flags=re.IGNORECASE)
+            if not match:
+                continue
+
+            monitor = int(match.group(1))
+            return {
+                "position": "bottom_right",
+                "monitor": max(1, monitor),
+                "monitor_text": f"monitor {max(1, monitor)}",
+            }
+
+        relative_monitor_patterns = [
+            r"(?:move|go|send)\s+(?:maya|yourself|the window)?\s*(?:to\s+)?(?:the\s+)?(?:(other|next|another)\s+(?:monitor|display|screen))$",
+            r"(?:move|go|send)\s+(?:maya|yourself|the window)?\s*(?:to\s+)?(.+?)\s+(?:on|to)\s+(?:the\s+)?(?:(other|next|another)\s+(?:monitor|display|screen))$",
+            r"(?:vai|va|move)\s+(?:a maya|a janela|você)?\s*(?:para\s+)?(?:o\s+)?(?:(outro|próximo|proximo)\s+(?:monitor|display|tela))$",
+            r"(?:vai|va|move)\s+(?:a maya|a janela|você)?\s*(?:para\s+)?(.+?)\s+(?:no|na)\s+(?:o\s+)?(?:(outro|próximo|proximo)\s+(?:monitor|display|tela))$",
+        ]
+
+        for pattern in relative_monitor_patterns:
+            match = re.search(pattern, text_lower, flags=re.IGNORECASE)
+            if not match:
+                continue
+
+            raw_position = match.group(1) if match.lastindex and match.lastindex > 1 else None
+            if raw_position and raw_position.lower() in {"other", "next", "another", "outro", "próximo", "proximo"}:
+                raw_position = None
+
+            position = self.normalize_move_position(raw_position) if raw_position else None
+            return {
+                "position": position or "current",
+                "monitor": "other",
+                "monitor_text": "the other monitor",
+            }
+
+        same_monitor_patterns = [
+            r"(?:move|go|put|place|send)\s+(?:maya|yourself|the window)?\s*(?:to\s+)?(.+)$",
+            r"(?:vai|va|fica|move)\s+(?:a maya|a janela|você)?\s*(?:para\s+)?(.+)$",
+        ]
+
+        for pattern in same_monitor_patterns:
+            match = re.search(pattern, text_lower, flags=re.IGNORECASE)
+            if not match:
+                continue
+
+            raw_position = match.group(1).strip()
+            raw_position = re.sub(r"^(?:the\s+)?(?:position\s+)?", "", raw_position, flags=re.IGNORECASE).strip()
+            raw_position = re.sub(r"\s+(?:please|now)$", "", raw_position, flags=re.IGNORECASE).strip()
+            position = self.normalize_move_position(raw_position)
+            if not position:
+                continue
+
+            return {
+                "position": position,
+                "monitor": "current",
+                "monitor_text": "this monitor",
+            }
+
+        return None
+
+    @staticmethod
+    def parse_scale_request(text_lower):
+        normalized = text_lower.strip().lower()
+
+        fixed_aliases = {
+            "make yourself smaller": {"mode": "decrease", "value": 0.2},
+            "make yourself bigger": {"mode": "increase", "value": 0.2},
+            "make yourself larger": {"mode": "increase", "value": 0.2},
+            "scale down": {"mode": "decrease", "value": 0.2},
+            "scale up": {"mode": "increase", "value": 0.2},
+            "be smaller": {"mode": "decrease", "value": 0.2},
+            "be bigger": {"mode": "increase", "value": 0.2},
+            "fica menor": {"mode": "decrease", "value": 0.2},
+            "fica maior": {"mode": "increase", "value": 0.2},
+            "diminui seu tamanho": {"mode": "decrease", "value": 0.2},
+            "aumenta seu tamanho": {"mode": "increase", "value": 0.2},
+            "reset your scale": {"mode": "set", "value": 1.0},
+            "reset scale": {"mode": "set", "value": 1.0},
+            "reset your size": {"mode": "set", "value": 1.0},
+        }
+
+        if normalized in fixed_aliases:
+            return fixed_aliases[normalized]
+
+        patterns = [
+            (r"(?:set|change|make)\s+(?:your|the|maya'?s)\s+(?:scale|size)\s+(?:to|at|in)\s+(\d+(?:\.\d+)?)$", "set"),
+            (r"(?:reduce|decrease|shrink|lower)\s+(?:your|the|maya'?s)\s+(?:scale|size)\s+(?:to|at|in)\s+(\d+(?:\.\d+)?)$", "set"),
+            (r"(?:increase|grow|enlarge|raise)\s+(?:your|the|maya'?s)\s+(?:scale|size)\s+(?:to|at|in)\s+(\d+(?:\.\d+)?)$", "set"),
+            (r"(?:reduce|decrease|shrink|lower)\s+(?:your|the|maya'?s)\s+(?:scale|size)\s+by\s+(\d+(?:\.\d+)?)$", "decrease"),
+            (r"(?:increase|grow|enlarge|raise)\s+(?:your|the|maya'?s)\s+(?:scale|size)\s+by\s+(\d+(?:\.\d+)?)$", "increase"),
+            (r"(?:scale|size)\s+(?:to|at|in)\s+(\d+(?:\.\d+)?)$", "set"),
+            (r"(?:make|set)\s+yourself\s+(?:to\s+)?(\d+(?:\.\d+)?)\s*(?:x|scale)?$", "set"),
+            (r"(?:make|set)\s+yourself\s+(\d+(?:\.\d+)?)\s*(?:x|times)?\s+(?:bigger|larger)$", "set"),
+            (r"(?:make|set)\s+yourself\s+(\d+(?:\.\d+)?)\s*(?:x|times)?\s+(?:smaller)$", "set_inverse"),
+            (r"(?:be|become)\s+(\d+(?:\.\d+)?)\s*(?:x|times)?\s+(?:bigger|larger)$", "set"),
+            (r"(?:be|become)\s+(\d+(?:\.\d+)?)\s*(?:x|times)?\s+(?:smaller)$", "set_inverse"),
+            (r"(?:half|halve)\s+(?:your\s+)?(?:scale|size)$", "set", 0.5),
+            (r"(?:double)\s+(?:your\s+)?(?:scale|size)$", "set", 2.0),
+            (r"(?:deixa|faz)\s+(?:você|voce|a maya)?\s*(?:menor|pequena)$", "decrease"),
+            (r"(?:deixa|faz)\s+(?:você|voce|a maya)?\s*(?:maior|grande)$", "increase"),
+            (r"(?:reduz|diminui)\s+(?:sua|o seu)\s+(?:escala|tamanho)\s+em\s+(\d+(?:\.\d+)?)$", "decrease"),
+            (r"(?:aumenta)\s+(?:sua|o seu)\s+(?:escala|tamanho)\s+em\s+(\d+(?:\.\d+)?)$", "increase"),
+            (r"(?:reduz|diminui)\s+(?:sua|o seu)\s+(?:escala|tamanho)\s+para\s+(\d+(?:\.\d+)?)$", "set"),
+            (r"(?:aumenta)\s+(?:sua|o seu)\s+(?:escala|tamanho)\s+para\s+(\d+(?:\.\d+)?)$", "set"),
+        ]
+
+        for entry in patterns:
+            pattern = entry[0]
+            mode = entry[1]
+            default_value = entry[2] if len(entry) > 2 else None
+            match = re.search(pattern, text_lower, flags=re.IGNORECASE)
+            if not match:
+                continue
+
+            value = default_value if default_value is not None else float(match.group(1))
+            if mode == "set_inverse":
+                value = 1.0 / value if value else 1.0
+                mode = "set"
+            return {
+                "mode": mode,
+                "value": round(value, 3),
+            }
+
+        percentage_match = re.search(
+            r"(?:set|make|become|reduce|increase|scale)\s+(?:yourself|your|the)?\s*(?:scale|size)?\s*(?:to|by)?\s*(\d+(?:\.\d+)?)\s*%$",
+            text_lower,
+            flags=re.IGNORECASE,
+        )
+        if percentage_match:
+            return {
+                "mode": "set",
+                "value": round(float(percentage_match.group(1)) / 100.0, 3),
+            }
+
+        return None
+
+    def parse_natural_status_request(self, text_lower):
+        cleaned = self.strip_polite_prefixes(text_lower)
+        token_set = set(self.tokenize(cleaned))
+        status_words = {"good", "okay", "ok", "fine", "alright", "well"}
+        if {"are", "you"}.issubset(token_set) and token_set.intersection(status_words):
+            return True
+        if self.contains_any(cleaned, ["you good", "you okay", "you alright", "everything okay"]):
+            return True
+        return False
+
+    def parse_natural_capabilities_request(self, text_lower):
+        cleaned = self.strip_polite_prefixes(text_lower)
+        if self.contains_any(cleaned, ["what can you do", "your capabilities", "help me"]):
+            return True
+        if self.starts_with_any(cleaned, ["can you ", "could you "]) and "?" not in cleaned:
+            return False
+        return cleaned in {"help", "capabilities"}
+
+    @staticmethod
+    def is_useful_summary(summary):
+        if not summary:
+            return False
+
+        clean = summary.strip()
+        normalized = clean.lower().strip(" .!?")
+        blocked = {"yes", "no", "ok", "okay", "maybe", "i don't know"}
+
+        if normalized in blocked:
+            return False
+
+        if len(clean) < 20:
+            return False
+
+        if len(clean.split()) < 4:
+            return False
+
+        return True
+
+    def auto_learn_answer(self, question):
+        if not self.web_assistant:
+            return None
+
+        summary = self.web_assistant.get_text_summary(question)
+        return self.store_learned_answer(question, summary)
+
+    def store_learned_answer(self, question, summary):
+        if not self.is_useful_summary(summary):
+            return None
+
+        self.knowledge_base.teach_answer(question, summary)
+        if self.memory:
+            self.memory.clear_pending_learning()
+            self.memory.set_last_topic("learning")
+
+        return summary
+
+    def generate_response(self, text, patterns):
+        user_name = self.memory.get_user_name() if self.memory else None
+        preferences = self.memory.get_preferences() if self.memory else []
+        known_facts = self.memory.get_known_facts() if self.memory else []
+        mood = self.memory.get_mood() if self.memory else "neutral"
+        last_topic = self.memory.get_last_topic() if self.memory else None
+        pending_learning = self.memory.get_pending_learning() if self.memory else None
+        memory_hint = self._build_memory_hint(preferences, known_facts)
+        previous_user_message = self._find_previous_user_message(text)
+        learned_answer = self.knowledge_base.get_answer(text)
+
+        if patterns["cancel_learning"]:
+            if self.memory and pending_learning:
+                self.memory.clear_pending_learning()
+                return self.pick_response("learning_cancelled")
+
+        if learned_answer:
+            return learned_answer
+
+        if patterns["asks_name"]:
+            return self.pick_response("asks_name")
+
+        if patterns["asks_creator"]:
+            return self.pick_response("asks_creator")
+
+        if patterns["asks_age"]:
+            return self.pick_response("asks_age")
+
+        if patterns["asks_origin"]:
+            return self.pick_response("asks_origin")
+
+        if patterns["asks_language"]:
+            return self.pick_response("asks_language")
+
+        if patterns["asks_memory"]:
+            if user_name:
+                return self.pick_response("asks_memory_known", user_name=user_name)
+            return self.pick_response("asks_memory_unknown")
+
+        if patterns["asks_user_name"]:
+            if user_name:
+                return self.pick_response("asks_user_name_known", user_name=user_name)
+            return self.pick_response("asks_user_name_unknown")
+
+        if patterns["says_name"]:
+            return self.pick_response("says_name", user_name=patterns["user_name"])
+
+        if patterns["greets"]:
+            if user_name:
+                return self.pick_response("greets_known", user_name=user_name, memory_hint=memory_hint)
+            return self.pick_response("greets_unknown", memory_hint=memory_hint)
+
+        if patterns["asks_status"]:
+            if user_name:
+                return self.pick_response("asks_status_known", mood=mood, user_name=user_name, memory_hint=memory_hint)
+            return self.pick_response("asks_status_unknown", mood=mood, memory_hint=memory_hint)
+
+        if patterns["background_app"]:
+            if self.parent is not None:
+                self.parent.send_event("app_background", None)
+            return self.pick_response("background_app")
+
+        if patterns["hide_input_window"]:
+            if self.parent is not None:
+                self.parent.send_event("app_hide_quick_input", None)
+            return self.pick_response("hide_input_window")
+
+        if patterns["move_app"]:
+            if self.parent is not None:
+                self.parent.send_event("app_move", patterns["move_app_target"])
+            monitor_text = patterns["move_app_target"].get(
+                "monitor_text",
+                f"monitor {patterns['move_app_target'].get('monitor', 1)}",
+            )
+            if patterns["move_app_target"]["position"] == "current":
+                return self.pick_response("move_app_monitor_only_success", monitor_text=monitor_text)
+            return self.pick_response(
+                "move_app_success",
+                position=patterns["move_app_target"]["position"].replace("_", " "),
+                monitor_text=monitor_text,
+            )
+
+        if patterns["scale_app"]:
+            if self.parent is not None:
+                self.parent.send_event("app_scale", patterns["scale_app_target"])
+            return self.pick_response(
+                "scale_app_success",
+                scale_value=patterns["scale_app_target"]["value"],
+            )
+
+        if patterns["farewell"]:
+            if user_name:
+                return self.pick_response("farewell_known", user_name=user_name)
+            return self.pick_response("farewell_unknown")
+
+        if patterns["thanks"]:
+            return self.pick_response("thanks")
+
+        if patterns["apology"]:
+            return self.pick_response("apology")
+
+        if patterns["compliment"]:
+            return self.pick_response("compliment")
+
+        if patterns["insult"]:
+            return self.pick_response("insult")
+
+        if patterns["asks_time"]:
+            return self.pick_response("asks_time", current_time=self.get_current_time_text())
+
+        if patterns["asks_date"]:
+            return self.pick_response("asks_date", current_date=self.get_current_date_text())
+
+        if patterns["asks_capabilities"]:
+            return self.pick_response("asks_capabilities")
+
+        if patterns["dev_project_action"]:
+            return self.handle_dev_project_action(patterns["dev_project_spec"])
+
+        if patterns["web_action"]:
+            return self.handle_web_action(
+                patterns["web_mode"],
+                patterns["web_query"],
+                patterns["web_browser_alias"],
+                text,
+            )
+
+        if patterns["spotify_action"]:
+            return self.handle_spotify_action(
+                patterns["spotify_mode"],
+                patterns["spotify_query"],
+                patterns["spotify_spoken_query"],
+            )
+
+        if patterns["media_action"]:
+            return self.handle_media_action(
+                patterns["media_service"],
+                patterns["media_query"],
+                patterns["media_browser_alias"],
+            )
+
+        if patterns["launch_app"]:
+            return self.handle_launch_app(patterns["app_alias"])
+
+        if patterns["close_app"]:
+            return self.handle_close_app(patterns["app_alias"])
+
+        if patterns["asks_last_topic"]:
+            if last_topic:
+                return self.pick_response("asks_last_topic_known", last_topic=last_topic)
+            return self.pick_response("asks_last_topic_unknown")
+
+        if patterns["asks_previous_message"]:
+            if previous_user_message:
+                return self.pick_response("asks_previous_message_known", previous_message=previous_user_message)
+            return self.pick_response("asks_previous_message_unknown")
+
+        if patterns["asks_preferences"]:
+            if preferences:
+                return self.pick_response("asks_preferences_known", preferences=", ".join(preferences))
+            return self.pick_response("asks_preferences_unknown")
+
+        if patterns["asks_specific_preference"]:
+            if patterns["preference_query_value"] in preferences:
+                return self.pick_response("asks_specific_preference_known", preference_value=patterns["preference_query_value"])
+            return self.pick_response("asks_specific_preference_unknown", preference_value=patterns["preference_query_value"])
+
+        if patterns["sets_preference"]:
+            return self.pick_response("sets_preference", preference_value=patterns["preference_value"])
+
+        if patterns["removes_preference"]:
+            return self.pick_response("removes_preference", preference_value=patterns["preference_value"])
+
+        if patterns["sets_fact"]:
+            return self.pick_response("sets_fact", fact_value=patterns["fact_value"])
+
+        if patterns["asks_facts"]:
+            if known_facts:
+                return self.pick_response("asks_facts_known", facts="; ".join(known_facts[:3]))
+            return self.pick_response("asks_facts_unknown")
+
+        if patterns["asks_specific_fact"]:
+            if patterns["fact_query_value"] in known_facts:
+                return self.pick_response("asks_specific_fact_known", fact_value=patterns["fact_query_value"])
+            return self.pick_response("asks_specific_fact_unknown", fact_value=patterns["fact_query_value"])
+
+        if patterns["asks_follow_up"]:
+            return self._topic_follow_up(last_topic, preferences, known_facts, user_name)
+
+        if patterns["asks_unknown"]:
+            learned_summary = self.auto_learn_answer(text)
+            if learned_summary:
+                return learned_summary
+            return self.handle_web_action("text", text, source_text=text)
+
+        return self._build_personal_fallback(user_name, preferences, known_facts)
+
+    def handle_launch_app(self, app_alias):
+        if not self.app_launcher:
+            return self.pick_response("launch_app_unavailable")
+
+        app_key = self.app_launcher.resolve_alias(app_alias)
+        if not app_key:
+            if not hasattr(self.app_launcher, "launch_any"):
+                return self.pick_response("launch_app_unknown", app_alias=app_alias)
+
+            success, reason = self.app_launcher.launch_any(app_alias)
+            if success:
+                return self.pick_response("launch_app_success", app_name=app_alias)
+            return self.pick_response("launch_app_unknown", app_alias=app_alias)
+
+        success, reason = self.app_launcher.launch(app_key)
+        display_name = self.app_launcher.get_display_name(app_key)
+
+        if success:
+            return self.pick_response("launch_app_success", app_name=display_name)
+
+        if reason == "missing_command":
+            return self.pick_response("launch_app_missing_command", app_name=display_name)
+
+        return self.pick_response("launch_app_failed", app_name=display_name)
+
+    def handle_close_app(self, app_alias):
+        if not self.app_launcher:
+            return self.pick_response("close_app_unavailable")
+
+        app_key = self.app_launcher.resolve_alias(app_alias)
+        if not app_key:
+            return self.pick_response("close_app_unknown", app_alias=app_alias)
+
+        success, reason = self.app_launcher.close(app_key)
+        display_name = self.app_launcher.get_display_name(app_key)
+
+        if success:
+            return self.pick_response("close_app_success", app_name=display_name)
+
+        if reason == "not_running":
+            return self.pick_response("close_app_not_running", app_name=display_name)
+
+        return self.pick_response("close_app_failed", app_name=display_name)
+
+    def handle_dev_project_action(self, project_spec):
+        if not self.dev_assistant:
+            return self.pick_response("dev_project_unavailable")
+
+        result = self.dev_assistant.create_project(project_spec, self.app_launcher)
+        if not result["success"]:
+            if result["reason"] == "exists":
+                return self.pick_response("dev_project_exists", project_name=result["project_name"])
+            return self.pick_response("dev_project_failed", project_name=project_spec["project_name"])
+
+        if result["requested_commit"] and not result["commit_created"]:
+            if result["requested_editor"] and result["editor_opened"]:
+                return self.pick_response(
+                    "dev_project_commit_failed_opened",
+                    stack=result["stack"],
+                    project_name=result["project_name"],
+                )
+            return self.pick_response(
+                "dev_project_commit_failed",
+                stack=result["stack"],
+                project_name=result["project_name"],
+            )
+
+        if result["requested_editor"] and result["editor_opened"]:
+            if result["requested_commit"] and result["commit_created"]:
+                return self.pick_response(
+                    "dev_project_success_commit_opened",
+                    stack=result["stack"],
+                    project_name=result["project_name"],
+                )
+            return self.pick_response(
+                "dev_project_success_opened",
+                stack=result["stack"],
+                project_name=result["project_name"],
+            )
+
+        if result["requested_commit"] and result["commit_created"]:
+            return self.pick_response(
+                "dev_project_success_commit",
+                stack=result["stack"],
+                project_name=result["project_name"],
+            )
+
+        return self.pick_response(
+            "dev_project_success",
+            stack=result["stack"],
+            project_name=result["project_name"],
+        )
+
+    def handle_spotify_action(self, spotify_mode, spotify_query=None, spoken_query=None):
+        if not self.spotify_assistant or not self.app_launcher:
+            return self.pick_response("launch_app_unavailable")
+
+        if spotify_mode == "app":
+            if self.spotify_assistant.open_app(self.app_launcher):
+                return self.pick_response("launch_app_success", app_name="Spotify")
+            return self.pick_response("launch_app_failed", app_name="Spotify")
+
+        if self.spotify_assistant.open_search(self.app_launcher, spotify_query):
+            if spotify_mode == "playlist":
+                return self.pick_response("spotify_playlist_success", query=spoken_query)
+            return self.pick_response("spotify_track_success", query=spoken_query)
+
+        return self.pick_response("launch_app_failed", app_name="Spotify")
+
+    def handle_media_action(self, media_service, media_query, browser_alias=None):
+        if not self.web_assistant:
+            return self.pick_response("web_unavailable")
+
+        if media_service == "youtube_music":
+            target = self.web_assistant.build_youtube_music_search_url(media_query)
+            if browser_alias and self.app_launcher:
+                app_key = self.app_launcher.resolve_alias(browser_alias)
+                if app_key:
+                    success, _ = self.app_launcher.launch_with_target(app_key, target)
+                    if success:
+                        return self.pick_response("media_service_success", query=media_query, service_name="YouTube Music")
+            self.web_assistant.open_url(target)
+            return self.pick_response("media_service_success", query=media_query, service_name="YouTube Music")
+
+        return self.pick_response("web_unavailable")
+
+    def open_web_in_app(self, web_mode, web_query, browser_alias):
+        if not self.app_launcher or not self.web_assistant:
+            return False
+
+        app_key = self.app_launcher.resolve_alias(browser_alias)
+        if not app_key:
+            return False
+
+        if web_mode == "site":
+            target = self.web_assistant.build_site_url(web_query)
+        elif web_mode == "image":
+            target = self.web_assistant.build_image_search_url(web_query)
+        elif web_mode == "video":
+            target = self.web_assistant.build_video_search_url(web_query)
+        else:
+            target = self.web_assistant.build_web_search_url(web_query)
+
+        success, _ = self.app_launcher.launch_with_target(app_key, target)
+        return success
+
+    def handle_web_action(self, web_mode, web_query, browser_alias=None, source_text=None):
+        if not self.web_assistant:
+            return self.pick_response("web_unavailable")
+
+        if web_mode == "site":
+            if browser_alias and self.open_web_in_app(web_mode, web_query, browser_alias):
+                return self.pick_response("open_site_success", site_target=web_query)
+            self.web_assistant.open_site(web_query)
+            return self.pick_response("open_site_success", site_target=web_query)
+
+        if web_mode == "image":
+            if browser_alias and self.open_web_in_app(web_mode, web_query, browser_alias):
+                return self.pick_response("web_image_success", query=web_query)
+            self.web_assistant.open_image_search(web_query)
+            return self.pick_response("web_image_success", query=web_query)
+
+        if web_mode == "video":
+            if browser_alias and self.open_web_in_app(web_mode, web_query, browser_alias):
+                return self.pick_response("web_video_success", query=web_query)
+            self.web_assistant.open_video_search(web_query)
+            return self.pick_response("web_video_success", query=web_query)
+
+        summary = self.web_assistant.get_text_summary(web_query)
+        learned_summary = self.store_learned_answer(web_query, summary)
+        if learned_summary and source_text and source_text.strip().lower() != web_query.strip().lower():
+            self.store_learned_answer(source_text, summary)
+        if learned_summary:
+            return learned_summary
+
+        if browser_alias and self.open_web_in_app(web_mode, web_query, browser_alias):
+            return self.pick_response("web_text_fallback", query=web_query)
+
+        self.web_assistant.open_web_search(web_query)
+        return self.pick_response("web_text_fallback", query=web_query)
+
+    def apply_memory_updates(self, patterns, original_text):
+        if not self.memory:
+            return
+
+        if patterns["says_name"]:
+            self.memory.set_user_name(patterns["user_name"])
+
+        if patterns["sets_preference"] and patterns["preference_value"]:
+            self.memory.add_preference(patterns["preference_value"])
+
+        if patterns["removes_preference"] and patterns["preference_value"]:
+            self.memory.remove_preference(patterns["preference_value"])
+
+        if patterns["sets_fact"] and patterns["fact_value"]:
+            self.memory.add_known_fact(patterns["fact_value"])
+
+        if patterns["greets"]:
+            self.memory.set_mood("friendly")
+
+        if patterns["thanks"]:
+            self.memory.set_mood("helpful")
+
+        if patterns["compliment"]:
+            self.memory.set_mood("proud")
+
+        if patterns["insult"]:
+            self.memory.set_mood("calm")
+
+        if patterns["apology"]:
+            self.memory.set_mood("gentle")
+
+        if patterns["farewell"]:
+            self.memory.set_mood("calm")
+
+        if not patterns["cancel_learning"] and not patterns["asks_unknown"]:
+            self.memory.clear_pending_learning()
+
+        if patterns["says_name"] or patterns["asks_memory"] or patterns["asks_user_name"]:
+            self.memory.set_last_topic("name")
+        elif patterns["asks_name"] or patterns["asks_creator"] or patterns["asks_age"] or patterns["asks_origin"] or patterns["asks_language"]:
+            self.memory.set_last_topic("identity")
+        elif patterns["sets_preference"] or patterns["removes_preference"] or patterns["asks_preferences"] or patterns["asks_specific_preference"]:
+            self.memory.set_last_topic("preferences")
+        elif patterns["sets_fact"] or patterns["asks_facts"] or patterns["asks_specific_fact"]:
+            self.memory.set_last_topic("facts")
+        elif patterns["asks_time"] or patterns["asks_date"]:
+            self.memory.set_last_topic("time")
+        elif patterns["dev_project_action"]:
+            self.memory.set_last_topic("dev")
+        elif patterns["launch_app"]:
+            self.memory.set_last_topic("apps")
+        elif patterns["close_app"]:
+            self.memory.set_last_topic("apps")
+        elif patterns["spotify_action"]:
+            self.memory.set_last_topic("spotify")
+        elif patterns["media_action"]:
+            self.memory.set_last_topic("media")
+        elif patterns["background_app"]:
+            self.memory.set_last_topic("app")
+        elif patterns["move_app"]:
+            self.memory.set_last_topic("app")
+        elif patterns["scale_app"]:
+            self.memory.set_last_topic("app")
+        elif patterns["web_action"]:
+            self.memory.set_last_topic("web")
+        elif patterns["cancel_learning"]:
+            pass
+        elif patterns["asks_last_topic"] or patterns["asks_previous_message"] or patterns["asks_follow_up"]:
+            pass
+        else:
+            self.memory.set_last_topic("conversation")
+
+    def handle_input(self, my_input):
+        my_input = my_input.strip()
+
+        if not my_input:
+            response = self.pick_response("input_empty")
+            if self.parent is not None:
+                self.parent.send_event("response_text", response)
+            return response
+
+        if self.parent is not None:
+            self.parent.send_event("input_text", my_input)
+
+        if my_input == "print":
+            print(vocabulary_manager.get_text())
+            response = self.pick_response("print_command_done")
+            if self.parent is not None:
+                self.parent.send_event("response_text", response)
+            return response
+
+        data_array = self.tokenize(my_input)
+        particle_types = []
+
+        for data in data_array:
+            if vocabulary_manager.has_word(data):
+                particle_types.append("vocab")
+            else:
+                particle_types.append("input")
+                vocabulary_manager.write_text(data, self.generate_weights())
+
+        encoded_input = self.encode_text(my_input)
+
+        if self.DEBUG_MODE:
+            print(f"encoded[:8] = {encoded_input[:8]}")
+
+        intent = self.detect_intent(data_array)
+        patterns = self.detect_patterns(my_input.lower())
+
+        if self.memory:
+            self.memory.add_message("user", my_input)
+
+        self.apply_memory_updates(patterns, my_input)
+
+        response = self.generate_response(my_input, patterns)
+
+        if self.memory:
+            self.memory.add_message("assistant", response)
+
+        if self.DEBUG_MODE:
+            print("intent:", intent)
+            print("response:", response)
+
+        if self.parent is not None:
+            self.parent.send_event("set_particles", particle_types)
+            self.parent.send_event("intent", intent)
+            self.parent.send_event("response_text", response)
+
+        return response
+
+    def detect_intent(self, tokens):
+        if any(t in tokens for t in ["oi", "ola", "hello", "hey", "hi"]):
+            return "greeting"
+
+        if any(t in tokens for t in ["bye", "goodbye", "cya", "later"]):
+            return "farewell"
+
+        if any(t in tokens for t in ["thanks", "thank"]):
+            return "gratitude"
+
+        if "how" in tokens and "you" in tokens:
+            return "status_question"
+
+        if "como" in tokens and "voce" in tokens:
+            return "status_question"
+
+        if "time" in tokens:
+            return "time_question"
+
+        if "date" in tokens or "today" in tokens:
+            return "date_question"
+
+        if "sorry" in tokens:
+            return "apology"
+
+        if "awesome" in tokens or "smart" in tokens:
+            return "compliment"
+
+        if "stupid" in tokens or "dumb" in tokens:
+            return "insult"
+
+        if "remember" in tokens and "like" in tokens:
+            return "preference_store"
+
+        if "remember" in tokens and "that" in tokens:
+            return "fact_store"
+
+        return "unknown"
+
+    @staticmethod
+    def extract_name(text_lower):
+        match = re.search(r"\b(?:my name is|i am|i'm)\s+([a-zA-Z][a-zA-Z'-]*)", text_lower)
+        if match:
+            return match.group(1).strip(".,!?")
+        return None
+
+    @staticmethod
+    def extract_preference(text_lower):
+        patterns = [
+            r"\bi like\s+(.+)",
+            r"\bi love\s+(.+)",
+            r"\bmy favorite\s+\w+\s+is\s+(.+)"
+        ]
+
+        for pattern in patterns:
+            match = re.search(pattern, text_lower)
+            if match:
+                value = match.group(1).strip(" .,!?\t")
+                if value:
+                    return value
+        return None
+
+    @staticmethod
+    def extract_removed_preference(text_lower):
+        patterns = [
+            r"\bi don't like\s+(.+)",
+            r"\bi do not like\s+(.+)",
+            r"\bforget that i like\s+(.+)"
+        ]
+
+        for pattern in patterns:
+            match = re.search(pattern, text_lower)
+            if match:
+                value = match.group(1).strip(" .,!?\t")
+                if value:
+                    return value
+        return None
+
+    @staticmethod
+    def extract_fact(text_lower):
+        patterns = [
+            r"\bremember that\s+(.+)",
+            r"\bkeep in mind that\s+(.+)",
+            r"\bthe fact is\s+(.+)"
+        ]
+
+        for pattern in patterns:
+            match = re.search(pattern, text_lower)
+            if match:
+                value = match.group(1).strip(" .,!?\t")
+                if value:
+                    return value
+        return None
+
+    @staticmethod
+    def extract_preference_query(text_lower):
+        patterns = [
+            r"\bdo i like\s+(.+)",
+            r"\bis\s+(.+)\s+my favorite",
+            r"\bdo you remember that i like\s+(.+)"
+        ]
+
+        for pattern in patterns:
+            match = re.search(pattern, text_lower)
+            if match:
+                value = match.group(1).strip(" .,!?\t").lower()
+                if value:
+                    return value
+        return None
+
+    @staticmethod
+    def extract_fact_query(text_lower):
+        patterns = [
+            r"\bdo you remember that\s+(.+)",
+            r"\bdo you know that\s+(.+)"
+        ]
+
+        for pattern in patterns:
+            match = re.search(pattern, text_lower)
+            if match:
+                value = match.group(1).strip(" .,!?\t")
+                if value:
+                    return value
+        return None
+
+    def generate_weights(self):
+        return [random.uniform(-1, 1) for _ in range(self.weights_amount)]
+
+    def encode_text(self, text):
+        tokens = self.tokenize(text)
+
+        result = [0.0] * self.weights_amount
+        count = 0
+
+        for token in tokens:
+            vector = vocabulary_manager.get_word_vector(token)
+
+            if vector is None:
+                continue
+
+            for i in range(self.weights_amount):
+                result[i] += vector[i]
+
+            count += 1
+
+        if count > 0:
+            for i in range(self.weights_amount):
+                result[i] /= count
+
+        return result
+
+    def detect_patterns(self, text_lower):
+        extracted_name = self.extract_name(text_lower)
+        preference_value = self.extract_preference(text_lower)
+        removed_preference_value = self.extract_removed_preference(text_lower)
+        fact_value = self.extract_fact(text_lower)
+        preference_query_value = self.extract_preference_query(text_lower)
+        fact_query_value = self.extract_fact_query(text_lower)
+        tokens = self.tokenize(text_lower)
+        token_set = set(tokens)
+
+        patterns = {
+            "asks_name": False,
+            "says_name": False,
+            "user_name": None,
+            "asks_memory": False,
+            "asks_user_name": False,
+            "asks_creator": False,
+            "asks_age": False,
+            "asks_origin": False,
+            "asks_language": False,
+            "greets": False,
+            "farewell": False,
+            "thanks": False,
+            "apology": False,
+            "compliment": False,
+            "insult": False,
+            "background_app": False,
+            "hide_input_window": False,
+            "move_app": False,
+            "move_app_target": None,
+            "scale_app": False,
+            "scale_app_target": None,
+            "asks_status": False,
+            "asks_time": False,
+            "asks_date": False,
+            "asks_capabilities": False,
+            "launch_app": False,
+            "close_app": False,
+            "app_alias": None,
+            "dev_project_action": False,
+            "dev_project_spec": None,
+            "spotify_action": False,
+            "spotify_mode": None,
+            "spotify_query": None,
+            "spotify_spoken_query": None,
+            "media_action": False,
+            "media_service": None,
+            "media_query": None,
+            "media_browser_alias": None,
+            "web_action": False,
+            "web_mode": None,
+            "web_query": None,
+            "web_browser_alias": None,
+            "asks_last_topic": False,
+            "asks_previous_message": False,
+            "asks_follow_up": False,
+            "asks_unknown": False,
+            "cancel_learning": False,
+            "sets_preference": False,
+            "asks_specific_preference": False,
+            "removes_preference": False,
+            "preference_value": None,
+            "preference_query_value": None,
+            "sets_fact": False,
+            "asks_specific_fact": False,
+            "fact_value": None,
+            "fact_query_value": None,
+            "asks_preferences": False,
+            "asks_facts": False
+        }
+
+        if "who are you" in text_lower or "your name" in text_lower:
+            patterns["asks_name"] = True
+
+        if extracted_name:
+            patterns["says_name"] = True
+            patterns["user_name"] = extracted_name
+
+        if token_set.intersection({"hello", "hi", "hey"}):
+            patterns["greets"] = True
+
+        if "do you remember me" in text_lower or "remember my name" in text_lower:
+            patterns["asks_memory"] = True
+
+        if any(phrase in text_lower for phrase in ["what is my name", "who am i"]):
+            patterns["asks_user_name"] = True
+
+        if any(phrase in text_lower for phrase in ["who made you", "who created you", "who built you"]):
+            patterns["asks_creator"] = True
+
+        if any(phrase in text_lower for phrase in ["how old are you", "what is your age", "what's your age"]):
+            patterns["asks_age"] = True
+
+        if any(phrase in text_lower for phrase in ["where are you from", "where do you live", "where were you made"]):
+            patterns["asks_origin"] = True
+
+        if any(
+            phrase in text_lower
+            for phrase in [
+                "what language do you speak",
+                "which language do you speak",
+                "do you speak portuguese",
+                "do you speak english",
+                "what languages do you know",
+            ]
+        ):
+            patterns["asks_language"] = True
+
+        if any(phrase in text_lower for phrase in ["how are you", "how do you feel"]) or self.parse_natural_status_request(text_lower):
+            patterns["asks_status"] = True
+
+        if token_set.intersection({"bye", "goodbye", "later"}) or "see you" in text_lower:
+            patterns["farewell"] = True
+
+        if "thanks" in token_set or "thank you" in text_lower:
+            patterns["thanks"] = True
+
+        if any(phrase in text_lower for phrase in ["sorry", "i'm sorry", "my bad", "oops sorry"]):
+            patterns["apology"] = True
+
+        if any(
+            phrase in text_lower
+            for phrase in [
+                "good job",
+                "well done",
+                "you're awesome",
+                "you are awesome",
+                "you're smart",
+                "you are smart",
+                "i love you",
+                "you're cute",
+                "you are cute",
+            ]
+        ):
+            patterns["compliment"] = True
+
+        if any(
+            phrase in text_lower
+            for phrase in [
+                "you're stupid",
+                "you are stupid",
+                "you're dumb",
+                "you are dumb",
+                "you're useless",
+                "you are useless",
+                "idiot",
+            ]
+        ):
+            patterns["insult"] = True
+
+        if any(phrase in text_lower for phrase in ["what time is it", "tell me the time", "current time", "que horas são", "que horas sao"]):
+            patterns["asks_time"] = True
+
+        if any(
+            phrase in text_lower
+            for phrase in [
+                "what day is it",
+                "what is today's date",
+                "what's today's date",
+                "what is the date today",
+                "today's date",
+            ]
+        ):
+            patterns["asks_date"] = True
+
+        if any(
+            phrase in text_lower
+            for phrase in [
+                "bye maya",
+                "go to background",
+                "run in background",
+                "hide yourself",
+                "hide maya",
+                "minimize yourself",
+                "minimize the window",
+                "go to the background",
+                "vai pro segundo plano",
+                "vai para o segundo plano",
+                "desocupa a tela",
+                "fica em segundo plano",
+            ]
+        ):
+            patterns["background_app"] = True
+
+        if any(
+            phrase in text_lower
+            for phrase in [
+                "close the input",
+                "close input",
+                "hide input",
+                "hide the input",
+                "close the mini window",
+                "close the input window",
+                "hide the input window",
+                "feche a janela",
+                "fecha a janela",
+                "feche o input",
+                "fecha o input",
+                "esconde o input",
+                "esconde a janela de input",
+            ]
+        ):
+            patterns["hide_input_window"] = True
+
+        move_target = self.parse_window_move_request(text_lower)
+        if move_target:
+            patterns["move_app"] = True
+            patterns["move_app_target"] = move_target
+
+        scale_target = self.parse_scale_request(text_lower)
+        if scale_target:
+            patterns["scale_app"] = True
+            patterns["scale_app_target"] = scale_target
+
+        if any(phrase in text_lower for phrase in ["what can you do", "help me", "your capabilities"]) or self.parse_natural_capabilities_request(text_lower):
+            patterns["asks_capabilities"] = True
+
+        if self.dev_assistant:
+            dev_project_spec = self.dev_assistant.parse_request(text_lower)
+            if dev_project_spec:
+                patterns["dev_project_action"] = True
+                patterns["dev_project_spec"] = dev_project_spec
+
+        natural_media = self.parse_natural_media_action(text_lower)
+        if natural_media:
+            if natural_media["kind"] == "spotify":
+                patterns["spotify_action"] = True
+                patterns["spotify_mode"] = natural_media["mode"]
+                patterns["spotify_query"] = natural_media["query"]
+                patterns["spotify_spoken_query"] = natural_media["spoken_query"]
+            elif natural_media["kind"] == "media":
+                patterns["media_action"] = True
+                patterns["media_query"] = natural_media["query"]
+                patterns["media_service"] = natural_media["service"]
+                patterns["media_browser_alias"] = natural_media["browser_alias"]
+            elif natural_media["kind"] == "web":
+                patterns["web_action"] = True
+                patterns["web_mode"] = natural_media["mode"]
+                patterns["web_query"] = natural_media["query"]
+                patterns["web_browser_alias"] = natural_media["browser_alias"]
+
+        natural_site = self.parse_natural_site_action(text_lower)
+        if natural_site and not patterns["web_action"] and not patterns["spotify_action"] and not patterns["media_action"]:
+            patterns["web_action"] = True
+            patterns["web_mode"] = natural_site["mode"]
+            patterns["web_query"] = natural_site["query"]
+            patterns["web_browser_alias"] = natural_site["browser_alias"]
+
+        site_match = re.search(
+            r"\b(?:open|go to|visit)\s+(?:site|website)\s+([a-zA-Z0-9.-]+\.[a-z]{2,}(?:/[^\s]+)?)$",
+            text_lower
+        )
+        if site_match and not patterns["web_action"]:
+            patterns["web_action"] = True
+            patterns["web_mode"] = "site"
+            patterns["web_query"] = site_match.group(1).strip()
+            patterns["launch_app"] = False
+            patterns["app_alias"] = None
+
+        image_match = re.search(
+            r"\b(?:search|find|show me|look up)\s+(?:images|image|pictures|pics|photos)\s+(?:of|for)?\s+(.+)$",
+            text_lower
+        )
+        if image_match and not patterns["web_action"]:
+            patterns["web_action"] = True
+            patterns["web_mode"] = "image"
+            patterns["web_query"] = image_match.group(1).strip()
+
+        video_match = re.search(
+            r"\b(?:search|find|show me|look up)\s+(?:videos|video)\s+(?:of|for|about)?\s+(.+)$",
+            text_lower
+        )
+        if video_match and not patterns["web_action"]:
+            patterns["web_action"] = True
+            patterns["web_mode"] = "video"
+            patterns["web_query"] = video_match.group(1).strip()
+
+        targeted_video_match = re.search(
+            r"\b(?:open|search|find|show me|look up)\s+(?:a\s+)?(.+?)\s+video(?:s)?\s+(?:in|on|using)\s+([a-zA-Z0-9 .+-]+)$",
+            text_lower
+        )
+        if targeted_video_match and not patterns["web_action"]:
+            patterns["web_action"] = True
+            patterns["web_mode"] = "video"
+            patterns["web_query"] = targeted_video_match.group(1).strip()
+            patterns["web_browser_alias"] = targeted_video_match.group(2).strip()
+            patterns["launch_app"] = False
+            patterns["app_alias"] = None
+
+        launch_match = re.search(
+            r"\b(?:open|launch|start|run)\s+([a-zA-Z0-9 .+-]+?)(?:\s+(?:for me|please))?$",
+            text_lower
+        )
+        if launch_match and not patterns["web_action"] and not patterns["spotify_action"] and not patterns["media_action"] and not patterns["dev_project_action"]:
+            patterns["launch_app"] = True
+            patterns["app_alias"] = launch_match.group(1).strip()
+
+        close_match = re.search(
+            r"\b(?:close|quit|exit|stop)\s+([a-zA-Z0-9 .+-]+?)(?:\s+(?:for me|please))?$",
+            text_lower
+        )
+        if close_match and not patterns["web_action"] and not patterns["spotify_action"] and not patterns["media_action"] and not patterns["dev_project_action"]:
+            patterns["close_app"] = True
+            patterns["app_alias"] = close_match.group(1).strip()
+
+        text_search_match = re.search(
+            r"\b(?:search for|look up|google|search)\s+(.+)$",
+            text_lower
+        )
+        if text_search_match and not patterns["web_action"]:
+            patterns["web_action"] = True
+            patterns["web_mode"] = "text"
+            patterns["web_query"] = text_search_match.group(1).strip()
+
+        if any(phrase in text_lower for phrase in ["what were we talking about", "what is the topic", "what were we discussing"]):
+            patterns["asks_last_topic"] = True
+
+        if any(phrase in text_lower for phrase in ["what did i just say", "what was my last message", "what did i say before"]):
+            patterns["asks_previous_message"] = True
+
+        if any(phrase in text_lower for phrase in ["what else", "anything else", "tell me more", "what more"]):
+            patterns["asks_follow_up"] = True
+
+        if any(phrase in text_lower for phrase in ["never mind", "cancel that", "forget it"]):
+            patterns["cancel_learning"] = True
+
+        if preference_value:
+            patterns["sets_preference"] = True
+            patterns["preference_value"] = preference_value
+
+        if removed_preference_value:
+            patterns["removes_preference"] = True
+            patterns["preference_value"] = removed_preference_value
+
+        if preference_query_value:
+            patterns["asks_specific_preference"] = True
+            patterns["preference_query_value"] = preference_query_value
+
+        if fact_value and not fact_query_value:
+            patterns["sets_fact"] = True
+            patterns["fact_value"] = fact_value
+
+        if fact_query_value:
+            patterns["asks_specific_fact"] = True
+            patterns["fact_query_value"] = fact_query_value
+
+        if any(phrase in text_lower for phrase in ["what do i like", "what are my preferences", "what do you know i like"]):
+            patterns["asks_preferences"] = True
+
+        if any(phrase in text_lower for phrase in ["what do you remember", "what facts do you know", "what do you know about me"]):
+            patterns["asks_facts"] = True
+
+        is_question_like = (
+            text_lower.endswith("?")
+            or bool(re.match(r"^(what|why|how|when|where|who)\b", text_lower))
+            or self.is_knowledge_request(text_lower)
+        )
+
+        if (
+            not any([
+                patterns["asks_name"],
+                patterns["says_name"],
+                patterns["asks_memory"],
+                patterns["asks_user_name"],
+                patterns["asks_creator"],
+                patterns["asks_age"],
+                patterns["asks_origin"],
+                patterns["asks_language"],
+                patterns["greets"],
+                patterns["farewell"],
+                patterns["thanks"],
+                patterns["apology"],
+                patterns["compliment"],
+                patterns["insult"],
+                patterns["background_app"],
+                patterns["hide_input_window"],
+                patterns["move_app"],
+                patterns["scale_app"],
+                patterns["asks_status"],
+                patterns["asks_time"],
+                patterns["asks_date"],
+                patterns["asks_capabilities"],
+                patterns["dev_project_action"],
+                patterns["launch_app"],
+                patterns["close_app"],
+                patterns["spotify_action"],
+                patterns["media_action"],
+                patterns["web_action"],
+                patterns["asks_last_topic"],
+                patterns["asks_previous_message"],
+                patterns["asks_follow_up"],
+                patterns["sets_preference"],
+                patterns["asks_specific_preference"],
+                patterns["removes_preference"],
+                patterns["sets_fact"],
+                patterns["asks_specific_fact"],
+                patterns["asks_preferences"],
+                patterns["asks_facts"],
+                patterns["cancel_learning"],
+            ])
+            and is_question_like
+        ):
+            patterns["asks_unknown"] = True
+
+        return patterns
+
+    @staticmethod
+    def tokenize(value):
+        return re.findall(r"\b[\w']+\b", value.lower())
