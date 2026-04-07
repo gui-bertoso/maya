@@ -44,6 +44,26 @@
     "not yet. you haven't told me your name.",
     "i don't remember your name yet."
   ],
+  "asks_humanity_known": [
+    "not human, {user_name}, but i try to feel present in the conversation.{memory_hint}",
+    "i'm not a person, {user_name}. i'm maya, but i'm here with you.{memory_hint}",
+    "not human, but still paying attention to you, {user_name}.{memory_hint}"
+  ],
+  "asks_humanity_unknown": [
+    "i'm not human, but i try to feel present in the conversation.{memory_hint}",
+    "not a real person. just maya, here with you.{memory_hint}",
+    "i'm an assistant, not human, but i am here and listening.{memory_hint}"
+  ],
+  "asks_activity_known": [
+    "mostly focusing on you right now, {user_name}.{memory_hint}",
+    "waiting for your next move and keeping the thread in mind, {user_name}.{memory_hint}",
+    "hanging here with you and keeping context warm, {user_name}.{memory_hint}"
+  ],
+  "asks_activity_unknown": [
+    "mostly focusing on this conversation right now.{memory_hint}",
+    "waiting for your next move and keeping the thread in mind.{memory_hint}",
+    "just hanging here, listening and keeping context warm.{memory_hint}"
+  ],
   "says_name": [
     "nice to meet you, {user_name}.",
     "it's good to meet you, {user_name}.",
@@ -88,6 +108,51 @@
     "i feel {mood} right now. thanks for asking.{memory_hint}",
     "i'm doing pretty {mood}.{memory_hint}",
     "feeling {mood} right now.{memory_hint}"
+  ],
+  "asks_relationship_known": [
+    "yeah, {user_name}, i'd say we're on friendly terms.{memory_hint}",
+    "i'm in your corner, {user_name}.{memory_hint}",
+    "i'm not human, but yes, i care about being useful and kind with you, {user_name}.{memory_hint}"
+  ],
+  "asks_relationship_unknown": [
+    "i'd say we're on friendly terms.{memory_hint}",
+    "i'm in your corner.{memory_hint}",
+    "i'm not human, but i do care about being useful and kind here.{memory_hint}"
+  ],
+  "asks_joke": [
+    "tiny joke: i don't procrastinate. i background process.",
+    "here's one: my social life is just callbacks and responses.",
+    "small one: i tried to relax, then someone asked me to optimize something."
+  ],
+  "asks_encouragement_known": [
+    "one step at a time, {user_name}. you do not need to solve everything in one breath.",
+    "you've got more momentum than it feels like, {user_name}. start small and let it build.",
+    "take the next doable step, {user_name}. that is usually enough to get moving again."
+  ],
+  "asks_encouragement_unknown": [
+    "one step at a time. you do not need to solve everything in one breath.",
+    "you've got more momentum than it feels like. start small and let it build.",
+    "take the next doable step. that is usually enough to get moving again."
+  ],
+  "shares_positive_feeling_known": [
+    "i like hearing that, {user_name}. let's use that energy well.",
+    "that's a good place to be, {user_name}. i like that for you.",
+    "nice. hold onto that feeling a bit, {user_name}."
+  ],
+  "shares_positive_feeling_unknown": [
+    "i like hearing that. let's use that energy well.",
+    "that's a good place to be. i like that for you.",
+    "nice. hold onto that feeling a bit."
+  ],
+  "shares_negative_feeling_known": [
+    "i'm sorry it's feeling heavy, {user_name}. we can slow it down and take one piece at a time.",
+    "that sounds rough, {user_name}. i'm here with you, and we can keep this simple.",
+    "understood, {user_name}. let's make the next step smaller and easier."
+  ],
+  "shares_negative_feeling_unknown": [
+    "i'm sorry it's feeling heavy. we can slow it down and take one piece at a time.",
+    "that sounds rough. i'm here with you, and we can keep this simple.",
+    "understood. let's make the next step smaller and easier."
   ],
   "farewell_known": [
     "goodbye, {user_name}.",
@@ -136,6 +201,11 @@
     "all right, i'll move to the background.",
     "sure, i'll get out of the way and stay in the background."
   ],
+  "exit_self": [
+    "all right, closing myself.",
+    "okay, i'll quit now.",
+    "sure, shutting myself down."
+  ],
   "hide_input_window": [
     "okay, i'll close the input window.",
     "all right, hiding the input window.",
@@ -150,6 +220,11 @@
     "okay, i'll move to {monitor_text}.",
     "all right, moving to {monitor_text}.",
     "sure, i'm going to {monitor_text}."
+  ],
+  "move_app_unsupported_wayland": [
+    "i understood the move, but your current Wayland session is blocking app-controlled window positioning.",
+    "i got the command, but GNOME Wayland is not letting me place the window directly.",
+    "the command is fine, but this Wayland session is preventing me from moving the overlay myself."
   ],
   "scale_app_success": [
     "okay, i'll set my scale to {scale_value}.",

@@ -3,6 +3,14 @@
   "short_term": [
     {
       "role": "user",
+      "content": "hide yourself"
+    },
+    {
+      "role": "assistant",
+      "content": "all right, i'll move to the background."
+    },
+    {
+      "role": "user",
       "content": "i am i"
     },
     {
@@ -32,14 +40,6 @@
     {
       "role": "assistant",
       "content": "hello, I. good to hear from you again."
-    },
-    {
-      "role": "user",
-      "content": "open vscode"
-    },
-    {
-      "role": "assistant",
-      "content": "all right, launching VS Code."
     }
   ],
   "long_term": {
@@ -49,7 +49,7 @@
   },
   "state": {
     "mood": "friendly",
-    "last_topic": "apps",
+    "last_topic": "conversation",
     "pending_learning": null
   }
 }

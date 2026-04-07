@@ -3,6 +3,7 @@ import os
 import glob
 import getpass
 import subprocess
+import sys
 
 from helpers.config import get_path
 
@@ -13,11 +14,20 @@ class AppLauncher:
     def __init__(self, apps_path=APPS_PATH):
         self.apps_path = apps_path
         self.system_username = self.detect_system_username()
+        self.platform_key = self.detect_platform_key()
         self.apps = self.load_apps()
 
     @staticmethod
     def detect_system_username():
         return os.getenv("USERNAME") or getpass.getuser()
+
+    @staticmethod
+    def detect_platform_key():
+        if sys.platform.startswith("win"):
+            return "windows"
+        if sys.platform == "darwin":
+            return "macos"
+        return "linux"
 
     def load_apps(self):
         with open(self.apps_path, "r", encoding="utf-8") as file:
@@ -77,6 +87,26 @@ class AppLauncher:
         existing_matches.sort(key=lambda item: (os.path.getmtime(item), item.lower()), reverse=True)
         return existing_matches[0]
 
+    def get_platform_value(self, config, key):
+        if not isinstance(config, dict):
+            return None
+
+        platform_specific_key = f"{key}_{self.platform_key}"
+        if platform_specific_key in config:
+            return config.get(platform_specific_key)
+
+        value = config.get(key)
+        if isinstance(value, dict):
+            return (
+                value.get(self.platform_key)
+                or value.get("default")
+                or value.get("windows")
+                or value.get("linux")
+                or value.get("macos")
+            )
+
+        return value
+
     def resolve_command(self, command):
         if isinstance(command, list):
             return [self.resolve_command(part) for part in command]
@@ -88,16 +118,51 @@ class AppLauncher:
 
         return expanded
 
+    @staticmethod
+    def _command_exists(command):
+        if not command:
+            return False
+        return subprocess.run(
+            ["sh", "-lc", f"command -v {subprocess.list2cmdline([str(command)])} >/dev/null 2>&1"],
+            capture_output=True,
+            text=True,
+            check=False,
+        ).returncode == 0
+
+    def _resolve_platform_command(self, config):
+        command = self.get_platform_value(config, "command")
+        if not command:
+            return None
+
+        if isinstance(command, list) and command and all(isinstance(item, str) for item in command):
+            return self.resolve_command(command)
+
+        if isinstance(command, str):
+            return self.resolve_command(command)
+
+        if isinstance(command, tuple):
+            return self.resolve_command(list(command))
+
+        return command
+
+    def _open_target(self, target):
+        if sys.platform.startswith("win"):
+            os.startfile(target)
+            return
+
+        opener = "open" if sys.platform == "darwin" else "xdg-open"
+        subprocess.Popen([opener, target])
+
     def launch(self, app_key):
         config = self.apps.get(app_key)
         if not config:
             return False, "unknown_app"
 
-        command = config.get("command")
+        command = self.get_platform_value(config, "command")
         if not command:
             return False, "missing_command"
 
-        resolved_command = self.resolve_command(command)
+        resolved_command = self._resolve_platform_command(config)
 
         try:
             if isinstance(resolved_command, list):
@@ -105,9 +170,9 @@ class AppLauncher:
             else:
                 target = str(resolved_command)
                 if os.path.exists(target) or target.startswith(("http://", "https://")):
-                    os.startfile(target)
+                    self._open_target(target)
                 else:
-                    subprocess.Popen(["cmd", "/c", "start", "", target])
+                    subprocess.Popen([target])
         except Exception:
             return False, "launch_failed"
 
@@ -118,11 +183,11 @@ class AppLauncher:
         if not config:
             return False, "unknown_app"
 
-        command = config.get("command")
+        command = self.get_platform_value(config, "command")
         if not command:
             return False, "missing_command"
 
-        resolved_command = self.resolve_command(command)
+        resolved_command = self._resolve_platform_command(config)
 
         try:
             if isinstance(resolved_command, list):
@@ -139,7 +204,13 @@ class AppLauncher:
             return False, "missing_command"
 
         try:
-            subprocess.Popen(["cmd", "/c", "start", "", raw_target.strip()])
+            target = raw_target.strip()
+            if target.startswith(("http://", "https://")) or os.path.exists(os.path.expanduser(target)):
+                self._open_target(os.path.expanduser(target))
+            elif sys.platform.startswith("win"):
+                subprocess.Popen(["cmd", "/c", "start", "", target])
+            else:
+                subprocess.Popen([target])
         except Exception:
             return False, "launch_failed"
 
@@ -158,7 +229,7 @@ class AppLauncher:
 
     def get_process_names(self, app_key):
         config = self.apps.get(app_key, {})
-        configured = config.get("process_names", [])
+        configured = self.get_platform_value(config, "process_names") or []
         process_names = []
 
         for item in configured:
@@ -169,7 +240,7 @@ class AppLauncher:
         if process_names:
             return process_names
 
-        command = config.get("command")
+        command = self.get_platform_value(config, "command")
         resolved_command = self.resolve_command(command) if command else None
 
         if isinstance(resolved_command, list) and resolved_command:
@@ -191,12 +262,20 @@ class AppLauncher:
         closed_any = False
         for process_name in process_names:
             try:
-                result = subprocess.run(
-                    ["taskkill", "/IM", f"{process_name}.exe", "/F"],
-                    capture_output=True,
-                    text=True,
-                    check=False,
-                )
+                if sys.platform.startswith("win"):
+                    result = subprocess.run(
+                        ["taskkill", "/IM", f"{process_name}.exe", "/F"],
+                        capture_output=True,
+                        text=True,
+                        check=False,
+                    )
+                else:
+                    result = subprocess.run(
+                        ["pkill", "-f", process_name],
+                        capture_output=True,
+                        text=True,
+                        check=False,
+                    )
             except Exception:
                 return False, "close_failed"
 

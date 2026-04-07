@@ -3,35 +3,27 @@
   "short_term": [
     {
       "role": "user",
-      "content": "bear"
+      "content": "quit yourself"
     },
     {
       "role": "assistant",
-      "content": "i'm not fully there yet, Gui, but i'm listening."
+      "content": "all right, closing myself."
     },
     {
       "role": "user",
-      "content": "hey maya"
+      "content": "move to bottom left"
     },
     {
       "role": "assistant",
-      "content": "hello, Gui. good to hear from you again."
+      "content": "all right, moving to bottom left on this monitor."
     },
     {
       "role": "user",
-      "content": "how are you"
+      "content": "moved it up left"
     },
     {
       "role": "assistant",
-      "content": "i'm doing friendly, Gui. thanks for asking."
-    },
-    {
-      "role": "user",
-      "content": "open vs code"
-    },
-    {
-      "role": "assistant",
-      "content": "sure, opening VS Code now."
+      "content": "i'm still figuring things out, Gui, but i'm with you."
     },
     {
       "role": "user",
@@ -39,17 +31,25 @@
     },
     {
       "role": "assistant",
-      "content": "okay, i'll stay in the background."
+      "content": "all right, i'll move to the background."
+    },
+    {
+      "role": "user",
+      "content": "i am i"
+    },
+    {
+      "role": "assistant",
+      "content": "got it, i. nice to know your name."
     }
   ],
   "long_term": {
-    "user_name": "Gui",
+    "user_name": "I",
     "preferences": [],
     "known_facts": []
   },
   "state": {
     "mood": "friendly",
-    "last_topic": "app",
+    "last_topic": "name",
     "pending_learning": null
   }
 }

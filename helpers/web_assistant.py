@@ -4,6 +4,7 @@ import ssl
 import urllib.parse
 import urllib.request
 import webbrowser
+import xml.etree.ElementTree as ET
 
 
 class WebAssistant:
@@ -112,6 +113,10 @@ class WebAssistant:
             payload = response.read().decode("utf-8", errors="replace")
             return json.loads(payload)
 
+    def _fetch_text(self, url):
+        with self._open_request(url) as response:
+            return response.read().decode("utf-8", errors="replace")
+
     def open_url(self, url):
         webbrowser.open(url)
 
@@ -148,6 +153,52 @@ class WebAssistant:
         if not re.match(r"^https?://", target):
             target = "https://" + target
         return target
+
+    def get_weather_brief(self, location=None):
+        target = (location or "").strip()
+        if target:
+            url = f"https://wttr.in/{self._encode(target)}?format=j1"
+        else:
+            url = "https://wttr.in/?format=j1"
+
+        try:
+            data = self._fetch_json(url)
+        except Exception:
+            return None
+
+        current = (data.get("current_condition") or [{}])[0]
+        weather = ((current.get("weatherDesc") or [{}])[0].get("value") or "").strip()
+        temp_c = self._clean_fragment(current.get("temp_C", ""))
+        feels_c = self._clean_fragment(current.get("FeelsLikeC", ""))
+
+        if not temp_c:
+            return None
+
+        parts = [f"{temp_c} degrees celsius"]
+        if feels_c and feels_c != temp_c:
+            parts.append(f"feels like {feels_c}")
+        if weather:
+            parts.append(weather.lower())
+
+        return ", ".join(parts)
+
+    def get_top_news_headlines(self, limit=3, feed_url="https://feeds.bbci.co.uk/news/rss.xml"):
+        try:
+            payload = self._fetch_text(feed_url)
+            root = ET.fromstring(payload)
+        except Exception:
+            return []
+
+        headlines = []
+        for item in root.findall(".//item"):
+            title = self._clean_fragment(item.findtext("title", ""))
+            if not title:
+                continue
+            headlines.append(title)
+            if len(headlines) >= limit:
+                break
+
+        return headlines
 
     def get_text_summary(self, query):
         translation = self._try_translation(query)
