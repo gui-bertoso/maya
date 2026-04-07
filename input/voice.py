@@ -1,9 +1,15 @@
 import json
 import queue
 import threading
-import sounddevice as sd
 import vosk
 from helpers.config import get_env
+
+try:
+    import sounddevice as sd
+    _SOUNDDEVICE_IMPORT_ERROR = None
+except (ImportError, OSError) as error:
+    sd = None
+    _SOUNDDEVICE_IMPORT_ERROR = error
 
 
 class Voice:
@@ -26,7 +32,15 @@ class Voice:
         self.UI_MODE = get_env("UI_MODE", "maya")
         self.LANGUAGE = get_env("LANGUAGE", "en")
 
+    def _set_audio_backend_error(self, reason=None):
+        base_reason = reason or _SOUNDDEVICE_IMPORT_ERROR
+        self.last_error = str(base_reason) if base_reason else "sounddevice is unavailable"
+        return False
+
     def has_input_device(self):
+        if sd is None:
+            return self._set_audio_backend_error()
+
         try:
             devices = sd.query_devices()
         except Exception as error:
@@ -136,6 +150,11 @@ class Voice:
     def start_background(self, on_final_text=None, on_partial_text=None, on_status_change=None):
         if self.thread and self.thread.is_alive():
             return True
+
+        if sd is None:
+            self._set_audio_backend_error()
+            self.set_status("unavailable", on_status_change)
+            return False
 
         if not self.has_input_device():
             self.set_status("unavailable", on_status_change)

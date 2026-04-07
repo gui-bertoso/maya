@@ -3,19 +3,11 @@
   "short_term": [
     {
       "role": "user",
-      "content": "how are you"
+      "content": "i am i"
     },
     {
       "role": "assistant",
-      "content": "i'm doing friendly, Gui. thanks for asking."
-    },
-    {
-      "role": "user",
-      "content": "open vs code"
-    },
-    {
-      "role": "assistant",
-      "content": "sure, opening VS Code now."
+      "content": "got it, i. nice to know your name."
     },
     {
       "role": "user",
@@ -27,29 +19,37 @@
     },
     {
       "role": "user",
-      "content": "how are you"
+      "content": "hey maya"
     },
     {
       "role": "assistant",
-      "content": "i'm feeling friendly, Gui. thanks for asking."
+      "content": "hey, I. good to see you again."
     },
     {
       "role": "user",
-      "content": "create your new project in python over scored"
+      "content": "hello"
     },
     {
       "role": "assistant",
-      "content": "i created the python project python_project_4."
+      "content": "hello, I. good to hear from you again."
+    },
+    {
+      "role": "user",
+      "content": "open vscode"
+    },
+    {
+      "role": "assistant",
+      "content": "all right, launching VS Code."
     }
   ],
   "long_term": {
-    "user_name": "Gui",
+    "user_name": "I",
     "preferences": [],
     "known_facts": []
   },
   "state": {
     "mood": "friendly",
-    "last_topic": "dev",
+    "last_topic": "apps",
     "pending_learning": null
   }
 }

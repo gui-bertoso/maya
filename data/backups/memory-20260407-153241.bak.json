@@ -1,0 +1,55 @@
+{
+  "short_term_limit": 10,
+  "short_term": [
+    {
+      "role": "user",
+      "content": "moved it up left"
+    },
+    {
+      "role": "assistant",
+      "content": "i'm still figuring things out, Gui, but i'm with you."
+    },
+    {
+      "role": "user",
+      "content": "hide yourself"
+    },
+    {
+      "role": "assistant",
+      "content": "all right, i'll move to the background."
+    },
+    {
+      "role": "user",
+      "content": "i am i"
+    },
+    {
+      "role": "assistant",
+      "content": "got it, i. nice to know your name."
+    },
+    {
+      "role": "user",
+      "content": "hide yourself"
+    },
+    {
+      "role": "assistant",
+      "content": "okay, i'll stay in the background."
+    },
+    {
+      "role": "user",
+      "content": "hey maya"
+    },
+    {
+      "role": "assistant",
+      "content": "hey, I. good to see you again."
+    }
+  ],
+  "long_term": {
+    "user_name": "I",
+    "preferences": [],
+    "known_facts": []
+  },
+  "state": {
+    "mood": "friendly",
+    "last_topic": "conversation",
+    "pending_learning": null
+  }
+}

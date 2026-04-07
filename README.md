@@ -87,6 +87,21 @@ Dependencies expected by the code:
 pip install -r requirements.txt
 ```
 
+`sounddevice` also requires the native PortAudio library from the operating system. If PortAudio is missing, Maya will still start after the current fallback handling, but microphone-based clap detection and speech input will stay unavailable until the library is installed.
+
+Common install commands:
+
+```bash
+# Debian/Ubuntu
+sudo apt install portaudio19-dev
+
+# Fedora
+sudo dnf install portaudio-devel
+
+# Arch
+sudo pacman -S portaudio
+```
+
 ## Configuration
 
 The project uses a `.env` file in the root directory. Example based on the current configuration:
@@ -106,6 +121,10 @@ CLAP_WINDOW=0.75
 WAKE_DURATION=6.0
 WAKE_RESPONSE_TEXT=yes?
 WAKE_RESPONSE_OPTIONS=oi|fala|to aqui|diz ai|pronto
+STARTUP_GREETING_ENABLED=true
+STARTUP_GREETING_DELAY=8.0
+STARTUP_BRIEF_RESPONSE_WINDOW=20.0
+DAILY_BRIEF_LOCATION=
 
 DEBUG_MODE=false
 UI_MODE=maya
@@ -155,6 +174,10 @@ DEV_PROJECTS_PATH=generated_projects
 - `WAKE_DURATION`: how long Maya stays awake after activation or user input.
 - `WAKE_RESPONSE_TEXT`: short text shown and spoken when Maya wakes up.
 - `WAKE_RESPONSE_OPTIONS`: optional `|`-separated list of wake phrases; when set, Maya picks one at random.
+- `STARTUP_GREETING_ENABLED`: whether Maya greets you automatically after startup/login.
+- `STARTUP_GREETING_DELAY`: delay before the login greeting starts.
+- `STARTUP_BRIEF_RESPONSE_WINDOW`: how long Maya listens for your answer after the login greeting.
+- `DAILY_BRIEF_LOCATION`: optional location used for the startup weather summary.
 - `DEBUG_MODE`: enables terminal logs.
 - `WINDOW_WIDTH` and `WINDOW_HEIGHT`: main window size.
 - `WINDOW_CAPTION`: title shown in the application window.

@@ -7,8 +7,11 @@ from core import vocabulary_manager
 from input.clap_detector import ClapDetector
 import time
 import random
+import sys
+import threading
+import datetime
 from output.speaker import Speaker
-from helpers.config import get_env
+from helpers.config import get_env, reload_env, save_env_values
 from helpers.app_launcher import AppLauncher
 from helpers.dev_assistant import DevAssistant
 from helpers.global_hotkey import GlobalHotkeyListener
@@ -50,6 +53,45 @@ class App:
         "i'm still figuring things out",
         "i'm not fully there yet",
     )
+    SETTINGS_COMMANDS = {
+        "open settings",
+        "open user settings",
+        "show settings",
+        "show user settings",
+        "maya open settings",
+        "maya open user settings",
+        "maya settings",
+        "user settings",
+        "settings",
+        "abrir configuracoes",
+        "abrir configuracao",
+        "abrir settings",
+        "abrir configuracoes da maya",
+        "maya abrir configuracoes",
+    }
+    STARTUP_BRIEF_ACCEPT_INPUTS = {
+        "yes", "yeah", "yep", "sure", "ok", "okay", "tell me", "show me", "manda", "sim", "claro", "bora",
+    }
+    STARTUP_BRIEF_DECLINE_INPUTS = {
+        "no", "nope", "nah", "not now", "later", "agora nao", "agora não", "nao", "não", "depois",
+    }
+    STARTUP_GREETING_OPTIONS = [
+        "good morning. welcome back. want a quick summary of the day?",
+        "hey, welcome back. do you want the day in a quick brief?",
+        "hi there. i'm up. want weather, time, date, and a few headlines?",
+        "welcome back. want me to give you the essentials for today?",
+        "hey. i'm here. should i give you a quick day summary?",
+    ]
+    STARTUP_BRIEF_DECLINE_OPTIONS = [
+        "all right. i'll be here if you want it later.",
+        "no problem. we can do it whenever you want.",
+        "okay. i'll stay quiet for now.",
+    ]
+    STARTUP_BRIEF_ERROR_OPTIONS = [
+        "i tried to pull the day brief, but the network did not cooperate.",
+        "i couldn't fetch the daily brief right now, but i can try again later.",
+        "the daily brief did not come through just now.",
+    ]
 
     def __init__(self):
         vocabulary_manager.load_vocabulary()
@@ -79,23 +121,9 @@ class App:
         self.speak_wake_response_on_clap = get_env("SPEAK_WAKE_RESPONSE_ON_CLAP", "true").lower() == "true"
         self.speak_wake_response_on_hotkey = get_env("SPEAK_WAKE_RESPONSE_ON_HOTKEY", "true").lower() == "true"
 
-        self.speaker = Speaker(
-            rate=get_env("TTS_RATE", 180, int),
-            volume=get_env("TTS_VOLUME", 1.0, float),
-            voice_id=get_env("TTS_VOICE_ID"),
-            preferred_gender=get_env("TTS_VOICE_GENDER", "female"),
-        )
-
-        self.clap_detector = ClapDetector(
-            threshold=get_env("CLAP_THRESHOLD", 150, int),
-            cooldown=get_env("CLAP_COOLDOWN", 0.18, float),
-            double_clap_window=get_env("CLAP_WINDOW", 0.75, float)
-        )
-
-        self.voice = Voice(
-            model_path=get_env("VOSK_MODEL_PATH", "models/vosk-model-small-en-us-0.15"),
-            sample_rate=get_env("VOICE_SAMPLE_RATE", 16000, int)
-        )
+        self.speaker = self._create_speaker()
+        self.clap_detector = self._create_clap_detector()
+        self.voice = self._create_voice()
 
         self.voice_active = False
         self.current_response_source = None
@@ -105,26 +133,235 @@ class App:
         self.last_wake_response_at = 0.0
         self.last_ignored_voice_at = 0.0
         self.ignored_voice_cooldown = get_env("VOICE_IGNORE_COOLDOWN", 1.2, float)
+        self.startup_greeting_enabled = get_env("STARTUP_GREETING_ENABLED", "true").lower() == "true"
+        self.startup_greeting_delay = get_env("STARTUP_GREETING_DELAY", 8.0, float)
+        self.startup_brief_response_window = get_env("STARTUP_BRIEF_RESPONSE_WINDOW", 20.0, float)
+        self.daily_brief_location = get_env("DAILY_BRIEF_LOCATION", "")
+        self.awaiting_startup_brief_response = False
 
         self.renderer = Renderer(
             self.events,
             submit_input_callback=self.handle_input,
             periodic_callback=self.update_app_state,
             keep_awake_callback=self.keep_awake,
+            settings_apply_callback=self.apply_user_settings,
         )
 
-        self.clap_detector.start(
+        clap_started = self.clap_detector.start(
             on_double_clap=self.handle_double_clap,
             on_clap=self.handle_single_clap
         )
-        self.hotkey_listener.start_ctrl_m(self.handle_hotkey_wake)
+        hotkey_started = self.hotkey_listener.start_pgdown_end(self.handle_hotkey_wake)
 
+        if not hotkey_started:
+            reason = getattr(self.hotkey_listener, "last_error", None) or "could not register PgDown + End"
+            print(f"global hotkey unavailable: {reason}")
+
+        if not clap_started and self.clap_detector.last_error:
+            print(f"microphone wake unavailable: {self.clap_detector.last_error}")
+
+        if not hotkey_started and not clap_started:
+            print("no wake method is currently available, opening Maya on screen")
+            self.send_event("app_foreground", None)
+            self.send_event("app_show_quick_input", None)
+
+        self._schedule_startup_greeting()
         self.renderer.run()
+
+    @staticmethod
+    def _normalize_command(text):
+        normalized = (text or "").strip().lower()
+        replacements = {
+            "ç": "c",
+            "á": "a",
+            "à": "a",
+            "ã": "a",
+            "â": "a",
+            "é": "e",
+            "ê": "e",
+            "í": "i",
+            "ó": "o",
+            "ô": "o",
+            "õ": "o",
+            "ú": "u",
+        }
+        for source, target in replacements.items():
+            normalized = normalized.replace(source, target)
+        return " ".join(normalized.split())
+
+    def _is_settings_command(self, text):
+        normalized = self._normalize_command(text)
+        return normalized in self.SETTINGS_COMMANDS
+
+    def _create_speaker(self):
+        default_rate = 150 if sys.platform.startswith("linux") else 180
+        return Speaker(
+            rate=get_env("TTS_RATE", default_rate, int),
+            volume=get_env("TTS_VOLUME", 1.0, float),
+            voice_id=get_env("TTS_VOICE_ID"),
+            preferred_gender=get_env("TTS_VOICE_GENDER", "female"),
+            language=self.LANGUAGE,
+        )
+
+    def _create_clap_detector(self):
+        return ClapDetector(
+            threshold=get_env("CLAP_THRESHOLD", 150, int),
+            cooldown=get_env("CLAP_COOLDOWN", 0.18, float),
+            double_clap_window=get_env("CLAP_WINDOW", 0.75, float),
+        )
+
+    def _create_voice(self):
+        return Voice(
+            model_path=get_env("VOSK_MODEL_PATH", "models/vosk-model-small-en-us-0.15"),
+            sample_rate=get_env("VOICE_SAMPLE_RATE", 16000, int),
+        )
+
+    def apply_runtime_settings(self):
+        reload_env()
+
+        self.DEBUG_MODE = get_env("DEBUG_MODE", "false").lower() == "true"
+        self.UI_MODE = get_env("UI_MODE", "maya")
+        self.LANGUAGE = get_env("LANGUAGE", "en")
+        self.WAKE_RESPONSE_TEXT = get_env("WAKE_RESPONSE_TEXT", "yes?")
+        wake_response_options = get_env("WAKE_RESPONSE_OPTIONS", "")
+        self.wake_response_options = [
+            option.strip() for option in wake_response_options.split("|")
+            if option.strip()
+        ]
+        self.speak_wake_response_on_clap = get_env("SPEAK_WAKE_RESPONSE_ON_CLAP", "true").lower() == "true"
+        self.speak_wake_response_on_hotkey = get_env("SPEAK_WAKE_RESPONSE_ON_HOTKEY", "true").lower() == "true"
+        self.wake_duration = get_env("WAKE_DURATION", 6.0, float)
+        self.wake_response_cooldown = get_env("WAKE_RESPONSE_COOLDOWN", 2.5, float)
+        self.ignored_voice_cooldown = get_env("VOICE_IGNORE_COOLDOWN", 1.2, float)
+        self.startup_greeting_enabled = get_env("STARTUP_GREETING_ENABLED", "true").lower() == "true"
+        self.startup_greeting_delay = get_env("STARTUP_GREETING_DELAY", 8.0, float)
+        self.startup_brief_response_window = get_env("STARTUP_BRIEF_RESPONSE_WINDOW", 20.0, float)
+        self.daily_brief_location = get_env("DAILY_BRIEF_LOCATION", "")
+
+        self.process.DEBUG_MODE = self.DEBUG_MODE
+        self.process.UI_MODE = self.UI_MODE
+        self.process.LANGUAGE = self.LANGUAGE
+
+        if hasattr(self, "speaker") and self.speaker is not None:
+            self.speaker.stop()
+            self.speaker.shutdown()
+        self.speaker = self._create_speaker()
+
+        voice_was_active = getattr(self, "voice_active", False)
+        if hasattr(self, "voice") and self.voice is not None:
+            self.voice.stop()
+        self.voice = self._create_voice()
+        if voice_was_active:
+            started = self.voice.start_background(
+                on_final_text=self.handle_voice_input,
+                on_partial_text=self.handle_partial_voice,
+                on_status_change=self.handle_voice_status,
+            )
+            self.voice_active = bool(started)
+            self.send_event("voice_status", "ready" if started else "unavailable")
+        else:
+            self.voice_active = False
+
+        if hasattr(self, "clap_detector") and self.clap_detector is not None:
+            self.clap_detector.stop()
+        self.clap_detector = self._create_clap_detector()
+        clap_started = self.clap_detector.start(
+            on_double_clap=self.handle_double_clap,
+            on_clap=self.handle_single_clap,
+        )
+        if not clap_started and self.clap_detector.last_error:
+            print(f"microphone wake unavailable: {self.clap_detector.last_error}")
+
+        if hasattr(self, "renderer") and self.renderer is not None:
+            self.renderer.apply_runtime_settings()
+
+    def apply_user_settings(self, values):
+        try:
+            save_env_values(values)
+            self.apply_runtime_settings()
+            return True, "Settings applied to Maya."
+        except Exception as error:
+            return False, f"Could not apply settings: {error}"
 
     def get_wake_response_text(self):
         if self.wake_response_options:
             return random.choice(self.wake_response_options)
         return self.WAKE_RESPONSE_TEXT
+
+    def _schedule_startup_greeting(self):
+        if not self.startup_greeting_enabled or not sys.platform.startswith("linux"):
+            return
+
+        timer = threading.Timer(self.startup_greeting_delay, self._deliver_startup_greeting)
+        timer.daemon = True
+        timer.start()
+
+    def _deliver_startup_greeting(self):
+        greeting = random.choice(self.STARTUP_GREETING_OPTIONS)
+        self.awaiting_startup_brief_response = True
+        self.maya_awake_until = time.time() + self.startup_brief_response_window
+        self.send_event("response_text", greeting)
+        self.send_event("app_foreground", None)
+        self.send_event("voice_status", "speaking")
+        self.speaker.stop()
+        self.speaker.speak(greeting)
+        listen_delay = max(4.0, min(len(greeting) / 12.0, 8.0))
+        timer = threading.Timer(listen_delay, self._enable_startup_brief_listening)
+        timer.daemon = True
+        timer.start()
+
+    def _enable_startup_brief_listening(self):
+        if not self.awaiting_startup_brief_response or self.voice_active:
+            return
+
+        started = self.voice.start_background(
+            on_final_text=self.handle_voice_input,
+            on_partial_text=self.handle_partial_voice,
+            on_status_change=self.handle_voice_status,
+        )
+        self.voice_active = bool(started)
+        self.send_event("voice_status", "ready" if started else "unavailable")
+
+    def _looks_like_startup_brief_yes(self, text):
+        normalized = self._normalize_command(text)
+        return normalized in self.STARTUP_BRIEF_ACCEPT_INPUTS
+
+    def _looks_like_startup_brief_no(self, text):
+        normalized = self._normalize_command(text)
+        return normalized in self.STARTUP_BRIEF_DECLINE_INPUTS
+
+    def _build_daily_brief_text(self):
+        now = datetime.datetime.now()
+        date_text = now.strftime("%B %d")
+        time_text = now.strftime("%H:%M")
+
+        weather_text = self.process.web_assistant.get_weather_brief(self.daily_brief_location)
+        headlines = self.process.web_assistant.get_top_news_headlines(limit=3)
+
+        if not weather_text and not headlines:
+            return None
+
+        parts = [f"today is {date_text}.", f"the time is {time_text}."]
+        if weather_text:
+            parts.append(f"right now the weather is {weather_text}.")
+        if headlines:
+            joined = "; ".join(headlines[:3])
+            parts.append(f"three headlines for now: {joined}.")
+
+        return " ".join(parts)
+
+    def _speak_daily_brief_async(self):
+        def worker():
+            brief = self._build_daily_brief_text()
+            if not brief:
+                brief = random.choice(self.STARTUP_BRIEF_ERROR_OPTIONS)
+            self.send_event("response_text", brief)
+            self.send_event("voice_status", "speaking")
+            self.speaker.stop()
+            self.speaker.speak(brief)
+
+        thread = threading.Thread(target=worker, daemon=True)
+        thread.start()
 
     def wake_maya(self, trigger_source="clap"):
         now = time.time()
@@ -280,6 +517,24 @@ class App:
 
     def handle_input(self, text, input_source="text"):
         self.maya_awake_until = time.time() + self.wake_duration
+
+        if self.awaiting_startup_brief_response:
+            if self._looks_like_startup_brief_yes(text):
+                self.awaiting_startup_brief_response = False
+                self._speak_daily_brief_async()
+                return None
+            if self._looks_like_startup_brief_no(text):
+                self.awaiting_startup_brief_response = False
+                response = random.choice(self.STARTUP_BRIEF_DECLINE_OPTIONS)
+                self.send_event("response_text", response)
+                self.send_event("voice_status", "speaking")
+                self.speaker.stop()
+                self.speaker.speak(response)
+                return None
+
+        if self._is_settings_command(text):
+            self.send_event("app_show_settings", None)
+            return "Opening Maya user settings."
 
         response = self.process.handle_input(text)
         self.memory.save()
