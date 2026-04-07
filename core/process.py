@@ -120,6 +120,11 @@ class Process:
 
         return self.pick_response("fallback_default")
 
+    def _personalized_response(self, known_key, unknown_key, user_name=None, **values):
+        if user_name:
+            return self.pick_response(known_key, user_name=user_name, **values)
+        return self.pick_response(unknown_key, **values)
+
     @staticmethod
     def get_current_time_text():
         return datetime.datetime.now().strftime("%H:%M")
@@ -336,7 +341,7 @@ class Process:
 
             monitor = int(match.group(1))
             return {
-                "position": "bottom_right",
+                "position": "current",
                 "monitor": max(1, monitor),
                 "monitor_text": f"monitor {max(1, monitor)}",
             }
@@ -560,6 +565,22 @@ class Process:
                 return self.pick_response("asks_memory_known", user_name=user_name)
             return self.pick_response("asks_memory_unknown")
 
+        if patterns["asks_humanity"]:
+            return self._personalized_response(
+                "asks_humanity_known",
+                "asks_humanity_unknown",
+                user_name=user_name,
+                memory_hint=memory_hint,
+            )
+
+        if patterns["asks_activity"]:
+            return self._personalized_response(
+                "asks_activity_known",
+                "asks_activity_unknown",
+                user_name=user_name,
+                memory_hint=memory_hint,
+            )
+
         if patterns["asks_user_name"]:
             if user_name:
                 return self.pick_response("asks_user_name_known", user_name=user_name)
@@ -578,10 +599,47 @@ class Process:
                 return self.pick_response("asks_status_known", mood=mood, user_name=user_name, memory_hint=memory_hint)
             return self.pick_response("asks_status_unknown", mood=mood, memory_hint=memory_hint)
 
+        if patterns["asks_relationship"]:
+            return self._personalized_response(
+                "asks_relationship_known",
+                "asks_relationship_unknown",
+                user_name=user_name,
+                memory_hint=memory_hint,
+            )
+
+        if patterns["asks_joke"]:
+            return self.pick_response("asks_joke")
+
+        if patterns["asks_encouragement"]:
+            return self._personalized_response(
+                "asks_encouragement_known",
+                "asks_encouragement_unknown",
+                user_name=user_name,
+            )
+
+        if patterns["shares_positive_feeling"]:
+            return self._personalized_response(
+                "shares_positive_feeling_known",
+                "shares_positive_feeling_unknown",
+                user_name=user_name,
+            )
+
+        if patterns["shares_negative_feeling"]:
+            return self._personalized_response(
+                "shares_negative_feeling_known",
+                "shares_negative_feeling_unknown",
+                user_name=user_name,
+            )
+
         if patterns["background_app"]:
             if self.parent is not None:
                 self.parent.send_event("app_background", None)
             return self.pick_response("background_app")
+
+        if patterns["exit_self"]:
+            if self.parent is not None:
+                self.parent.send_event("exit", None)
+            return self.pick_response("exit_self")
 
         if patterns["hide_input_window"]:
             if self.parent is not None:
@@ -924,6 +982,12 @@ class Process:
         if patterns["compliment"]:
             self.memory.set_mood("proud")
 
+        if patterns["shares_positive_feeling"]:
+            self.memory.set_mood("excited")
+
+        if patterns["shares_negative_feeling"] or patterns["asks_encouragement"]:
+            self.memory.set_mood("supportive")
+
         if patterns["insult"]:
             self.memory.set_mood("calm")
 
@@ -938,12 +1002,20 @@ class Process:
 
         if patterns["says_name"] or patterns["asks_memory"] or patterns["asks_user_name"]:
             self.memory.set_last_topic("name")
-        elif patterns["asks_name"] or patterns["asks_creator"] or patterns["asks_age"] or patterns["asks_origin"] or patterns["asks_language"]:
+        elif patterns["asks_name"] or patterns["asks_creator"] or patterns["asks_age"] or patterns["asks_origin"] or patterns["asks_language"] or patterns["asks_humanity"]:
             self.memory.set_last_topic("identity")
+        elif patterns["asks_activity"]:
+            self.memory.set_last_topic("conversation")
         elif patterns["sets_preference"] or patterns["removes_preference"] or patterns["asks_preferences"] or patterns["asks_specific_preference"]:
             self.memory.set_last_topic("preferences")
         elif patterns["sets_fact"] or patterns["asks_facts"] or patterns["asks_specific_fact"]:
             self.memory.set_last_topic("facts")
+        elif patterns["asks_relationship"]:
+            self.memory.set_last_topic("relationship")
+        elif patterns["asks_joke"]:
+            self.memory.set_last_topic("fun")
+        elif patterns["asks_encouragement"] or patterns["shares_positive_feeling"] or patterns["shares_negative_feeling"]:
+            self.memory.set_last_topic("emotion")
         elif patterns["asks_time"] or patterns["asks_date"]:
             self.memory.set_last_topic("time")
         elif patterns["dev_project_action"]:
@@ -1045,6 +1117,18 @@ class Process:
         if "como" in tokens and "voce" in tokens:
             return "status_question"
 
+        if "joke" in tokens or "piada" in tokens:
+            return "joke"
+
+        if "friend" in tokens or "amigos" in tokens:
+            return "relationship"
+
+        if "happy" in tokens or "feliz" in tokens or "excited" in tokens:
+            return "positive_emotion"
+
+        if "sad" in tokens or "triste" in tokens or "tired" in tokens or "cansado" in tokens:
+            return "negative_emotion"
+
         if "time" in tokens:
             return "time_question"
 
@@ -1070,9 +1154,30 @@ class Process:
 
     @staticmethod
     def extract_name(text_lower):
+        blocked_names = {
+            "happy",
+            "sad",
+            "tired",
+            "stressed",
+            "anxious",
+            "lonely",
+            "frustrated",
+            "excited",
+            "proud",
+            "fine",
+            "good",
+            "okay",
+            "ok",
+            "ready",
+            "real",
+            "human",
+        }
         match = re.search(r"\b(?:my name is|i am|i'm)\s+([a-zA-Z][a-zA-Z'-]*)", text_lower)
         if match:
-            return match.group(1).strip(".,!?")
+            candidate = match.group(1).strip(".,!?")
+            if candidate.lower() in blocked_names:
+                return None
+            return candidate
         return None
 
     @staticmethod
@@ -1195,6 +1300,8 @@ class Process:
             "says_name": False,
             "user_name": None,
             "asks_memory": False,
+            "asks_humanity": False,
+            "asks_activity": False,
             "asks_user_name": False,
             "asks_creator": False,
             "asks_age": False,
@@ -1206,7 +1313,13 @@ class Process:
             "apology": False,
             "compliment": False,
             "insult": False,
+            "asks_relationship": False,
+            "asks_joke": False,
+            "asks_encouragement": False,
+            "shares_positive_feeling": False,
+            "shares_negative_feeling": False,
             "background_app": False,
+            "exit_self": False,
             "hide_input_window": False,
             "move_app": False,
             "move_app_target": None,
@@ -1264,6 +1377,37 @@ class Process:
         if "do you remember me" in text_lower or "remember my name" in text_lower:
             patterns["asks_memory"] = True
 
+        if any(
+            phrase in text_lower
+            for phrase in [
+                "are you human",
+                "are you real",
+                "are you alive",
+                "are you a real person",
+                "are you just a bot",
+                "voce e humana",
+                "você é humana",
+                "voce e real",
+                "você é real",
+            ]
+        ):
+            patterns["asks_humanity"] = True
+
+        if any(
+            phrase in text_lower
+            for phrase in [
+                "what are you doing",
+                "what are you up to",
+                "what are you doing now",
+                "wyd",
+                "o que voce ta fazendo",
+                "o que você ta fazendo",
+                "o que voce esta fazendo",
+                "o que você está fazendo",
+            ]
+        ):
+            patterns["asks_activity"] = True
+
         if any(phrase in text_lower for phrase in ["what is my name", "who am i"]):
             patterns["asks_user_name"] = True
 
@@ -1290,6 +1434,112 @@ class Process:
 
         if any(phrase in text_lower for phrase in ["how are you", "how do you feel"]) or self.parse_natural_status_request(text_lower):
             patterns["asks_status"] = True
+
+        if any(
+            phrase in text_lower
+            for phrase in [
+                "are we friends",
+                "are you my friend",
+                "do you like me",
+                "you like me",
+                "do you care about me",
+                "somos amigos",
+                "você gosta de mim",
+                "voce gosta de mim",
+                "você se importa comigo",
+                "voce se importa comigo",
+            ]
+        ):
+            patterns["asks_relationship"] = True
+
+        if any(
+            phrase in text_lower
+            for phrase in [
+                "tell me a joke",
+                "say a joke",
+                "make me laugh",
+                "joke for me",
+                "me conta uma piada",
+                "conta uma piada",
+            ]
+        ):
+            patterns["asks_joke"] = True
+
+        if any(
+            phrase in text_lower
+            for phrase in [
+                "motivate me",
+                "encourage me",
+                "say something nice",
+                "i need motivation",
+                "i need encouragement",
+                "me anima",
+                "me motiva",
+            ]
+        ):
+            patterns["asks_encouragement"] = True
+
+        if any(
+            phrase in text_lower
+            for phrase in [
+                "i'm happy",
+                "im happy",
+                "i am happy",
+                "i'm excited",
+                "im excited",
+                "i am excited",
+                "i'm feeling good",
+                "im feeling good",
+                "i feel good",
+                "i'm proud",
+                "im proud",
+                "i am proud",
+                "to feliz",
+                "estou feliz",
+                "tô feliz",
+                "to animado",
+                "tô animado",
+                "estou animado",
+            ]
+        ):
+            patterns["shares_positive_feeling"] = True
+
+        if any(
+            phrase in text_lower
+            for phrase in [
+                "i'm sad",
+                "im sad",
+                "i am sad",
+                "i'm tired",
+                "im tired",
+                "i am tired",
+                "i'm stressed",
+                "im stressed",
+                "i am stressed",
+                "i'm anxious",
+                "im anxious",
+                "i am anxious",
+                "i'm lonely",
+                "im lonely",
+                "i am lonely",
+                "i'm frustrated",
+                "im frustrated",
+                "i am frustrated",
+                "to triste",
+                "tô triste",
+                "estou triste",
+                "to cansado",
+                "tô cansado",
+                "estou cansado",
+                "to estressado",
+                "tô estressado",
+                "estou estressado",
+                "to ansioso",
+                "tô ansioso",
+                "estou ansioso",
+            ]
+        ):
+            patterns["shares_negative_feeling"] = True
 
         if token_set.intersection({"bye", "goodbye", "later"}) or "see you" in text_lower:
             patterns["farewell"] = True
@@ -1363,6 +1613,29 @@ class Process:
             ]
         ):
             patterns["background_app"] = True
+
+        if any(
+            phrase in text_lower
+            for phrase in [
+                "close yourself",
+                "quit yourself",
+                "exit yourself",
+                "kill yourself",
+                "kill your self",
+                "close your self",
+                "quit your self",
+                "maya close yourself",
+                "maya quit yourself",
+                "maya exit",
+                "maya quit",
+                "feche você",
+                "fecha você",
+                "se fecha",
+                "encerra a maya",
+                "fechar maya",
+            ]
+        ):
+            patterns["exit_self"] = True
 
         if any(
             phrase in text_lower
@@ -1481,7 +1754,7 @@ class Process:
             r"\b(?:close|quit|exit|stop)\s+([a-zA-Z0-9 .+-]+?)(?:\s+(?:for me|please))?$",
             text_lower
         )
-        if close_match and not patterns["web_action"] and not patterns["spotify_action"] and not patterns["media_action"] and not patterns["dev_project_action"]:
+        if close_match and not patterns["exit_self"] and not patterns["web_action"] and not patterns["spotify_action"] and not patterns["media_action"] and not patterns["dev_project_action"]:
             patterns["close_app"] = True
             patterns["app_alias"] = close_match.group(1).strip()
 
@@ -1543,6 +1816,8 @@ class Process:
                 patterns["asks_name"],
                 patterns["says_name"],
                 patterns["asks_memory"],
+                patterns["asks_humanity"],
+                patterns["asks_activity"],
                 patterns["asks_user_name"],
                 patterns["asks_creator"],
                 patterns["asks_age"],
@@ -1554,7 +1829,13 @@ class Process:
                 patterns["apology"],
                 patterns["compliment"],
                 patterns["insult"],
+                patterns["asks_relationship"],
+                patterns["asks_joke"],
+                patterns["asks_encouragement"],
+                patterns["shares_positive_feeling"],
+                patterns["shares_negative_feeling"],
                 patterns["background_app"],
+                patterns["exit_self"],
                 patterns["hide_input_window"],
                 patterns["move_app"],
                 patterns["scale_app"],

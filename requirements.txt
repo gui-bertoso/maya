@@ -1,5 +1,7 @@
 numpy
+pynput
 PySide6
+piper-tts
 pyttsx3
 python-dotenv
 sounddevice

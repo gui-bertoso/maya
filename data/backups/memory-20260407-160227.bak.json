@@ -3,19 +3,19 @@
   "short_term": [
     {
       "role": "user",
-      "content": "what's her name"
+      "content": "i am i"
     },
     {
       "role": "assistant",
-      "content": "What's Her Face! was a line of customizable dolls that straddled the line between traditional fashion dolls and creative activity toys."
+      "content": "got it, i. nice to know your name."
     },
     {
       "role": "user",
-      "content": "bear"
+      "content": "hide yourself"
     },
     {
       "role": "assistant",
-      "content": "i'm not fully there yet, Gui, but i'm listening."
+      "content": "okay, i'll stay in the background."
     },
     {
       "role": "user",
@@ -23,27 +23,27 @@
     },
     {
       "role": "assistant",
-      "content": "hello, Gui. good to hear from you again."
+      "content": "hey, I. good to see you again."
     },
     {
       "role": "user",
-      "content": "how are you"
+      "content": "hello"
     },
     {
       "role": "assistant",
-      "content": "i'm doing friendly, Gui. thanks for asking."
+      "content": "hello, I. good to hear from you again."
     },
     {
       "role": "user",
-      "content": "open vs code"
+      "content": "open vscode"
     },
     {
       "role": "assistant",
-      "content": "sure, opening VS Code now."
+      "content": "all right, launching VS Code."
     }
   ],
   "long_term": {
-    "user_name": "Gui",
+    "user_name": "I",
     "preferences": [],
     "known_facts": []
   },
