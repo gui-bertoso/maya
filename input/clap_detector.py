@@ -2,8 +2,14 @@ import queue
 import time
 import threading
 import numpy as np
-import sounddevice as sd
 from helpers.config import get_env
+
+try:
+    import sounddevice as sd
+    _SOUNDDEVICE_IMPORT_ERROR = None
+except (ImportError, OSError) as error:
+    sd = None
+    _SOUNDDEVICE_IMPORT_ERROR = error
 
 def get_rms(audio_data):
     audio_np = np.frombuffer(audio_data, dtype=np.int16)
@@ -29,6 +35,25 @@ class ClapDetector:
         self.DEBUG_MODE = get_env("DEBUG_MODE", "false").lower() == "true"
         self.UI_MODE = get_env("UI_MODE", "maya")
         self.LANGUAGE = get_env("LANGUAGE", "en")
+        self.last_error = None
+
+    def has_input_device(self):
+        if sd is None:
+            self.last_error = str(_SOUNDDEVICE_IMPORT_ERROR) if _SOUNDDEVICE_IMPORT_ERROR else "sounddevice is unavailable"
+            return False
+
+        try:
+            devices = sd.query_devices()
+        except Exception as error:
+            self.last_error = str(error)
+            return False
+
+        for device in devices:
+            if device.get("max_input_channels", 0) > 0:
+                return True
+
+        self.last_error = "no input audio device was found"
+        return False
 
     def audio_callback(self, indata, frames, time_info, status):
         if status:
@@ -111,7 +136,11 @@ class ClapDetector:
 
     def start(self, on_double_clap=None, on_clap=None):
         if self.thread and self.thread.is_alive():
-            return
+            return True
+
+        if not self.has_input_device():
+            print("clap detector unavailable:", self.last_error)
+            return False
 
         self.thread = threading.Thread(
             target=self.process_audio,
@@ -122,6 +151,7 @@ class ClapDetector:
             daemon=True
         )
         self.thread.start()
+        return True
 
     def stop(self):
         self.is_running = False
