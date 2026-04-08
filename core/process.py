@@ -1472,6 +1472,12 @@ class Process:
             "compliment": False,
             "insult": False,
             "asks_relationship": False,
+            "asks_trust": False,
+            "asks_lonely": False,
+            "asks_busy": False,
+            "asks_story": False,
+            "asks_weather": False,
+            "asks_news": False,
             "asks_joke": False,
             "asks_encouragement": False,
             "shares_positive_feeling": False,
@@ -1535,7 +1541,7 @@ class Process:
             patterns["says_name"] = True
             patterns["user_name"] = extracted_name
 
-        if token_set.intersection({"hello", "hi", "hey"}):
+        if token_set.intersection({"hello", "hi", "hey", "oi", "ola", "olá", "eae"}):
             patterns["greets"] = True
 
         if "do you remember me" in text_lower or "remember my name" in text_lower:
@@ -1615,6 +1621,63 @@ class Process:
             ]
         ):
             patterns["asks_relationship"] = True
+
+        if any(
+            phrase in text_lower
+            for phrase in [
+                "can i trust you",
+                "should i trust you",
+                "are you trustworthy",
+                "posso confiar em voce",
+                "posso confiar em você",
+                "da pra confiar em voce",
+                "dá pra confiar em você",
+            ]
+        ):
+            patterns["asks_trust"] = True
+
+        if any(
+            phrase in text_lower
+            for phrase in [
+                "are you lonely",
+                "do you get lonely",
+                "you feel lonely",
+                "voce se sente sozinha",
+                "você se sente sozinha",
+                "voce fica sozinha",
+                "você fica sozinha",
+            ]
+        ):
+            patterns["asks_lonely"] = True
+
+        if any(
+            phrase in text_lower
+            for phrase in [
+                "are you busy",
+                "you busy",
+                "are you occupied",
+                "voce ta ocupada",
+                "você ta ocupada",
+                "voce esta ocupada",
+                "você está ocupada",
+            ]
+        ):
+            patterns["asks_busy"] = True
+
+        if any(
+            phrase in text_lower
+            for phrase in [
+                "tell me a story",
+                "tell me something",
+                "say something interesting",
+                "me conta uma historia",
+                "me conta uma história",
+                "conta uma historia",
+                "conta uma história",
+                "fala alguma coisa",
+            ]
+        ):
+            patterns["asks_story"] = True
 
         if any(
             phrase in text_lower
@@ -1750,6 +1813,22 @@ class Process:
         if any(
             phrase in text_lower
             for phrase in [
+                "what's the weather",
+                "what is the weather",
+                "how's the weather",
+                "weather today",
+                "como esta o tempo",
+                "como está o tempo",
+                "qual o clima hoje",
+                "como ta o tempo",
+                "como tá o tempo",
+            ]
+        ):
+            patterns["asks_weather"] = True
+
+        if any(
+            phrase in text_lower
+            for phrase in [
                 "what day is it",
                 "what is today's date",
                 "what's today's date",
@@ -1758,6 +1837,24 @@ class Process:
             ]
         ):
             patterns["asks_date"] = True
+
+        if any(
+            phrase in text_lower
+            for phrase in [
+                "what are the news",
+                "what's the news",
+                "news today",
+                "today's news",
+                "headlines today",
+                "noticias de hoje",
+                "notícias de hoje",
+                "me fale as noticias",
+                "me fale as notícias",
+                "quais sao as noticias",
+                "quais são as notícias",
+            ]
+        ):
+            patterns["asks_news"] = True
 
         if any(
             phrase in text_lower
