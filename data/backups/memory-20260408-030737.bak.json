@@ -3,43 +3,43 @@
   "short_term": [
     {
       "role": "user",
-      "content": "move to bottom left"
+      "content": "lets open dev mode"
     },
     {
       "role": "assistant",
-      "content": "all right, moving to bottom left on this monitor."
+      "content": "i don't know that app yet: dev mode."
     },
     {
       "role": "user",
-      "content": "moved it up left"
+      "content": "hello maya"
     },
     {
       "role": "assistant",
-      "content": "i'm still figuring things out, Gui, but i'm with you."
+      "content": "hi, I. nice to have you back."
     },
     {
       "role": "user",
-      "content": "hide yourself"
+      "content": "how are you today?"
     },
     {
       "role": "assistant",
-      "content": "all right, i'll move to the background."
+      "content": "i feel friendly right now, I. thanks for asking."
     },
     {
       "role": "user",
-      "content": "i am i"
+      "content": "let's open a dev mode"
     },
     {
       "role": "assistant",
-      "content": "got it, i. nice to know your name."
+      "content": "all right, switching to dev mode."
     },
     {
       "role": "user",
-      "content": "hide yourself"
+      "content": "hello, today im bad"
     },
     {
       "role": "assistant",
-      "content": "okay, i'll stay in the background."
+      "content": "hello, I. good to hear from you again."
     }
   ],
   "long_term": {
@@ -49,7 +49,7 @@
   },
   "state": {
     "mood": "friendly",
-    "last_topic": "app",
+    "last_topic": "conversation",
     "pending_learning": null
   }
 }

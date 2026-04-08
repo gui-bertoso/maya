@@ -3,43 +3,43 @@
   "short_term": [
     {
       "role": "user",
-      "content": "moved it up left"
+      "content": "play pique anos 80"
     },
     {
       "role": "assistant",
-      "content": "i'm still figuring things out, Gui, but i'm with you."
+      "content": "starting Spotify with pique anos 80."
     },
     {
       "role": "user",
-      "content": "hide yourself"
+      "content": "lets open dev mode"
     },
     {
       "role": "assistant",
-      "content": "all right, i'll move to the background."
+      "content": "i don't know that app yet: dev mode."
     },
     {
       "role": "user",
-      "content": "i am i"
+      "content": "hello maya"
     },
     {
       "role": "assistant",
-      "content": "got it, i. nice to know your name."
+      "content": "hi, I. nice to have you back."
     },
     {
       "role": "user",
-      "content": "hide yourself"
+      "content": "how are you today?"
     },
     {
       "role": "assistant",
-      "content": "okay, i'll stay in the background."
+      "content": "i feel friendly right now, I. thanks for asking."
     },
     {
       "role": "user",
-      "content": "hey maya"
+      "content": "let's open a dev mode"
     },
     {
       "role": "assistant",
-      "content": "hey, I. good to see you again."
+      "content": "all right, switching to dev mode."
     }
   ],
   "long_term": {
@@ -49,7 +49,7 @@
   },
   "state": {
     "mood": "friendly",
-    "last_topic": "conversation",
+    "last_topic": "apps",
     "pending_learning": null
   }
 }

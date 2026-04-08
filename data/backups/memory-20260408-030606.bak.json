@@ -11,35 +11,35 @@
     },
     {
       "role": "user",
-      "content": "i am i"
+      "content": "toque marilia mendonça"
     },
     {
       "role": "assistant",
-      "content": "got it, i. nice to know your name."
+      "content": "i don't fully have that yet, I, but i'm paying attention."
     },
     {
       "role": "user",
-      "content": "hide yourself"
+      "content": "play pique anos 80"
     },
     {
       "role": "assistant",
-      "content": "okay, i'll stay in the background."
+      "content": "starting Spotify with pique anos 80."
     },
     {
       "role": "user",
-      "content": "hey maya"
+      "content": "lets open dev mode"
     },
     {
       "role": "assistant",
-      "content": "hey, I. good to see you again."
+      "content": "i don't know that app yet: dev mode."
     },
     {
       "role": "user",
-      "content": "hello"
+      "content": "hello maya"
     },
     {
       "role": "assistant",
-      "content": "hello, I. good to hear from you again."
+      "content": "hi, I. nice to have you back."
     }
   ],
   "long_term": {
