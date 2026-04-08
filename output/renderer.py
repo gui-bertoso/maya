@@ -1145,7 +1145,7 @@ class Renderer:
 
         self.refresh_window_showcase_data()
         if self.showcase_entries:
-            self.show_window_showcase()
+            self.show_window_showcase(minimize_windows=False, restore_on_hide=False)
             self.dev_mode_showcase_auto_opened = True
 
     def _tick_dev_workspace_animation(self):
