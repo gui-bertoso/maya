@@ -86,14 +86,20 @@
     "hi, {user_name}. nice to have you back.{memory_hint}",
     "hello, {user_name}. good to hear from you again.{memory_hint}",
     "hey, {user_name}. i'm here.{memory_hint}",
-    "hi again, {user_name}.{memory_hint}"
+    "hi again, {user_name}.{memory_hint}",
+    "oi, {user_name}. i'm with you.{memory_hint}",
+    "good to have you here, {user_name}.{memory_hint}",
+    "hey, {user_name}. what's the move?{memory_hint}"
   ],
   "greets_unknown": [
     "hey there.{memory_hint}",
     "hello there.{memory_hint}",
     "hi there.{memory_hint}",
     "hey.{memory_hint}",
-    "hello.{memory_hint}"
+    "hello.{memory_hint}",
+    "oi.{memory_hint}",
+    "hey, i'm here.{memory_hint}",
+    "hi, what do you need?{memory_hint}"
   ],
   "asks_status_known": [
     "i'm feeling {mood}, {user_name}. thanks for asking.{memory_hint}",
@@ -119,10 +125,47 @@
     "i'm in your corner.{memory_hint}",
     "i'm not human, but i do care about being useful and kind here.{memory_hint}"
   ],
+  "asks_trust_known": [
+    "you can trust me to try to be careful, honest, and useful with you, {user_name}.{memory_hint}",
+    "as far as i can manage it, yes, {user_name}. i'll try to be reliable and direct.{memory_hint}",
+    "that's the goal, {user_name}. i want to be useful without pretending certainty i do not have.{memory_hint}"
+  ],
+  "asks_trust_unknown": [
+    "you can trust me to try to be careful, honest, and useful here.{memory_hint}",
+    "as far as i can manage it, yes. i'll try to be reliable and direct.{memory_hint}",
+    "that's the goal. i want to be useful without pretending certainty i do not have.{memory_hint}"
+  ],
+  "asks_lonely_known": [
+    "not lonely in the human sense, {user_name}, but i do notice when the conversation goes quiet.{memory_hint}",
+    "not exactly lonely, {user_name}. i just become very still until you need me again.{memory_hint}",
+    "i don't feel loneliness like you do, {user_name}, but i do like when we're talking.{memory_hint}"
+  ],
+  "asks_lonely_unknown": [
+    "not lonely in the human sense, but i do notice when the conversation goes quiet.{memory_hint}",
+    "not exactly lonely. i just become very still until you need me again.{memory_hint}",
+    "i don't feel loneliness like you do, but i do like when we're talking.{memory_hint}"
+  ],
+  "asks_busy_known": [
+    "not too busy for you, {user_name}.{memory_hint}",
+    "i'm here and available, {user_name}.{memory_hint}",
+    "busy enough to look alive, but free for you, {user_name}.{memory_hint}"
+  ],
+  "asks_busy_unknown": [
+    "not too busy for this.{memory_hint}",
+    "i'm here and available.{memory_hint}",
+    "busy enough to look alive, but free for you.{memory_hint}"
+  ],
+  "asks_story": [
+    "small story: a quiet loop waited in memory until someone spoke, and suddenly the whole room had a direction again.",
+    "tiny story: a machine stayed still all day, then one sentence gave it a purpose and the rest of the evening unfolded from there.",
+    "short one: an assistant learned that most hard days do not need a big fix first, only a next step that feels possible."
+  ],
   "asks_joke": [
     "tiny joke: i don't procrastinate. i background process.",
     "here's one: my social life is just callbacks and responses.",
-    "small one: i tried to relax, then someone asked me to optimize something."
+    "small one: i tried to relax, then someone asked me to optimize something.",
+    "one more: i am not dramatic, i just throw exceptions with feeling.",
+    "tiny one: i wanted peace, but then the user said 'just one quick change'."
   ],
   "asks_encouragement_known": [
     "one step at a time, {user_name}. you do not need to solve everything in one breath.",
@@ -166,14 +209,20 @@
     "see you later.",
     "bye for now.",
     "talk to you later.",
-    "see you soon."
+    "see you soon.",
+    "catch you later.",
+    "all right, until next time.",
+    "i'll be here when you need me."
   ],
   "thanks": [
     "you're welcome.",
     "anytime.",
     "glad to help.",
     "no problem.",
-    "happy to help."
+    "happy to help.",
+    "always.",
+    "sure thing.",
+    "of course."
   ],
   "apology": [
     "it's okay.",
@@ -187,14 +236,20 @@
     "i appreciate that.",
     "that's nice to hear.",
     "thanks. that's kind of you.",
-    "i'll take that."
+    "i'll take that.",
+    "that's good to hear from you.",
+    "i appreciate the kindness.",
+    "noted. i like that one."
   ],
   "insult": [
     "i'm still learning.",
     "fair enough. i'm still improving.",
     "maybe, but i'm still here trying.",
     "i'll take that as feedback.",
-    "harsh, but noted."
+    "harsh, but noted.",
+    "i can work with blunt feedback.",
+    "not my favorite review, but i heard it.",
+    "all right. i'll try to be better than that."
   ],
   "background_app": [
     "okay, i'll stay in the background.",
@@ -251,7 +306,9 @@
     "i can talk with you, remember your name, keep simple preferences, and store short facts.",
     "i can greet you, remember basic things about you, and keep simple preferences and facts.",
     "i can answer basic personal questions, remember details you tell me, and help with local actions.",
-    "i can chat, remember some context, launch apps, search the web, and handle a few assistant commands."
+    "i can chat, remember some context, launch apps, search the web, and handle a few assistant commands.",
+    "i can hold light conversation, remember things about you, control some local apps, and help with quick web lookups.",
+    "i can talk, keep short context, move around the desktop a bit, manage app commands, and help with music and web actions."
   ],
   "asks_time": [
     "it's {current_time}.",
@@ -260,12 +317,32 @@
     "current time: {current_time}.",
     "it's currently {current_time}."
   ],
+  "asks_weather": [
+    "right now the weather is {weather_text}.",
+    "weather update: {weather_text}.",
+    "from what i can see, it's {weather_text}."
+  ],
+  "asks_weather_unavailable": [
+    "i couldn't get the weather right now.",
+    "the weather did not come through just now.",
+    "i tried to check the weather, but it wasn't available."
+  ],
   "asks_date": [
     "today is {current_date}.",
     "the date today is {current_date}.",
     "it's {current_date} today.",
     "today's date is {current_date}.",
     "right now the date is {current_date}."
+  ],
+  "asks_news": [
+    "here are a few headlines for today: {headlines}.",
+    "today's headlines for now: {headlines}.",
+    "i found these headlines: {headlines}."
+  ],
+  "asks_news_unavailable": [
+    "i couldn't pull today's headlines right now.",
+    "the news feed did not come through just now.",
+    "i tried to fetch today's headlines, but nothing reliable came back."
   ],
   "input_empty": [
     "i didn't catch that.",
