@@ -3,31 +3,23 @@
   "short_term": [
     {
       "role": "user",
-      "content": "i am i"
+      "content": "how are you today?"
     },
     {
       "role": "assistant",
-      "content": "got it, i. nice to know your name."
+      "content": "i feel friendly right now, I. thanks for asking."
     },
     {
       "role": "user",
-      "content": "hide yourself"
+      "content": "let's open a dev mode"
     },
     {
       "role": "assistant",
-      "content": "okay, i'll stay in the background."
+      "content": "all right, switching to dev mode."
     },
     {
       "role": "user",
-      "content": "hey maya"
-    },
-    {
-      "role": "assistant",
-      "content": "hey, I. good to see you again."
-    },
-    {
-      "role": "user",
-      "content": "hello"
+      "content": "hello, today im bad"
     },
     {
       "role": "assistant",
@@ -35,11 +27,19 @@
     },
     {
       "role": "user",
-      "content": "open vscode"
+      "content": "can open a pensative mode?"
     },
     {
       "role": "assistant",
-      "content": "all right, launching VS Code."
+      "content": "i didn't find a short direct answer, so i opened search results for can open a pensative mode?."
+    },
+    {
+      "role": "user",
+      "content": "modo pensativo"
+    },
+    {
+      "role": "assistant",
+      "content": "opening the thoughtful setup now."
     }
   ],
   "long_term": {
@@ -49,7 +49,7 @@
   },
   "state": {
     "mood": "friendly",
-    "last_topic": "apps",
+    "last_topic": "conversation",
     "pending_learning": null
   }
 }
