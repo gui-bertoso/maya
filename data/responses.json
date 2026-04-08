@@ -231,6 +231,21 @@
     "all right, changing my scale to {scale_value}.",
     "sure, i'll use scale {scale_value}."
   ],
+  "window_showcase_open": [
+    "opening the window disco.",
+    "all right, bringing up the window carousel.",
+    "sure, i'll show your open windows in the showcase."
+  ],
+  "window_showcase_close": [
+    "closing the window disco.",
+    "all right, hiding the window showcase.",
+    "sure, i'll get the carousel out of the way."
+  ],
+  "window_showcase_rotate": [
+    "rotating the showcase to the {direction}.",
+    "all right, moving the window disco to the {direction}.",
+    "sure, i'll spin the carousel to the {direction}."
+  ],
   "asks_capabilities": [
     "i can greet you, remember your name, store simple preferences, and remember short facts.",
     "i can talk with you, remember your name, keep simple preferences, and store short facts.",
@@ -301,6 +316,21 @@
     "i couldn't create the project {project_name}.",
     "project creation failed for {project_name}.",
     "i tried to create {project_name}, but it didn't work."
+  ],
+  "dev_workspace_start": [
+    "activating dev mode.",
+    "all right, switching to dev mode.",
+    "starting the dev setup now."
+  ],
+  "dev_workspace_stop": [
+    "leaving dev mode.",
+    "all right, shutting down dev mode.",
+    "closing the dev setup now."
+  ],
+  "thoughtful_workspace_start": [
+    "entering thoughtful mode.",
+    "all right, switching to thoughtful mode.",
+    "opening the thoughtful setup now."
   ],
   "dev_project_unavailable": [
     "project creation isn't available right now.",

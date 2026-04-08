@@ -1,15 +1,36 @@
-from output.renderer import Renderer
-from core.process import Process
-from core.memory import Memory
-from input.voice import Voice
+import os
 import queue
-from core import vocabulary_manager
-from input.clap_detector import ClapDetector
 import time
 import random
 import sys
 import threading
 import datetime
+import re
+
+
+def _configure_qt_platform():
+    if not sys.platform.startswith("linux"):
+        return
+
+    if os.getenv("QT_QPA_PLATFORM"):
+        return
+
+    display = (os.getenv("DISPLAY") or "").strip()
+    wayland_display = (os.getenv("WAYLAND_DISPLAY") or "").strip()
+    session_type = (os.getenv("XDG_SESSION_TYPE") or "").strip().lower()
+
+    if session_type == "wayland" and not wayland_display and display:
+        os.environ["QT_QPA_PLATFORM"] = "xcb"
+
+
+_configure_qt_platform()
+
+from output.renderer import Renderer
+from core.process import Process
+from core.memory import Memory
+from input.voice import Voice
+from core import vocabulary_manager
+from input.clap_detector import ClapDetector
 from output.speaker import Speaker
 from helpers.config import get_env, reload_env, save_env_values
 from helpers.app_launcher import AppLauncher
@@ -75,6 +96,12 @@ class App:
     STARTUP_BRIEF_DECLINE_INPUTS = {
         "no", "nope", "nah", "not now", "later", "agora nao", "agora não", "nao", "não", "depois",
     }
+    ACTION_CONFIRM_INPUTS = {
+        "yes", "yeah", "yep", "sure", "ok", "okay", "sim", "claro", "bora", "please do", "do it", "manda", "vai",
+    }
+    ACTION_DECLINE_INPUTS = {
+        "no", "nope", "nah", "not now", "later", "cancel", "agora nao", "agora não", "nao", "não", "depois", "deixa",
+    }
     STARTUP_GREETING_OPTIONS = [
         "good morning. welcome back. want a quick summary of the day?",
         "hey, welcome back. do you want the day in a quick brief?",
@@ -138,6 +165,7 @@ class App:
         self.startup_brief_response_window = get_env("STARTUP_BRIEF_RESPONSE_WINDOW", 20.0, float)
         self.daily_brief_location = get_env("DAILY_BRIEF_LOCATION", "")
         self.awaiting_startup_brief_response = False
+        self.pending_context_action = None
 
         self.renderer = Renderer(
             self.events,
@@ -329,6 +357,84 @@ class App:
     def _looks_like_startup_brief_no(self, text):
         normalized = self._normalize_command(text)
         return normalized in self.STARTUP_BRIEF_DECLINE_INPUTS
+
+    def _looks_like_action_yes(self, text):
+        normalized = self._normalize_command(text)
+        return normalized in self.ACTION_CONFIRM_INPUTS
+
+    def _looks_like_action_no(self, text):
+        normalized = self._normalize_command(text)
+        return normalized in self.ACTION_DECLINE_INPUTS
+
+    def _clear_pending_context_action(self):
+        self.pending_context_action = None
+
+    def _set_pending_context_action(self, event_name, prompt, payload=None, timeout=18.0):
+        self.pending_context_action = {
+            "event": event_name,
+            "payload": payload,
+            "expires_at": time.time() + timeout,
+        }
+        self.send_event("response_text", prompt)
+        self.send_event("voice_status", "speaking")
+        self.speaker.stop()
+        self.speaker.speak(prompt)
+        return prompt
+
+    def _consume_pending_context_action(self, text):
+        if not self.pending_context_action:
+            return None
+
+        if time.time() > self.pending_context_action.get("expires_at", 0):
+            self._clear_pending_context_action()
+            return None
+
+        if self._looks_like_action_yes(text):
+            action = dict(self.pending_context_action)
+            self._clear_pending_context_action()
+            self.send_event(action["event"], action.get("payload"))
+            response = "all right."
+            self.send_event("response_text", response)
+            self.send_event("voice_status", "speaking")
+            self.speaker.stop()
+            self.speaker.speak(response)
+            return response
+
+        if self._looks_like_action_no(text):
+            self._clear_pending_context_action()
+            response = "okay, we can leave it for now."
+            self.send_event("response_text", response)
+            self.send_event("voice_status", "speaking")
+            self.speaker.stop()
+            self.speaker.speak(response)
+            return response
+
+        return None
+
+    def _looks_like_daily_brief_request(self, text):
+        normalized = self._normalize_command(text)
+        patterns = [
+            r"(?:news|headlines).*(?:today|hoje)",
+            r"(?:today|hoje).*(?:news|headlines|noticias|noticias)",
+            r"(?:me fale|fala|tell me|show me|quero|manda).*(?:noticias|noticias|news|headlines).*(?:hoje|today)?",
+            r"(?:daily brief|brief do dia|resumo do dia|resumo de hoje)",
+        ]
+        return any(re.search(pattern, normalized, flags=re.IGNORECASE) for pattern in patterns)
+
+    def _looks_like_thoughtful_suggestion_case(self, text):
+        normalized = self._normalize_command(text)
+        patterns = [
+            r"\bestou pensativo\b",
+            r"\bto pensativo\b",
+            r"\bt[oô] pensativo\b",
+            r"\bi am thinking a lot\b",
+            r"\bi'm thinking a lot\b",
+            r"\bestou triste\b",
+            r"\bto triste\b",
+            r"\bt[oô] triste\b",
+            r"\bestou meio mal\b",
+        ]
+        return any(re.search(pattern, normalized, flags=re.IGNORECASE) for pattern in patterns)
 
     def _build_daily_brief_text(self):
         now = datetime.datetime.now()
@@ -532,9 +638,33 @@ class App:
                 self.speaker.speak(response)
                 return None
 
+        pending_response = self._consume_pending_context_action(text)
+        if pending_response is not None:
+            return pending_response
+
         if self._is_settings_command(text):
             self.send_event("app_show_settings", None)
             return "Opening Maya user settings."
+
+        if self._looks_like_daily_brief_request(text):
+            response = "all right, i'll give you today's headlines."
+            self.send_event("response_text", response)
+            self.send_event("voice_status", "speaking")
+            self.speaker.stop()
+            self.speaker.speak(response)
+            self._speak_daily_brief_async()
+            return response
+
+        detected = self.process.detect_patterns((text or "").lower().strip())
+        if (
+            self._looks_like_thoughtful_suggestion_case(text)
+            and not detected.get("thoughtful_workspace_action")
+            and not detected.get("dev_workspace_action")
+        ):
+            return self._set_pending_context_action(
+                "app_start_thoughtful_workspace",
+                "do you want me to enter thoughtful mode and help with that?",
+            )
 
         response = self.process.handle_input(text)
         self.memory.save()
