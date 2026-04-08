@@ -5,3 +5,4 @@ __pycache__
 tests
 generated_projects/*
 models/piper
+models
