@@ -1,0 +1,55 @@
+{
+  "short_term_limit": 10,
+  "short_term": [
+    {
+      "role": "user",
+      "content": "how are you today?"
+    },
+    {
+      "role": "assistant",
+      "content": "i feel friendly right now, I. thanks for asking."
+    },
+    {
+      "role": "user",
+      "content": "let's open a dev mode"
+    },
+    {
+      "role": "assistant",
+      "content": "all right, switching to dev mode."
+    },
+    {
+      "role": "user",
+      "content": "hello, today im bad"
+    },
+    {
+      "role": "assistant",
+      "content": "hello, I. good to hear from you again."
+    },
+    {
+      "role": "user",
+      "content": "can open a pensative mode?"
+    },
+    {
+      "role": "assistant",
+      "content": "i didn't find a short direct answer, so i opened search results for can open a pensative mode?."
+    },
+    {
+      "role": "user",
+      "content": "modo pensativo"
+    },
+    {
+      "role": "assistant",
+      "content": "opening the thoughtful setup now."
+    }
+  ],
+  "long_term": {
+    "user_name": "I",
+    "preferences": [],
+    "known_facts": []
+  },
+  "state": {
+    "mood": "friendly",
+    "last_topic": "conversation",
+    "pending_learning": null
+  }
+}
