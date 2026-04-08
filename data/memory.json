@@ -3,35 +3,35 @@
   "short_term": [
     {
       "role": "user",
-      "content": "how are you today?"
+      "content": "modo pensativo"
     },
     {
       "role": "assistant",
-      "content": "i feel friendly right now, I. thanks for asking."
+      "content": "opening the thoughtful setup now."
     },
     {
       "role": "user",
-      "content": "let's open a dev mode"
+      "content": "show open windows please"
     },
     {
       "role": "assistant",
-      "content": "all right, switching to dev mode."
+      "content": "that app isn't in my launcher list yet: windows."
     },
     {
       "role": "user",
-      "content": "hello, today im bad"
+      "content": "show open windows"
     },
     {
       "role": "assistant",
-      "content": "hello, I. good to hear from you again."
+      "content": "all right, bringing up the window carousel."
     },
     {
       "role": "user",
-      "content": "can open a pensative mode?"
+      "content": "think mode please"
     },
     {
       "role": "assistant",
-      "content": "i didn't find a short direct answer, so i opened search results for can open a pensative mode?."
+      "content": "i'm still learning, I, but i'm here with you."
     },
     {
       "role": "user",
@@ -39,7 +39,7 @@
     },
     {
       "role": "assistant",
-      "content": "opening the thoughtful setup now."
+      "content": "all right, switching to thoughtful mode."
     }
   ],
   "long_term": {
