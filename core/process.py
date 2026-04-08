@@ -733,6 +733,33 @@ class Process:
                 memory_hint=memory_hint,
             )
 
+        if patterns["asks_trust"]:
+            return self._personalized_response(
+                "asks_trust_known",
+                "asks_trust_unknown",
+                user_name=user_name,
+                memory_hint=memory_hint,
+            )
+
+        if patterns["asks_lonely"]:
+            return self._personalized_response(
+                "asks_lonely_known",
+                "asks_lonely_unknown",
+                user_name=user_name,
+                memory_hint=memory_hint,
+            )
+
+        if patterns["asks_busy"]:
+            return self._personalized_response(
+                "asks_busy_known",
+                "asks_busy_unknown",
+                user_name=user_name,
+                memory_hint=memory_hint,
+            )
+
+        if patterns["asks_story"]:
+            return self.pick_response("asks_story")
+
         if patterns["asks_joke"]:
             return self.pick_response("asks_joke")
 
@@ -832,8 +859,22 @@ class Process:
         if patterns["asks_time"]:
             return self.pick_response("asks_time", current_time=self.get_current_time_text())
 
+        if patterns["asks_weather"]:
+            if self.web_assistant:
+                weather_text = self.web_assistant.get_weather_brief()
+                if weather_text:
+                    return self.pick_response("asks_weather", weather_text=weather_text)
+            return self.pick_response("asks_weather_unavailable")
+
         if patterns["asks_date"]:
             return self.pick_response("asks_date", current_date=self.get_current_date_text())
+
+        if patterns["asks_news"]:
+            if self.web_assistant:
+                headlines = self.web_assistant.get_top_news_headlines(limit=3)
+                if headlines:
+                    return self.pick_response("asks_news", headlines="; ".join(headlines[:3]))
+            return self.pick_response("asks_news_unavailable")
 
         if patterns["asks_capabilities"]:
             return self.pick_response("asks_capabilities")
@@ -1168,13 +1209,13 @@ class Process:
             self.memory.set_last_topic("preferences")
         elif patterns["sets_fact"] or patterns["asks_facts"] or patterns["asks_specific_fact"]:
             self.memory.set_last_topic("facts")
-        elif patterns["asks_relationship"]:
+        elif patterns["asks_relationship"] or patterns["asks_trust"]:
             self.memory.set_last_topic("relationship")
-        elif patterns["asks_joke"]:
+        elif patterns["asks_lonely"] or patterns["asks_busy"] or patterns["asks_story"] or patterns["asks_joke"]:
             self.memory.set_last_topic("fun")
         elif patterns["asks_encouragement"] or patterns["shares_positive_feeling"] or patterns["shares_negative_feeling"]:
             self.memory.set_last_topic("emotion")
-        elif patterns["asks_time"] or patterns["asks_date"]:
+        elif patterns["asks_time"] or patterns["asks_date"] or patterns["asks_weather"] or patterns["asks_news"]:
             self.memory.set_last_topic("time")
         elif patterns["dev_project_action"]:
             self.memory.set_last_topic("dev")
