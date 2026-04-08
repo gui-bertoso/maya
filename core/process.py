@@ -164,7 +164,12 @@ class Process:
 
     @staticmethod
     def strip_polite_prefixes(text):
-        return re.sub(r"^(?:please|hey maya|maya|can you|could you|would you)\s+", "", text.strip(), flags=re.IGNORECASE)
+        return re.sub(
+            r"^(?:please|hey maya|hi maya|hello maya|oi maya|ola maya|olá maya|maya|can you|could you|would you)\s+",
+            "",
+            text.strip(),
+            flags=re.IGNORECASE,
+        )
 
     @staticmethod
     def extract_browser_clause(text):
@@ -194,7 +199,7 @@ class Process:
         tokens = self.tokenize(without_browser)
         token_set = set(tokens)
 
-        if not token_set.intersection({"play", "open", "search", "find", "show"}):
+        if not token_set.intersection({"play", "open", "search", "find", "show", "toca", "toque", "bota", "coloca", "abre", "abrir"}):
             return None
 
         if "youtube music" in without_browser:
@@ -209,7 +214,7 @@ class Process:
                     "browser_alias": browser_alias,
                 }
 
-        if "spotify" in without_browser and self.spotify_assistant:
+        if self.spotify_assistant:
             spotify_request = self.spotify_assistant.parse_request(without_browser)
             if spotify_request:
                 spotify_request["kind"] = "spotify"
@@ -279,6 +284,15 @@ class Process:
 
     @staticmethod
     def normalize_move_position(raw_position):
+        if not raw_position:
+            return None
+
+        normalized = raw_position.strip().lower()
+        normalized = normalized.replace("-", " ").replace("_", " ")
+        normalized = re.sub(r"[.!?,;:]+$", "", normalized).strip()
+        normalized = re.sub(r"^(?:the\s+)?(?:position\s+)?", "", normalized, flags=re.IGNORECASE).strip()
+        normalized = re.sub(r"\s+(?:please|now)$", "", normalized, flags=re.IGNORECASE).strip()
+
         mapping = {
             "top left": "top_left",
             "upper left": "top_left",
@@ -305,9 +319,11 @@ class Process:
             "lower right": "bottom_right",
             "canto inferior direito": "bottom_right",
         }
-        return mapping.get(raw_position.strip().lower())
+        return mapping.get(normalized)
 
     def parse_window_move_request(self, text_lower):
+        text_lower = re.sub(r"[.!?,;:]+$", "", text_lower.strip()).strip()
+
         patterns = [
             r"(?:move|go|put|place|send)\s+(?:maya|yourself|the window)?\s*(?:to\s+)?(.+?)\s+(?:on|to)\s+(?:monitor|display|screen)\s+(\d+)$",
             r"(?:vai|va|fica|move)\s+(?:a maya|a janela|você)?\s*(?:para\s+)?(.+?)\s+(?:no|na)\s+(?:monitor|tela|display)\s+(\d+)$",
@@ -380,8 +396,6 @@ class Process:
                 continue
 
             raw_position = match.group(1).strip()
-            raw_position = re.sub(r"^(?:the\s+)?(?:position\s+)?", "", raw_position, flags=re.IGNORECASE).strip()
-            raw_position = re.sub(r"\s+(?:please|now)$", "", raw_position, flags=re.IGNORECASE).strip()
             position = self.normalize_move_position(raw_position)
             if not position:
                 continue
@@ -467,6 +481,118 @@ class Process:
                 "mode": "set",
                 "value": round(float(percentage_match.group(1)) / 100.0, 3),
             }
+
+        return None
+
+    @staticmethod
+    def parse_dev_workspace_request(text_lower):
+        normalized = Process.strip_polite_prefixes(" ".join((text_lower or "").strip().lower().split()))
+        normalized = re.sub(r"[.!?,;:]+$", "", normalized).strip()
+        patterns = [
+            r"(?:enter|start|open|enable|activate)\s+(?:the\s+)?(?:dev|developer)\s+mode(?:\s+(?:now|please))?$",
+            r"(?:go|switch)\s+(?:to\s+)?(?:dev|developer)\s+mode(?:\s+(?:now|please))?$",
+            r"(?:dev|developer)\s+mode(?:\s+(?:now|please))?$",
+            r"(?:modo\s+dev|modo\s+developer)(?:\s+(?:agora|por favor))?$",
+            r"(?:entra|entre|ativa|ative|abre|abrir)\s+(?:o\s+)?(?:modo\s+dev|modo\s+developer)(?:\s+(?:agora|por favor))?$",
+            r"(?:vai|ir)\s+(?:pro|para o)\s+(?:modo\s+dev|modo\s+developer)(?:\s+(?:agora|por favor))?$",
+        ]
+        if any(re.search(pattern, normalized, flags=re.IGNORECASE) for pattern in patterns):
+            return {
+                "spotify_query": "pique anos 80",
+                "layout": "default_dual_monitor",
+            }
+        return None
+
+    @staticmethod
+    def parse_dev_workspace_exit_request(text_lower):
+        normalized = Process.strip_polite_prefixes(" ".join((text_lower or "").strip().lower().split()))
+        normalized = re.sub(r"[.!?,;:]+$", "", normalized).strip()
+        patterns = [
+            r"(?:exit|leave|close|disable|stop)\s+(?:the\s+)?(?:dev|developer)\s+mode(?:\s+(?:now|please))?$",
+            r"(?:go|switch)\s+out\s+of\s+(?:dev|developer)\s+mode(?:\s+(?:now|please))?$",
+            r"(?:sai|sair|fecha|fechar|desativa|desativar)\s+(?:do|o\s+)?(?:modo\s+dev|modo\s+developer)(?:\s+(?:agora|por favor))?$",
+        ]
+        return any(re.search(pattern, normalized, flags=re.IGNORECASE) for pattern in patterns)
+
+    @staticmethod
+    def parse_thoughtful_workspace_request(text_lower):
+        normalized = Process.strip_polite_prefixes(" ".join((text_lower or "").strip().lower().split()))
+        normalized = re.sub(r"[.!?,;:]+$", "", normalized).strip()
+        patterns = [
+            r"(?:enter|start|open|enable|activate)\s+(?:the\s+)?(?:thoughtful|thinking)\s+mode(?:\s+(?:now|please))?$",
+            r"(?:thoughtful|thinking)\s+mode(?:\s+(?:now|please))?$",
+            r"(?:modo\s+pensativo|modo\s+pensando)(?:\s+(?:agora|por favor))?$",
+            r"(?:entra|entre|ativa|ative|abre|abrir)\s+(?:o\s+)?(?:modo\s+pensativo|modo\s+pensando)(?:\s+(?:agora|por favor))?$",
+        ]
+        return any(re.search(pattern, normalized, flags=re.IGNORECASE) for pattern in patterns)
+
+    @staticmethod
+    def parse_window_showcase_request(text_lower):
+        normalized = " ".join((text_lower or "").strip().lower().split())
+
+        close_phrases = [
+            "close the window showcase",
+            "hide the window showcase",
+            "close window showcase",
+            "hide window showcase",
+            "close the window disco",
+            "hide the window disco",
+            "fechar carrossel de janelas",
+            "fecha o carrossel de janelas",
+            "esconde o carrossel de janelas",
+            "fecha o disco de janelas",
+            "esconde o disco de janelas",
+        ]
+        if normalized in close_phrases:
+            return {"action": "close"}
+
+        rotate_left_patterns = [
+            r"(?:rotate|spin|turn|move)\s+(?:the\s+)?(?:window\s+)?(?:showcase|carousel|disco)\s+(?:to\s+)?(?:the\s+)?left$",
+            r"(?:previous|back)\s+window(?:\s+in\s+(?:the\s+)?(?:showcase|carousel|disco))?$",
+            r"(?:gira|roda|move)\s+(?:o\s+)?(?:carrossel|disco|varal)\s+de\s+janelas\s+(?:para\s+a\s+)?esquerda$",
+            r"(?:janela|card)\s+anterior(?:\s+no\s+(?:carrossel|disco|varal))?$",
+        ]
+        for pattern in rotate_left_patterns:
+            if re.search(pattern, normalized, flags=re.IGNORECASE):
+                return {"action": "rotate", "step": -1}
+
+        rotate_right_patterns = [
+            r"(?:rotate|spin|turn|move)\s+(?:the\s+)?(?:window\s+)?(?:showcase|carousel|disco)\s+(?:to\s+)?(?:the\s+)?right$",
+            r"(?:next)\s+window(?:\s+in\s+(?:the\s+)?(?:showcase|carousel|disco))?$",
+            r"(?:gira|roda|move)\s+(?:o\s+)?(?:carrossel|disco|varal)\s+de\s+janelas\s+(?:para\s+a\s+)?direita$",
+            r"(?:proxima|próxima)\s+(?:janela|card)(?:\s+no\s+(?:carrossel|disco|varal))?$",
+        ]
+        for pattern in rotate_right_patterns:
+            if re.search(pattern, normalized, flags=re.IGNORECASE):
+                return {"action": "rotate", "step": 1}
+
+        open_phrases = [
+            "show windows",
+            "show my windows",
+            "show open windows",
+            "show the windows",
+            "open the window showcase",
+            "open window showcase",
+            "window showcase",
+            "window carousel",
+            "window disco",
+            "mostra as janelas",
+            "mostra minhas janelas",
+            "mostra as janelas abertas",
+            "abre o carrossel de janelas",
+            "abre o disco de janelas",
+            "carrossel de janelas",
+            "disco de janelas",
+            "varal de janelas",
+        ]
+        if normalized in open_phrases:
+            return {"action": "open"}
+
+        if re.search(r"(?:show|open|make)\s+.*(?:carousel|showcase|disco|varal).*(?:window|windows|janelas)$", normalized, flags=re.IGNORECASE):
+            return {"action": "open"}
+
+        if re.search(r"(?:quero|faz|faca|faz um|faz uma)\s+.*(?:disco|carrossel|varal).*(?:janela|janelas)$", normalized, flags=re.IGNORECASE):
+            return {"action": "open"}
 
         return None
 
@@ -669,6 +795,23 @@ class Process:
                 scale_value=patterns["scale_app_target"]["value"],
             )
 
+        if patterns["window_showcase"]:
+            action = patterns["window_showcase_action"] or {}
+            if self.parent is not None:
+                if action.get("action") == "close":
+                    self.parent.send_event("app_hide_window_showcase", None)
+                elif action.get("action") == "rotate":
+                    self.parent.send_event("app_rotate_window_showcase", {"step": action.get("step", 1)})
+                else:
+                    self.parent.send_event("app_show_window_showcase", None)
+
+            if action.get("action") == "close":
+                return self.pick_response("window_showcase_close")
+            if action.get("action") == "rotate":
+                direction = "left" if int(action.get("step", 1)) < 0 else "right"
+                return self.pick_response("window_showcase_rotate", direction=direction)
+            return self.pick_response("window_showcase_open")
+
         if patterns["farewell"]:
             if user_name:
                 return self.pick_response("farewell_known", user_name=user_name)
@@ -697,6 +840,21 @@ class Process:
 
         if patterns["dev_project_action"]:
             return self.handle_dev_project_action(patterns["dev_project_spec"])
+
+        if patterns["dev_workspace_action"]:
+            if self.parent is not None:
+                self.parent.send_event("app_start_dev_workspace", patterns["dev_workspace_target"])
+            return self.pick_response("dev_workspace_start")
+
+        if patterns["dev_workspace_exit_action"]:
+            if self.parent is not None:
+                self.parent.send_event("app_stop_dev_workspace", None)
+            return self.pick_response("dev_workspace_stop")
+
+        if patterns["thoughtful_workspace_action"]:
+            if self.parent is not None:
+                self.parent.send_event("app_start_thoughtful_workspace", None)
+            return self.pick_response("thoughtful_workspace_start")
 
         if patterns["web_action"]:
             return self.handle_web_action(
@@ -1325,6 +1483,12 @@ class Process:
             "move_app_target": None,
             "scale_app": False,
             "scale_app_target": None,
+            "dev_workspace_action": False,
+            "dev_workspace_target": None,
+            "dev_workspace_exit_action": False,
+            "thoughtful_workspace_action": False,
+            "window_showcase": False,
+            "window_showcase_action": None,
             "asks_status": False,
             "asks_time": False,
             "asks_date": False,
@@ -1666,6 +1830,20 @@ class Process:
         if scale_target:
             patterns["scale_app"] = True
             patterns["scale_app_target"] = scale_target
+
+        dev_workspace_target = self.parse_dev_workspace_request(text_lower)
+        if dev_workspace_target:
+            patterns["dev_workspace_action"] = True
+            patterns["dev_workspace_target"] = dev_workspace_target
+        elif self.parse_dev_workspace_exit_request(text_lower):
+            patterns["dev_workspace_exit_action"] = True
+        elif self.parse_thoughtful_workspace_request(text_lower):
+            patterns["thoughtful_workspace_action"] = True
+
+        showcase_target = self.parse_window_showcase_request(text_lower)
+        if showcase_target:
+            patterns["window_showcase"] = True
+            patterns["window_showcase_action"] = showcase_target
 
         if any(phrase in text_lower for phrase in ["what can you do", "help me", "your capabilities"]) or self.parse_natural_capabilities_request(text_lower):
             patterns["asks_capabilities"] = True

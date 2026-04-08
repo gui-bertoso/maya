@@ -11,7 +11,8 @@ Maya is a Python virtual assistant with a floating transparent interface, double
 - Responds using text-to-speech.
 - Stores short-term and long-term memory in `data/memory.json`.
 - Stores learned vocabulary in `data/vocabulary.json`.
-- Displays a real-time floating overlay interface with `tkinter`.
+- Displays a real-time floating overlay interface with `PySide6`.
+- Can open a faux-3D window showcase carousel for your currently open X11 windows. On Hyprland it can also browse/focus native Wayland clients through `hyprctl`, and on KDE Plasma Wayland it can browse/focus windows through KWin DBus.
 
 ## Current Status
 
@@ -70,8 +71,9 @@ maya/
 - Vosk
 - SoundDevice
 - NumPy
-- Tkinter
+- PySide6
 - pyttsx3
+- python-xlib
 - python-dotenv
 
 ## Requirements
@@ -86,6 +88,8 @@ Dependencies expected by the code:
 ```bash
 pip install -r requirements.txt
 ```
+
+The window showcase mode works best on X11. On Hyprland, Maya can enumerate and focus windows through `hyprctl`, and on KDE Plasma Wayland it can do the same through KWin DBus, but live previews may still be limited because Wayland blocks arbitrary window capture. On other Wayland compositors, including COSMIC, the showcase may be unavailable until a compositor-specific control interface is added.
 
 `sounddevice` also requires the native PortAudio library from the operating system. If PortAudio is missing, Maya will still start after the current fallback handling, but microphone-based clap detection and speech input will stay unavailable until the library is installed.
 
@@ -223,6 +227,12 @@ Examples:
 python app.py
 ```
 
+If you are launching Maya from a Flatpak app such as PyCharm, prefer the host-aware launcher below so audio and GTK modules come from the real system instead of the sandbox runtime:
+
+```bash
+./run_maya.sh
+```
+
 ## How To Run Tests
 
 ```bash
@@ -238,6 +248,14 @@ python -m unittest discover -s tests
 5. Maya will transcribe, process, and answer out loud.
 
 You can also press `Ctrl+M` to wake Maya and open a separate quick input window for typing.
+
+Examples of window showcase commands:
+
+- `show open windows`
+- `window disco`
+- `rotate the window showcase to the right`
+- `gira o carrossel de janelas para a esquerda`
+- `fechar carrossel de janelas`
 
 Examples of phrases that match the current behavior:
 

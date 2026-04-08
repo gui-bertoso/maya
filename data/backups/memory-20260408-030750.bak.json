@@ -3,43 +3,43 @@
   "short_term": [
     {
       "role": "user",
-      "content": "quit yourself"
+      "content": "hello maya"
     },
     {
       "role": "assistant",
-      "content": "all right, closing myself."
+      "content": "hi, I. nice to have you back."
     },
     {
       "role": "user",
-      "content": "move to bottom left"
+      "content": "how are you today?"
     },
     {
       "role": "assistant",
-      "content": "all right, moving to bottom left on this monitor."
+      "content": "i feel friendly right now, I. thanks for asking."
     },
     {
       "role": "user",
-      "content": "moved it up left"
+      "content": "let's open a dev mode"
     },
     {
       "role": "assistant",
-      "content": "i'm still figuring things out, Gui, but i'm with you."
+      "content": "all right, switching to dev mode."
     },
     {
       "role": "user",
-      "content": "hide yourself"
+      "content": "hello, today im bad"
     },
     {
       "role": "assistant",
-      "content": "all right, i'll move to the background."
+      "content": "hello, I. good to hear from you again."
     },
     {
       "role": "user",
-      "content": "i am i"
+      "content": "can open a pensative mode?"
     },
     {
       "role": "assistant",
-      "content": "got it, i. nice to know your name."
+      "content": "i didn't find a short direct answer, so i opened search results for can open a pensative mode?."
     }
   ],
   "long_term": {
@@ -49,7 +49,7 @@
   },
   "state": {
     "mood": "friendly",
-    "last_topic": "name",
+    "last_topic": "conversation",
     "pending_learning": null
   }
 }
