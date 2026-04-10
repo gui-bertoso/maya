@@ -59,6 +59,8 @@ class SpotifyAssistant:
             r"^open spotify and play\s+(?:a\s+)?(.+?)\s+playlist$",
             r"^(?:play|open|put on|start|toca|toque|bota|coloca)\s+(.+?)\s+playlist$",
             r"^(?:play|open|put on|start|toca|toque|bota|coloca)\s+(?:a\s+|some\s+|uma\s+)?playlist\s+(?:of\s+|de\s+)?(.+)$",
+            r"^(?:tocar|reproduz|reproduzir|abre|abrir)\s+(.+?)\s+playlist$",
+            r"^(?:tocar|reproduz|reproduzir|abre|abrir)\s+(?:uma\s+)?playlist\s+(?:de\s+)?(.+)$",
         ]
         for pattern in playlist_patterns:
             match = re.match(pattern, stripped, flags=re.IGNORECASE)
@@ -82,7 +84,7 @@ class SpotifyAssistant:
                 "spoken_query": None,
             }
 
-        music_prefix = r"^(?:play|put on|toca|toque|bota|coloca)\s+"
+        music_prefix = r"^(?:play|put on|toca|toque|tocar|bota|coloca|reproduz|reproduzir)\s+"
         if re.match(music_prefix, stripped, flags=re.IGNORECASE):
             topic = self._extract_query(stripped, music_prefix)
             if topic:
@@ -97,6 +99,8 @@ class SpotifyAssistant:
         track_patterns = [
             r"^(?:play|open)\s+(.+?)\s+on\s+spotify$",
             r"^open spotify and play\s+(.+)$",
+            r"^(?:toca|toque|tocar|abre|abrir|reproduz|reproduzir)\s+(.+?)\s+(?:no|na|em)\s+spotify$",
+            r"^abre\s+spotify\s+e\s+(?:toca|toque|tocar|reproduz|reproduzir)\s+(.+)$",
         ]
         for pattern in track_patterns:
             match = re.match(pattern, stripped, flags=re.IGNORECASE)

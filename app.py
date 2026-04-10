@@ -109,6 +109,15 @@ class App:
         "why",
         "how",
         "which",
+        "o",
+        "qual",
+        "quais",
+        "quem",
+        "onde",
+        "quando",
+        "como",
+        "porque",
+        "por",
     }
 
     FALLBACK_PREFIXES = (
@@ -189,6 +198,8 @@ class App:
         ]
         self.speak_wake_response_on_clap = get_env("SPEAK_WAKE_RESPONSE_ON_CLAP", "true").lower() == "true"
         self.speak_wake_response_on_hotkey = get_env("SPEAK_WAKE_RESPONSE_ON_HOTKEY", "true").lower() == "true"
+        self.microphone_enabled = get_env("MICROPHONE_ENABLED", "true").lower() == "true"
+        self.speech_muted = get_env("SPEECH_MUTED", "false").lower() == "true"
 
         self.speaker = self._create_speaker()
         self.clap_detector = self._create_clap_detector()
@@ -217,10 +228,12 @@ class App:
             settings_apply_callback=self.apply_user_settings,
         )
 
-        clap_started = self.clap_detector.start(
-            on_double_clap=self.handle_double_clap,
-            on_clap=self.handle_single_clap
-        )
+        clap_started = False
+        if self.microphone_enabled:
+            clap_started = self.clap_detector.start(
+                on_double_clap=self.handle_double_clap,
+                on_clap=self.handle_single_clap
+            )
         hotkey_started = self.hotkey_listener.start_pgdown_end(self.handle_hotkey_wake)
 
         if not hotkey_started:
@@ -258,6 +271,8 @@ class App:
             voice_id=get_env("TTS_VOICE_ID"),
             preferred_gender=get_env("TTS_VOICE_GENDER", "female"),
             language=self.LANGUAGE,
+            muted=self.speech_muted,
+            engine_preference=get_env("TTS_ENGINE", "auto"),
         )
 
     def _create_clap_detector(self):
@@ -287,6 +302,8 @@ class App:
         ]
         self.speak_wake_response_on_clap = get_env("SPEAK_WAKE_RESPONSE_ON_CLAP", "true").lower() == "true"
         self.speak_wake_response_on_hotkey = get_env("SPEAK_WAKE_RESPONSE_ON_HOTKEY", "true").lower() == "true"
+        self.microphone_enabled = get_env("MICROPHONE_ENABLED", "true").lower() == "true"
+        self.speech_muted = get_env("SPEECH_MUTED", "false").lower() == "true"
         self.wake_duration = get_env("WAKE_DURATION", 6.0, float)
         self.wake_response_cooldown = get_env("WAKE_RESPONSE_COOLDOWN", 2.5, float)
         self.ignored_voice_cooldown = get_env("VOICE_IGNORE_COOLDOWN", 1.2, float)
@@ -303,12 +320,13 @@ class App:
             self.speaker.stop()
             self.speaker.shutdown()
         self.speaker = self._create_speaker()
+        self.speaker.set_muted(self.speech_muted)
 
         voice_was_active = getattr(self, "voice_active", False)
         if hasattr(self, "voice") and self.voice is not None:
             self.voice.stop()
         self.voice = self._create_voice()
-        if voice_was_active:
+        if voice_was_active and self.microphone_enabled:
             started = self.voice.start_background(
                 on_final_text=self.handle_voice_input,
                 on_partial_text=self.handle_partial_voice,
@@ -318,14 +336,17 @@ class App:
             self.send_event("voice_status", "ready" if started else "unavailable")
         else:
             self.voice_active = False
+            self.send_event("voice_status", "idle")
 
         if hasattr(self, "clap_detector") and self.clap_detector is not None:
             self.clap_detector.stop()
         self.clap_detector = self._create_clap_detector()
-        clap_started = self.clap_detector.start(
-            on_double_clap=self.handle_double_clap,
-            on_clap=self.handle_single_clap,
-        )
+        clap_started = False
+        if self.microphone_enabled:
+            clap_started = self.clap_detector.start(
+                on_double_clap=self.handle_double_clap,
+                on_clap=self.handle_single_clap,
+            )
         if not clap_started and self.clap_detector.last_error:
             print(f"microphone wake unavailable: {self.clap_detector.last_error}")
 
@@ -368,7 +389,7 @@ class App:
         timer.start()
 
     def _enable_startup_brief_listening(self):
-        if not self.awaiting_startup_brief_response or self.voice_active:
+        if not self.microphone_enabled or not self.awaiting_startup_brief_response or self.voice_active:
             return
 
         started = self.voice.start_background(
@@ -568,7 +589,7 @@ class App:
             self.send_event("voice_status", "speaking")
             self.speaker.speak(wake_response_text)
 
-        if not self.voice_active:
+        if self.microphone_enabled and not self.voice_active:
             started = self.voice.start_background(
                 on_final_text=self.handle_voice_input,
                 on_partial_text=self.handle_partial_voice,
@@ -718,10 +739,10 @@ class App:
 
         if self._is_settings_command(text):
             self.send_event("app_show_settings", None)
-            return "Opening Maya user settings."
+            return "Abrindo as configuracoes da Maya." if self.LANGUAGE.lower().startswith("pt") else "Opening Maya user settings."
 
         if self._looks_like_daily_brief_request(text):
-            response = "all right, i'll give you today's headlines."
+            response = "certo, vou te passar o resumo de hoje." if self.LANGUAGE.lower().startswith("pt") else "all right, i'll give you today's headlines."
             self.send_event("response_text", response)
             self.send_event("voice_status", "speaking")
             self.speaker.stop()

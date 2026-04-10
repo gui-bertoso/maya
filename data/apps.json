@@ -27,12 +27,26 @@
     "command_linux": "firefox",
     "process_names_linux": ["firefox"]
   },
+  "chrome": {
+    "display_name": "Google Chrome",
+    "aliases": ["chrome", "google chrome"],
+    "command": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "command_linux": "google-chrome",
+    "process_names_linux": ["google-chrome", "chrome", "chromium", "chromium-browser"]
+  },
   "steam": {
     "display_name": "Steam",
     "aliases": ["steam"],
     "command": "C:\\Program Files (x86)\\Steam\\steam.exe",
     "command_linux": "steam",
-    "process_names_linux": ["steam"]
+    "process_names_linux": ["steam"],
+    "subapps": {
+      "necesse": {
+        "display_name": "Necesse",
+        "aliases": ["necesse"],
+        "target": "steam://rungameid/1169040"
+      }
+    }
   },
   "spotify": {
     "display_name": "Spotify",

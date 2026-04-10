@@ -296,25 +296,50 @@
     "all right, i'll move to the background.",
     "sure, i'll get out of the way and stay in the background."
   ],
+  "background_app_pt": [
+    "ok, vou ficar em segundo plano.",
+    "certo, vou para o segundo plano.",
+    "beleza, vou sair do caminho e ficar em segundo plano."
+  ],
   "exit_self": [
     "all right, closing myself.",
     "okay, i'll quit now.",
     "sure, shutting myself down."
+  ],
+  "exit_self_pt": [
+    "certo, vou me fechar.",
+    "ok, vou encerrar agora.",
+    "beleza, vou desligar a mim mesma."
   ],
   "hide_input_window": [
     "okay, i'll close the input window.",
     "all right, hiding the input window.",
     "sure, i'll get the input window out of the way."
   ],
+  "hide_input_window_pt": [
+    "ok, vou fechar a janela de input.",
+    "certo, escondendo a janela de input.",
+    "beleza, vou tirar a janela de input do caminho."
+  ],
   "move_app_success": [
     "okay, i'll move to {position} on {monitor_text}.",
     "all right, moving to {position} on {monitor_text}.",
     "sure, i'm going to {position} on {monitor_text}."
   ],
+  "move_app_success_pt": [
+    "ok, vou para {position} no {monitor_text}.",
+    "certo, movendo para {position} no {monitor_text}.",
+    "beleza, estou indo para {position} no {monitor_text}."
+  ],
   "move_app_monitor_only_success": [
     "okay, i'll move to {monitor_text}.",
     "all right, moving to {monitor_text}.",
     "sure, i'm going to {monitor_text}."
+  ],
+  "move_app_monitor_only_success_pt": [
+    "ok, vou para o {monitor_text}.",
+    "certo, movendo para o {monitor_text}.",
+    "beleza, estou indo para o {monitor_text}."
   ],
   "move_app_unsupported_wayland": [
     "i understood the move, but your current Wayland session is blocking app-controlled window positioning.",
@@ -325,6 +350,11 @@
     "okay, i'll set my scale to {scale_value}.",
     "all right, changing my scale to {scale_value}.",
     "sure, i'll use scale {scale_value}."
+  ],
+  "scale_app_success_pt": [
+    "ok, vou ajustar minha escala para {scale_value}.",
+    "certo, mudando minha escala para {scale_value}.",
+    "beleza, vou usar a escala {scale_value}."
   ],
   "window_showcase_open": [
     "opening the window disco.",
@@ -350,6 +380,11 @@
     "i can hold light conversation, remember things about you, control some local apps, and help with quick web lookups.",
     "i can talk, keep short context, move around the desktop a bit, manage app commands, and help with music and web actions."
   ],
+  "asks_capabilities_pt": [
+    "eu posso conversar, lembrar seu nome, guardar preferencias simples e lembrar fatos curtos.",
+    "eu posso conversar com voce, lembrar algumas coisas, abrir apps, pesquisar na web e executar varios comandos.",
+    "eu posso falar, manter um pouco de contexto, mexer em alguns apps locais e ajudar com musica e acoes web."
+  ],
   "asks_time": [
     "it's {current_time}.",
     "the time right now is {current_time}.",
@@ -357,10 +392,22 @@
     "current time: {current_time}.",
     "it's currently {current_time}."
   ],
+  "asks_time_pt": [
+    "agora sao {current_time}.",
+    "o horario neste momento e {current_time}.",
+    "neste instante sao {current_time}.",
+    "hora atual: {current_time}.",
+    "agora e {current_time}."
+  ],
   "asks_weather": [
     "right now the weather is {weather_text}.",
     "weather update: {weather_text}.",
     "from what i can see, it's {weather_text}."
+  ],
+  "asks_weather_pt": [
+    "agora o clima esta {weather_text}.",
+    "atualizacao do tempo: {weather_text}.",
+    "pelo que consegui ver, esta {weather_text}."
   ],
   "asks_weather_unavailable": [
     "i couldn't get the weather right now.",
@@ -374,10 +421,22 @@
     "today's date is {current_date}.",
     "right now the date is {current_date}."
   ],
+  "asks_date_pt": [
+    "hoje e {current_date}.",
+    "a data de hoje e {current_date}.",
+    "estamos em {current_date}.",
+    "a data hoje e {current_date}.",
+    "agora a data e {current_date}."
+  ],
   "asks_news": [
     "here are a few headlines for today: {headlines}.",
     "today's headlines for now: {headlines}.",
     "i found these headlines: {headlines}."
+  ],
+  "asks_news_pt": [
+    "aqui vao algumas manchetes de hoje: {headlines}.",
+    "as manchetes de agora sao: {headlines}.",
+    "eu encontrei estas noticias: {headlines}."
   ],
   "asks_news_unavailable": [
     "i couldn't pull today's headlines right now.",
@@ -459,80 +518,200 @@
     "all right, launching {app_name}.",
     "sure, opening {app_name} now."
   ],
+  "launch_app_success_pt": [
+    "abrindo {app_name}.",
+    "certo, iniciando {app_name}.",
+    "beleza, abrindo {app_name} agora."
+  ],
   "launch_app_failed": [
     "i tried to open {app_name}, but it didn't work.",
     "i couldn't launch {app_name}.",
     "opening {app_name} failed."
+  ],
+  "launch_app_failed_pt": [
+    "eu tentei abrir {app_name}, mas nao deu certo.",
+    "nao consegui iniciar {app_name}.",
+    "falhou ao abrir {app_name}."
   ],
   "launch_app_missing_command": [
     "{app_name} is configured, but it doesn't have a runnable command yet.",
     "i know {app_name}, but its command is missing.",
     "i found {app_name}, but it isn't fully configured yet."
   ],
+  "launch_app_missing_command_pt": [
+    "{app_name} esta configurado, mas ainda nao tem um comando executavel.",
+    "eu conheco {app_name}, mas o comando dele esta faltando.",
+    "eu encontrei {app_name}, mas ele ainda nao esta totalmente configurado."
+  ],
   "launch_app_unknown": [
     "i don't know that app yet: {app_alias}.",
     "that app isn't in my launcher list yet: {app_alias}.",
     "i can't find that app in my configured list: {app_alias}."
+  ],
+  "launch_app_unknown_pt": [
+    "eu ainda nao conheco esse app: {app_alias}.",
+    "esse app ainda nao esta na minha lista: {app_alias}.",
+    "nao encontrei esse app na minha lista configurada: {app_alias}."
   ],
   "launch_app_unavailable": [
     "the app launcher isn't available right now.",
     "i can't launch apps right now because the launcher isn't ready.",
     "app launching isn't available at the moment."
   ],
+  "launch_app_unavailable_pt": [
+    "o launcher de apps nao esta disponivel agora.",
+    "eu nao consigo abrir apps agora porque o launcher nao esta pronto.",
+    "abrir apps nao esta disponivel no momento."
+  ],
+  "launch_subapp_success": [
+    "opening {subapp_name} in {app_name}.",
+    "all right, launching {subapp_name} with {app_name}.",
+    "sure, opening {subapp_name} on {app_name} now."
+  ],
+  "launch_subapp_success_pt": [
+    "abrindo {subapp_name} no {app_name}.",
+    "certo, iniciando {subapp_name} pelo {app_name}.",
+    "beleza, abrindo {subapp_name} no {app_name} agora."
+  ],
+  "launch_subapp_failed": [
+    "i tried to open {subapp_name} in {app_name}, but it didn't work.",
+    "i couldn't launch {subapp_name} with {app_name}.",
+    "opening {subapp_name} in {app_name} failed."
+  ],
+  "launch_subapp_failed_pt": [
+    "eu tentei abrir {subapp_name} no {app_name}, mas nao deu certo.",
+    "nao consegui iniciar {subapp_name} com {app_name}.",
+    "falhou ao abrir {subapp_name} no {app_name}."
+  ],
+  "launch_subapp_unknown": [
+    "i don't know {subapp_alias} inside {app_name} yet.",
+    "that item isn't configured in {app_name} yet: {subapp_alias}.",
+    "i can't find {subapp_alias} in my {app_name} subapp list."
+  ],
+  "launch_subapp_unknown_pt": [
+    "eu ainda nao conheco {subapp_alias} dentro de {app_name}.",
+    "esse item ainda nao esta configurado em {app_name}: {subapp_alias}.",
+    "nao encontrei {subapp_alias} na minha lista de subapps de {app_name}."
+  ],
+  "launch_subapp_missing_target": [
+    "i know {subapp_name} in {app_name}, but its target isn't configured yet.",
+    "{subapp_name} is mapped in {app_name}, but it doesn't have a launch target yet.",
+    "i found {subapp_name} in {app_name}, but it isn't fully configured yet."
+  ],
+  "launch_subapp_missing_target_pt": [
+    "eu conheco {subapp_name} em {app_name}, mas o alvo ainda nao esta configurado.",
+    "{subapp_name} esta mapeado em {app_name}, mas ainda nao tem alvo de abertura.",
+    "eu encontrei {subapp_name} em {app_name}, mas ainda nao esta totalmente configurado."
+  ],
   "close_app_success": [
     "closing {app_name}.",
     "all right, closing {app_name}.",
     "sure, i'll close {app_name}."
+  ],
+  "close_app_success_pt": [
+    "fechando {app_name}.",
+    "certo, fechando {app_name}.",
+    "beleza, vou fechar {app_name}."
   ],
   "close_app_failed": [
     "i tried to close {app_name}, but it didn't work.",
     "i couldn't close {app_name}.",
     "closing {app_name} failed."
   ],
+  "close_app_failed_pt": [
+    "eu tentei fechar {app_name}, mas nao deu certo.",
+    "nao consegui fechar {app_name}.",
+    "falhou ao fechar {app_name}."
+  ],
   "close_app_not_running": [
     "{app_name} doesn't seem to be running.",
     "i couldn't find {app_name} running right now.",
     "{app_name} is not open right now."
+  ],
+  "close_app_not_running_pt": [
+    "{app_name} nao parece estar aberto.",
+    "nao encontrei {app_name} rodando agora.",
+    "{app_name} nao esta aberto no momento."
   ],
   "close_app_unknown": [
     "i don't know that app yet: {app_alias}.",
     "that app isn't in my launcher list yet: {app_alias}.",
     "i can't find that app in my configured list: {app_alias}."
   ],
+  "close_app_unknown_pt": [
+    "eu ainda nao conheco esse app: {app_alias}.",
+    "esse app ainda nao esta na minha lista: {app_alias}.",
+    "nao encontrei esse app na minha lista configurada: {app_alias}."
+  ],
   "close_app_unavailable": [
     "the app closer isn't available right now.",
     "i can't close apps right now because the launcher isn't ready.",
     "app closing isn't available at the moment."
+  ],
+  "close_app_unavailable_pt": [
+    "o fechamento de apps nao esta disponivel agora.",
+    "eu nao consigo fechar apps agora porque o launcher nao esta pronto.",
+    "fechar apps nao esta disponivel no momento."
   ],
   "open_site_success": [
     "opening {site_target}.",
     "all right, opening {site_target}.",
     "sure, opening {site_target} now."
   ],
+  "open_site_success_pt": [
+    "abrindo {site_target}.",
+    "certo, abrindo {site_target}.",
+    "beleza, abrindo {site_target} agora."
+  ],
   "web_image_success": [
     "opening image results for {query}.",
     "showing image results for {query}.",
     "opening pictures for {query}."
+  ],
+  "web_image_success_pt": [
+    "abrindo resultados de imagem para {query}.",
+    "mostrando imagens de {query}.",
+    "abrindo fotos de {query}."
   ],
   "web_video_success": [
     "opening video results for {query}.",
     "showing video results for {query}.",
     "opening videos about {query}."
   ],
+  "web_video_success_pt": [
+    "abrindo resultados de video para {query}.",
+    "mostrando videos de {query}.",
+    "abrindo videos sobre {query}."
+  ],
   "spotify_track_success": [
     "playing {query} on Spotify.",
     "opening Spotify for {query}.",
     "starting Spotify with {query}."
+  ],
+  "spotify_track_success_pt": [
+    "tocando {query} no Spotify.",
+    "abrindo Spotify para {query}.",
+    "iniciando Spotify com {query}."
   ],
   "spotify_playlist_success": [
     "playing a {query} playlist on Spotify.",
     "opening Spotify with a {query} playlist.",
     "starting a {query} playlist on Spotify."
   ],
+  "spotify_playlist_success_pt": [
+    "tocando uma playlist de {query} no Spotify.",
+    "abrindo Spotify com uma playlist de {query}.",
+    "iniciando uma playlist de {query} no Spotify."
+  ],
   "media_service_success": [
     "opening {service_name} for {query}.",
     "playing {query} on {service_name}.",
     "starting {service_name} with {query}."
+  ],
+  "media_service_success_pt": [
+    "abrindo {service_name} para {query}.",
+    "tocando {query} no {service_name}.",
+    "iniciando {service_name} com {query}."
   ],
   "web_text_fallback": [
     "i couldn't get a direct text answer, so i opened search results for {query}.",
