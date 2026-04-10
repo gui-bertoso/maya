@@ -3,7 +3,8 @@ import threading
 import queue
 import subprocess
 import sys
-from pathlib import Path
+
+from helpers.config import get_resource_path
 
 try:
     import sounddevice as sd
@@ -17,10 +18,9 @@ except Exception:
 
 
 class Speaker:
-    BASE_DIR = Path(__file__).resolve().parent.parent
     PIPER_MODEL_MAP = {
-        "en": BASE_DIR / "models" / "piper" / "en_US-lessac-high.onnx",
-        "pt": BASE_DIR / "models" / "piper" / "pt_BR-faber-medium.onnx",
+        "en": get_resource_path("models/piper/en_US-lessac-high.onnx"),
+        "pt": get_resource_path("models/piper/pt_BR-faber-medium.onnx"),
     }
 
     def __init__(self, rate=180, volume=1.0, voice_id=None, preferred_gender="female", language="en"):

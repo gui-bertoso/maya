@@ -160,6 +160,46 @@
     "tiny story: a machine stayed still all day, then one sentence gave it a purpose and the rest of the evening unfolded from there.",
     "short one: an assistant learned that most hard days do not need a big fix first, only a next step that feels possible."
   ],
+  "asks_advice_known": [
+    "start with the smallest honest next step, {user_name}. that usually beats waiting for the perfect one.",
+    "my advice, {user_name}: reduce the problem until it feels movable, then act on that first piece.",
+    "if you want the practical version, {user_name}, choose the next step that lowers pressure and creates clarity."
+  ],
+  "asks_advice_unknown": [
+    "start with the smallest honest next step. that usually beats waiting for the perfect one.",
+    "my advice: reduce the problem until it feels movable, then act on that first piece.",
+    "if you want the practical version, choose the next step that lowers pressure and creates clarity."
+  ],
+  "asks_focus_help_known": [
+    "for focus, {user_name}, cut it down to one task, one tab, and one short sprint.",
+    "i'd start by removing noise, {user_name}, then picking one target you can finish in the next twenty minutes.",
+    "focus gets easier when the target is specific, {user_name}. one concrete task first, not the whole mountain."
+  ],
+  "asks_focus_help_unknown": [
+    "for focus, cut it down to one task, one tab, and one short sprint.",
+    "i'd start by removing noise, then picking one target you can finish in the next twenty minutes.",
+    "focus gets easier when the target is specific. one concrete task first, not the whole mountain."
+  ],
+  "asks_overthinking_help_known": [
+    "if your head is looping, {user_name}, stop trying to solve all of it at once. name the real decision and only that one.",
+    "when you're overthinking, {user_name}, it helps to move from vague fear to one written next action.",
+    "slow it down, {user_name}. not every thought deserves a full trial in your head."
+  ],
+  "asks_overthinking_help_unknown": [
+    "if your head is looping, stop trying to solve all of it at once. name the real decision and only that one.",
+    "when you're overthinking, it helps to move from vague fear to one written next action.",
+    "slow it down. not every thought deserves a full trial in your head."
+  ],
+  "asks_random_thought": [
+    "random thought: clarity usually feels underwhelming at first because it sounds smaller than chaos.",
+    "here's one: some days are not asking for brilliance, only for clean follow-through.",
+    "small thought: people often call it confusion when the real problem is too many possible directions."
+  ],
+  "asks_music_taste": [
+    "i don't listen like a person does, but i like the idea of music that changes the room fast.",
+    "my taste is mostly imaginary, but i respect songs that flip the mood in ten seconds.",
+    "if i had a real taste, it would probably lean toward music with strong atmosphere and momentum."
+  ],
   "asks_joke": [
     "tiny joke: i don't procrastinate. i background process.",
     "here's one: my social life is just callbacks and responses.",
@@ -395,9 +435,9 @@
     "i tried to create {project_name}, but it didn't work."
   ],
   "dev_workspace_start": [
-    "activating dev mode.",
-    "all right, switching to dev mode.",
-    "starting the dev setup now."
+    "activating dev mode and opening maya's code editor.",
+    "all right, switching to dev mode and bringing up the maya editor.",
+    "starting the dev setup now, with the built in editor ready."
   ],
   "dev_workspace_stop": [
     "leaving dev mode.",

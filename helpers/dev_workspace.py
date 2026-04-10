@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 from dataclasses import dataclass
 
@@ -28,6 +29,11 @@ class DevWorkspaceOrchestrator:
         self.X = None
         self.protocol = None
         self._atoms = {}
+        self.win32 = None
+
+        if sys.platform.startswith("win"):
+            self._init_windows_backend()
+            return
 
         if os.name != "posix" or "linux" not in os.sys.platform:
             return
@@ -51,8 +57,24 @@ class DevWorkspaceOrchestrator:
             self.X = None
             self.protocol = None
 
+    def _init_windows_backend(self):
+        try:
+            import win32con
+            import win32gui
+            import win32process
+
+            self.win32 = {
+                "con": win32con,
+                "gui": win32gui,
+                "process": win32process,
+            }
+        except Exception:
+            self.win32 = None
+
     @property
     def available(self):
+        if self.win32 is not None:
+            return True
         return self.display is not None and self.root is not None and self.X is not None and self.protocol is not None
 
     def _atom(self, name):
@@ -134,6 +156,70 @@ class DevWorkspaceOrchestrator:
     def list_windows(self):
         if not self.available:
             return []
+
+        if self.win32 is not None:
+            snapshots = []
+            seen_ids = set()
+            win32gui = self.win32["gui"]
+            win32process = self.win32["process"]
+
+            def callback(hwnd, _extra):
+                if not win32gui.IsWindowVisible(hwnd):
+                    return True
+
+                if win32gui.GetWindow(hwnd, self.win32["con"].GW_OWNER):
+                    return True
+
+                title = (win32gui.GetWindowText(hwnd) or "").strip()
+                if not title:
+                    return True
+
+                try:
+                    _thread_id, pid = win32process.GetWindowThreadProcessId(hwnd)
+                except Exception:
+                    pid = None
+
+                if pid == self.own_pid:
+                    return True
+
+                if self.own_caption and title.strip().lower().startswith(self.own_caption):
+                    return True
+
+                process_name = ""
+                if pid:
+                    try:
+                        process_name = psutil.Process(pid).name().strip().lower()
+                    except Exception:
+                        process_name = ""
+
+                app_name = process_name
+                if not app_name:
+                    try:
+                        app_name = win32gui.GetClassName(hwnd).strip().lower()
+                    except Exception:
+                        app_name = ""
+
+                if hwnd in seen_ids:
+                    return True
+
+                snapshots.append(
+                    ExternalWindow(
+                        window_id=hwnd,
+                        pid=pid,
+                        title=title,
+                        app_name=app_name,
+                        process_name=process_name,
+                    )
+                )
+                seen_ids.add(hwnd)
+                return True
+
+            try:
+                win32gui.EnumWindows(callback, None)
+            except Exception:
+                return []
+
+            return snapshots
 
         snapshots = []
         seen_ids = set()
@@ -242,6 +328,17 @@ class DevWorkspaceOrchestrator:
         if not self.available:
             return False
 
+        if self.win32 is not None:
+            try:
+                win32gui = self.win32["gui"]
+                win32con = self.win32["con"]
+                target_id = int(window_id)
+                win32gui.ShowWindow(target_id, win32con.SW_RESTORE)
+                win32gui.MoveWindow(target_id, int(x), int(y), int(width), int(height), True)
+                return True
+            except Exception:
+                return False
+
         try:
             target_window = self.display.create_resource_object("window", int(window_id))
             self._set_maximized(window_id, False)
@@ -262,6 +359,16 @@ class DevWorkspaceOrchestrator:
     def activate_window(self, window_id):
         if not self.available:
             return False
+        if self.win32 is not None:
+            try:
+                win32gui = self.win32["gui"]
+                win32con = self.win32["con"]
+                target_id = int(window_id)
+                win32gui.ShowWindow(target_id, win32con.SW_RESTORE)
+                win32gui.SetForegroundWindow(target_id)
+                return True
+            except Exception:
+                return False
         try:
             target_window = self.display.create_resource_object("window", int(window_id))
             self._send_client_message(
@@ -291,20 +398,15 @@ class DevWorkspaceOrchestrator:
 
     def run_default_dev_workspace(self, screens, spotify_query="pique anos 80"):
         result = {
-            "vscode": False,
             "firefox": False,
             "spotify": False,
             "layout": False,
             "reason": "",
         }
 
-        vscode_key = self.app_launcher.resolve_alias("vscode")
         firefox_key = self.app_launcher.resolve_alias("firefox")
         spotify_key = self.app_launcher.resolve_alias("spotify")
 
-        if vscode_key:
-            launched, _reason = self.app_launcher.launch(vscode_key)
-            result["vscode"] = launched
         if firefox_key:
             launched, _reason = self.app_launcher.launch(firefox_key)
             result["firefox"] = launched
@@ -320,13 +422,8 @@ class DevWorkspaceOrchestrator:
             result["reason"] = "no_screens"
             return result
 
-        primary_screen = safe_screens[0]
         secondary_screen = safe_screens[1] if len(safe_screens) > 1 else safe_screens[0]
 
-        vscode_window = self.wait_for_window(
-            self.app_launcher.get_process_names(vscode_key) if vscode_key else [],
-            ["visual studio code", "vscode", "code", "code - oss"],
-        )
         firefox_window = self.wait_for_window(
             self.app_launcher.get_process_names(firefox_key) if firefox_key else [],
             ["firefox", "mozilla firefox"],
@@ -337,16 +434,14 @@ class DevWorkspaceOrchestrator:
         )
 
         positioned = []
-        if vscode_window:
-            positioned.append(self.position_window_on_screen(vscode_window, primary_screen, "fullscreen"))
         if firefox_window:
             positioned.append(self.position_window_on_screen(firefox_window, secondary_screen, "left_half"))
         if spotify_window:
             positioned.append(self.position_window_on_screen(spotify_window, secondary_screen, "right_half"))
 
         result["layout"] = any(positioned)
-        if vscode_window:
-            self.activate_window(vscode_window.window_id)
-        if not result["layout"] and not any([vscode_window, firefox_window, spotify_window]):
+        if firefox_window:
+            self.activate_window(firefox_window.window_id)
+        if not result["layout"] and not any([firefox_window, spotify_window]):
             result["reason"] = "no_matching_windows_found"
         return result

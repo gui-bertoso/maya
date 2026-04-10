@@ -227,11 +227,46 @@ Examples:
 python app.py
 ```
 
+## Windows Build
+
+Generate the Windows executable on a Windows machine:
+
+```powershell
+.\scripts\build_windows.bat
+```
+
+The build outputs `dist\Maya.exe`.
+
+Direct terminal build:
+
+```powershell
+py -3.11 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install --upgrade pip
+.\.venv\Scripts\python.exe -m pip install -r requirements-windows.txt
+.\.venv\Scripts\python.exe -m PyInstaller --noconfirm --clean maya_windows.spec
+```
+
+When running as a packaged `.exe`, Maya stores `.env`, memory, vocabulary, knowledge, and backups in:
+
+`%APPDATA%\maya`
+
 If you are launching Maya from a Flatpak app such as PyCharm, prefer the host-aware launcher below so audio and GTK modules come from the real system instead of the sandbox runtime:
 
 ```bash
 ./run_maya.sh
 ```
+
+## Autostart
+
+On Linux desktop sessions, Maya can be started automatically on login through:
+
+`~/.config/autostart/maya.desktop`
+
+The desktop entry points to:
+
+`scripts/start_maya.sh`
+
+That launcher enters the project directory, activates `.venv` when available, and runs `python app.py`.
 
 ## How To Run Tests
 

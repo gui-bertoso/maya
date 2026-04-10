@@ -1,0 +1,11 @@
+comtypes
+numpy
+psutil
+pynput
+PySide6
+pyinstaller
+pyttsx3
+python-dotenv
+sounddevice
+vosk
+pywin32; platform_system == "Windows"

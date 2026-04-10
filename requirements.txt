@@ -1,4 +1,5 @@
 numpy
+psutil
 pynput
 PySide6
 piper-tts
