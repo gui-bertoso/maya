@@ -3,6 +3,14 @@
   "short_term": [
     {
       "role": "user",
+      "content": "let them you know"
+    },
+    {
+      "role": "assistant",
+      "content": "i'm still figuring things out, Up, but i'm with you. i remember that you like to pursue me that tell you keep yourself well as a byproduct of a study of and supplies comes easier."
+    },
+    {
+      "role": "user",
       "content": "maya blame my a lack of the music's"
     },
     {
@@ -32,14 +40,6 @@
     {
       "role": "assistant",
       "content": "i'm still learning, Up, but i'm here with you. i remember that you like to pursue me that tell you keep yourself well as a byproduct of a study of and supplies comes easier."
-    },
-    {
-      "role": "user",
-      "content": "open google"
-    },
-    {
-      "role": "assistant",
-      "content": "opening Spotify for google."
     }
   ],
   "long_term": {
@@ -52,7 +52,7 @@
   },
   "state": {
     "mood": "friendly",
-    "last_topic": "spotify",
+    "last_topic": "conversation",
     "pending_learning": null
   }
 }

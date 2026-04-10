@@ -82,7 +82,7 @@ class SpotifyAssistant:
                 "spoken_query": None,
             }
 
-        music_prefix = r"^(?:play|open|put on|start|toca|toque|bota|coloca)\s+"
+        music_prefix = r"^(?:play|put on|toca|toque|bota|coloca)\s+"
         if re.match(music_prefix, stripped, flags=re.IGNORECASE):
             topic = self._extract_query(stripped, music_prefix)
             if topic:
