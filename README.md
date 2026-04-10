@@ -1,6 +1,6 @@
 # Maya
 
-Maya is a Python virtual assistant with a floating transparent interface, double-clap activation, offline speech recognition through Vosk, voice output through `pyttsx3`, and persistent JSON-based memory.
+Maya is a Python virtual assistant with a floating transparent interface, double-clap activation, offline speech recognition through Vosk, voice output through Piper or `pyttsx3`, and persistent JSON-based memory.
 
 ## What The Project Does
 
@@ -168,9 +168,13 @@ DEV_PROJECTS_PATH=generated_projects
 ### Main Variables
 
 - `VOSK_MODEL_PATH`: path to the speech recognition model.
+- `LANGUAGE`: assistant language. Use `en` or `pt-BR`.
+- `MICROPHONE_ENABLED`: enables or disables microphone-based recognition and clap wake.
 - `VOICE_SAMPLE_RATE`: microphone sample rate.
 - `TTS_RATE`: speech rate used by text-to-speech.
 - `TTS_VOLUME`: speech output volume.
+- `SPEECH_MUTED`: mutes spoken output while keeping text/UI responses active.
+- `TTS_ENGINE`: `auto`, `piper`, or `system`. `auto` prefers Piper for better voice quality when a model is available.
 - `TTS_VOICE_ID`: optional voice identifier for the local TTS engine.
 - `CLAP_THRESHOLD`: clap detection sensitivity.
 - `CLAP_COOLDOWN`: minimum interval between detected claps.
@@ -203,6 +207,7 @@ The app launcher supports:
 
 - `{username}` placeholders inside app paths, automatically replaced with the current Windows username;
 - wildcard patterns such as `*` in versioned folders, so paths like `PyCharm*` or `app-*` keep working after updates.
+- optional `subapps` inside a host app, so commands like `play necesse in steam` can resolve to a configured target such as a Steam URI.
 
 Examples:
 
@@ -315,6 +320,13 @@ Examples of phrases that match the current behavior:
 - `start a python project in vscode called weather bot and do an initial commit`
 - `create a node project called chat app`
 - `create a react app named portfolio and open it in vscode`
+- `open spotify on chrome`
+- `play necesse in steam`
+- `abrir spotify no chrome`
+- `tocar dua lipa no spotify`
+- `que horas sao`
+- `qual a data de hoje`
+- `me mostra as noticias de hoje`
 - `bye maya`
 - `move to top right on monitor 2`
 
