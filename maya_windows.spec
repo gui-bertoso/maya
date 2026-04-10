@@ -1,10 +1,12 @@
 # -*- mode: python ; coding: utf-8 -*-
+import os
 from pathlib import Path
 
 from PyInstaller.utils.hooks import collect_dynamic_libs, collect_submodules
 
 
-PROJECT_DIR = Path(__file__).resolve().parent
+SPEC_PATH = Path(globals().get("__file__", os.path.join(os.getcwd(), "maya_windows.spec"))).resolve()
+PROJECT_DIR = SPEC_PATH.parent
 
 
 def build_datas():
