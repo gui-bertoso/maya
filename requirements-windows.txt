@@ -3,6 +3,7 @@ numpy
 psutil
 pynput
 PySide6
+piper-tts
 pyinstaller
 pyttsx3
 python-dotenv

@@ -3,6 +3,7 @@ import threading
 import queue
 import subprocess
 import sys
+from pathlib import Path
 
 from helpers.config import get_resource_path
 
@@ -23,12 +24,14 @@ class Speaker:
         "pt": get_resource_path("models/piper/pt_BR-faber-medium.onnx"),
     }
 
-    def __init__(self, rate=180, volume=1.0, voice_id=None, preferred_gender="female", language="en"):
+    def __init__(self, rate=180, volume=1.0, voice_id=None, preferred_gender="female", language="en", muted=False, engine_preference="auto"):
         self.rate = rate
         self.volume = volume
         self.voice_id = voice_id
         self.preferred_gender = (preferred_gender or "").strip().lower()
         self.language = (language or "en").strip().lower()
+        self.muted = bool(muted)
+        self.engine_preference = (engine_preference or "auto").strip().lower()
 
         self.queue = queue.Queue()
         self.is_running = True
@@ -45,7 +48,17 @@ class Speaker:
 
     @property
     def use_piper(self):
-        return self.use_linux_espeak and PiperVoice is not None and sd is not None and self._get_piper_model_path() is not None
+        if self.engine_preference == "system":
+            return False
+        if self.engine_preference == "piper":
+            return PiperVoice is not None and sd is not None and self._get_piper_model_path() is not None
+        return PiperVoice is not None and sd is not None and self._get_piper_model_path() is not None
+
+    @property
+    def use_system_tts(self):
+        if self.engine_preference == "piper":
+            return not self.use_piper
+        return True
 
     def _create_engine(self):
         engine = pyttsx3.init()
@@ -217,7 +230,7 @@ class Speaker:
                 try:
                     if self.use_piper:
                         self._speak_with_piper(text)
-                    elif self.use_linux_espeak:
+                    elif self.use_linux_espeak and self.use_system_tts:
                         self._speak_with_linux_espeak(text)
                     else:
                         engine = None
@@ -242,10 +255,15 @@ class Speaker:
             pass
 
     def speak(self, text):
-        if not text or not text.strip():
+        if self.muted or not text or not text.strip():
             return
 
         self.queue.put(text)
+
+    def set_muted(self, muted):
+        self.muted = bool(muted)
+        if self.muted:
+            self.stop()
 
     def stop(self):
         if sd is not None:
