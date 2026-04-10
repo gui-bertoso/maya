@@ -2,6 +2,8 @@ import json
 import re
 import random
 import datetime
+import difflib
+import unicodedata
 from core import vocabulary_manager
 from core.knowledge_base import KnowledgeBase
 from core.memory import Memory
@@ -156,11 +158,56 @@ class Process:
 
     @staticmethod
     def contains_any(text, phrases):
-        return any(phrase in text for phrase in phrases)
+        normalized_text = Process.normalize_text(text)
+        return any(Process.contains_phrase(normalized_text, phrase) for phrase in phrases)
 
     @staticmethod
     def starts_with_any(text, phrases):
-        return any(text.startswith(phrase) for phrase in phrases)
+        normalized_text = Process.normalize_text(text)
+        return any(normalized_text.startswith(Process.normalize_text(phrase)) for phrase in phrases)
+
+    @staticmethod
+    def normalize_text(text):
+        normalized = unicodedata.normalize("NFKD", (text or "").strip().lower())
+        normalized = "".join(char for char in normalized if not unicodedata.combining(char))
+        normalized = normalized.replace("-", " ").replace("_", " ")
+        normalized = re.sub(r"[^a-z0-9\s']+", " ", normalized)
+        return " ".join(normalized.split())
+
+    @staticmethod
+    def _token_similarity(a, b):
+        if not a or not b:
+            return 0.0
+        return difflib.SequenceMatcher(None, a, b).ratio()
+
+    @classmethod
+    def _tokens_match(cls, actual, expected):
+        if actual == expected:
+            return True
+        if abs(len(actual) - len(expected)) > 2:
+            return False
+        threshold = 0.84 if max(len(actual), len(expected)) >= 5 else 0.9
+        return cls._token_similarity(actual, expected) >= threshold
+
+    @classmethod
+    def contains_phrase(cls, text, phrase):
+        normalized_text = cls.normalize_text(text)
+        normalized_phrase = cls.normalize_text(phrase)
+        if not normalized_text or not normalized_phrase:
+            return False
+        if normalized_phrase in normalized_text:
+            return True
+
+        text_tokens = cls.tokenize(normalized_text)
+        phrase_tokens = cls.tokenize(normalized_phrase)
+        if not text_tokens or not phrase_tokens or len(phrase_tokens) > len(text_tokens):
+            return False
+
+        for index in range(len(text_tokens) - len(phrase_tokens) + 1):
+            window = text_tokens[index:index + len(phrase_tokens)]
+            if all(cls._tokens_match(actual, expected) for actual, expected in zip(window, phrase_tokens)):
+                return True
+        return False
 
     @staticmethod
     def strip_polite_prefixes(text):
@@ -486,8 +533,27 @@ class Process:
 
     @staticmethod
     def parse_dev_workspace_request(text_lower):
-        normalized = Process.strip_polite_prefixes(" ".join((text_lower or "").strip().lower().split()))
-        normalized = re.sub(r"[.!?,;:]+$", "", normalized).strip()
+        normalized = Process.normalize_text(Process.strip_polite_prefixes(text_lower))
+        intent_phrases = [
+            "enter dev mode",
+            "start dev mode",
+            "open dev mode",
+            "enable dev mode",
+            "activate dev mode",
+            "go to dev mode",
+            "switch to dev mode",
+            "dev mode",
+            "modo dev",
+            "entra no modo dev",
+            "ativa modo dev",
+            "abre modo dev",
+            "vai pro modo dev",
+        ]
+        if any(Process.contains_phrase(normalized, phrase) for phrase in intent_phrases):
+            return {
+                "spotify_query": "pique anos 80",
+                "layout": "default_dual_monitor",
+            }
         patterns = [
             r"(?:enter|start|open|enable|activate)\s+(?:the\s+)?(?:dev|developer)\s+mode(?:\s+(?:now|please))?$",
             r"(?:go|switch)\s+(?:to\s+)?(?:dev|developer)\s+mode(?:\s+(?:now|please))?$",
@@ -505,8 +571,20 @@ class Process:
 
     @staticmethod
     def parse_dev_workspace_exit_request(text_lower):
-        normalized = Process.strip_polite_prefixes(" ".join((text_lower or "").strip().lower().split()))
-        normalized = re.sub(r"[.!?,;:]+$", "", normalized).strip()
+        normalized = Process.normalize_text(Process.strip_polite_prefixes(text_lower))
+        intent_phrases = [
+            "exit dev mode",
+            "leave dev mode",
+            "close dev mode",
+            "disable dev mode",
+            "stop dev mode",
+            "switch out of dev mode",
+            "sai do modo dev",
+            "fecha modo dev",
+            "desativa modo dev",
+        ]
+        if any(Process.contains_phrase(normalized, phrase) for phrase in intent_phrases):
+            return True
         patterns = [
             r"(?:exit|leave|close|disable|stop)\s+(?:the\s+)?(?:dev|developer)\s+mode(?:\s+(?:now|please))?$",
             r"(?:go|switch)\s+out\s+of\s+(?:dev|developer)\s+mode(?:\s+(?:now|please))?$",
@@ -516,8 +594,21 @@ class Process:
 
     @staticmethod
     def parse_thoughtful_workspace_request(text_lower):
-        normalized = Process.strip_polite_prefixes(" ".join((text_lower or "").strip().lower().split()))
-        normalized = re.sub(r"[.!?,;:]+$", "", normalized).strip()
+        normalized = Process.normalize_text(Process.strip_polite_prefixes(text_lower))
+        intent_phrases = [
+            "enter thoughtful mode",
+            "start thoughtful mode",
+            "open thoughtful mode",
+            "activate thoughtful mode",
+            "thinking mode",
+            "thoughtful mode",
+            "modo pensativo",
+            "entra no modo pensativo",
+            "ativa modo pensativo",
+            "abre modo pensativo",
+        ]
+        if any(Process.contains_phrase(normalized, phrase) for phrase in intent_phrases):
+            return True
         patterns = [
             r"(?:enter|start|open|enable|activate)\s+(?:the\s+)?(?:thoughtful|thinking)\s+mode(?:\s+(?:now|please))?$",
             r"(?:thoughtful|thinking)\s+mode(?:\s+(?:now|please))?$",
@@ -528,7 +619,7 @@ class Process:
 
     @staticmethod
     def parse_window_showcase_request(text_lower):
-        normalized = " ".join((text_lower or "").strip().lower().split())
+        normalized = Process.normalize_text(text_lower)
 
         close_phrases = [
             "close the window showcase",
@@ -543,7 +634,7 @@ class Process:
             "fecha o disco de janelas",
             "esconde o disco de janelas",
         ]
-        if normalized in close_phrases:
+        if any(Process.contains_phrase(normalized, phrase) for phrase in close_phrases):
             return {"action": "close"}
 
         rotate_left_patterns = [
@@ -585,7 +676,7 @@ class Process:
             "disco de janelas",
             "varal de janelas",
         ]
-        if normalized in open_phrases:
+        if any(Process.contains_phrase(normalized, phrase) for phrase in open_phrases):
             return {"action": "open"}
 
         if re.search(r"(?:show|open|make)\s+.*(?:carousel|showcase|disco|varal).*(?:window|windows|janelas)$", normalized, flags=re.IGNORECASE):
@@ -759,6 +850,33 @@ class Process:
 
         if patterns["asks_story"]:
             return self.pick_response("asks_story")
+
+        if patterns["asks_advice"]:
+            return self._personalized_response(
+                "asks_advice_known",
+                "asks_advice_unknown",
+                user_name=user_name,
+            )
+
+        if patterns["asks_focus_help"]:
+            return self._personalized_response(
+                "asks_focus_help_known",
+                "asks_focus_help_unknown",
+                user_name=user_name,
+            )
+
+        if patterns["asks_overthinking_help"]:
+            return self._personalized_response(
+                "asks_overthinking_help_known",
+                "asks_overthinking_help_unknown",
+                user_name=user_name,
+            )
+
+        if patterns["asks_random_thought"]:
+            return self.pick_response("asks_random_thought")
+
+        if patterns["asks_music_taste"]:
+            return self.pick_response("asks_music_taste")
 
         if patterns["asks_joke"]:
             return self.pick_response("asks_joke")
@@ -1211,8 +1329,17 @@ class Process:
             self.memory.set_last_topic("facts")
         elif patterns["asks_relationship"] or patterns["asks_trust"]:
             self.memory.set_last_topic("relationship")
-        elif patterns["asks_lonely"] or patterns["asks_busy"] or patterns["asks_story"] or patterns["asks_joke"]:
+        elif (
+            patterns["asks_lonely"]
+            or patterns["asks_busy"]
+            or patterns["asks_story"]
+            or patterns["asks_joke"]
+            or patterns["asks_random_thought"]
+            or patterns["asks_music_taste"]
+        ):
             self.memory.set_last_topic("fun")
+        elif patterns["asks_advice"] or patterns["asks_focus_help"] or patterns["asks_overthinking_help"]:
+            self.memory.set_last_topic("support")
         elif patterns["asks_encouragement"] or patterns["shares_positive_feeling"] or patterns["shares_negative_feeling"]:
             self.memory.set_last_topic("emotion")
         elif patterns["asks_time"] or patterns["asks_date"] or patterns["asks_weather"] or patterns["asks_news"]:
@@ -1485,6 +1612,7 @@ class Process:
         return result
 
     def detect_patterns(self, text_lower):
+        text_lower = self.normalize_text(text_lower)
         extracted_name = self.extract_name(text_lower)
         preference_value = self.extract_preference(text_lower)
         removed_preference_value = self.extract_removed_preference(text_lower)
@@ -1517,6 +1645,11 @@ class Process:
             "asks_lonely": False,
             "asks_busy": False,
             "asks_story": False,
+            "asks_advice": False,
+            "asks_focus_help": False,
+            "asks_overthinking_help": False,
+            "asks_random_thought": False,
+            "asks_music_taste": False,
             "asks_weather": False,
             "asks_news": False,
             "asks_joke": False,
@@ -1719,6 +1852,83 @@ class Process:
             ]
         ):
             patterns["asks_story"] = True
+
+        if any(
+            phrase in text_lower
+            for phrase in [
+                "give me advice",
+                "what should i do",
+                "what do you think i should do",
+                "i need advice",
+                "me da um conselho",
+                "me dê um conselho",
+                "o que eu devo fazer",
+            ]
+        ):
+            patterns["asks_advice"] = True
+
+        if any(
+            phrase in text_lower
+            for phrase in [
+                "help me focus",
+                "i need to focus",
+                "i need focus",
+                "how do i focus",
+                "preciso focar",
+                "quero focar",
+                "me ajuda a focar",
+                "como eu foco",
+            ]
+        ):
+            patterns["asks_focus_help"] = True
+
+        if any(
+            phrase in text_lower
+            for phrase in [
+                "i'm overthinking",
+                "im overthinking",
+                "i am overthinking",
+                "i can't stop thinking",
+                "i cant stop thinking",
+                "thinking too much",
+                "estou pensando demais",
+                "to pensando demais",
+                "tô pensando demais",
+                "nao paro de pensar",
+                "não paro de pensar",
+            ]
+        ):
+            patterns["asks_overthinking_help"] = True
+
+        if any(
+            phrase in text_lower
+            for phrase in [
+                "tell me a random thought",
+                "say something deep",
+                "tell me something deep",
+                "tell me something interesting",
+                "me fala algo aleatorio",
+                "me fala algo aleatório",
+                "fala algo profundo",
+                "me conta um pensamento",
+            ]
+        ):
+            patterns["asks_random_thought"] = True
+
+        if any(
+            phrase in text_lower
+            for phrase in [
+                "do you like music",
+                "what music do you like",
+                "what kind of music do you like",
+                "what do you listen to",
+                "voce gosta de musica",
+                "você gosta de música",
+                "que musica voce gosta",
+                "que música você gosta",
+            ]
+        ):
+            patterns["asks_music_taste"] = True
 
         if any(
             phrase in text_lower
@@ -2185,4 +2395,4 @@ class Process:
 
     @staticmethod
     def tokenize(value):
-        return re.findall(r"\b[\w']+\b", value.lower())
+        return re.findall(r"\b[a-z0-9']+\b", Process.normalize_text(value))

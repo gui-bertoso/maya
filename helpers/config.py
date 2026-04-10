@@ -1,11 +1,88 @@
 import os
+import shutil
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
 from dotenv import dotenv_values, load_dotenv, set_key
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-ENV_FILE = BASE_DIR / ".env"
+PROJECT_DIR = Path(__file__).resolve().parent.parent
+APP_NAME = "maya"
+
+
+def is_frozen():
+    return bool(getattr(sys, "frozen", False))
+
+
+def get_bundle_dir():
+    bundle_root = getattr(sys, "_MEIPASS", None)
+    if bundle_root:
+        return Path(bundle_root)
+    return PROJECT_DIR
+
+
+def get_runtime_dir():
+    if not is_frozen():
+        return PROJECT_DIR
+
+    if sys.platform.startswith("win"):
+        base_dir = Path(os.getenv("APPDATA") or (Path.home() / "AppData" / "Roaming"))
+    elif sys.platform == "darwin":
+        base_dir = Path.home() / "Library" / "Application Support"
+    else:
+        base_dir = Path(os.getenv("XDG_DATA_HOME") or (Path.home() / ".local" / "share"))
+
+    return base_dir / APP_NAME
+
+
+def get_resource_path(relative_path):
+    path = Path(relative_path)
+    if path.is_absolute():
+        return path
+    return get_bundle_dir() / path
+
+
+def get_runtime_path(relative_path):
+    path = Path(relative_path)
+    if path.is_absolute():
+        return path
+    return get_runtime_dir() / path
+
+
+def _copy_if_missing(source_path, target_path):
+    if not source_path.exists() or target_path.exists():
+        return
+
+    target_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if source_path.is_dir():
+        shutil.copytree(source_path, target_path, dirs_exist_ok=True)
+    else:
+        shutil.copy2(source_path, target_path)
+
+
+def ensure_runtime_layout():
+    if not is_frozen():
+        return
+
+    for relative_path in (
+        ".env",
+        "data/apps.json",
+        "data/learned_knowledge.json",
+        "data/memory.json",
+        "data/responses.json",
+        "data/vocabulary.json",
+    ):
+        _copy_if_missing(
+            get_resource_path(relative_path),
+            get_runtime_path(relative_path),
+        )
+
+    get_runtime_path("data/backups").mkdir(parents=True, exist_ok=True)
+    get_runtime_dir().mkdir(parents=True, exist_ok=True)
+
+
+ENV_FILE = get_runtime_path(".env")
 
 
 @dataclass(frozen=True)
@@ -55,10 +132,17 @@ ENV_FIELDS = (
     EnvField("UI_RING_RADIUS", "72", int, "Overlay", "Ring Radius", "Base radius of the Maya ring."),
     EnvField("UI_RING_THICKNESS", "18", int, "Overlay", "Ring Thickness", "Base stroke thickness of the Maya ring."),
     EnvField("MAX_BACKUPS_PER_FILE", "5", int, "Files", "Max Backups Per File", "How many backups helper tools keep."),
+    EnvField("VOCAB_PATH", "data/vocabulary.json", str, "Files", "Vocabulary Path", "Path to the learned vocabulary JSON file."),
+    EnvField("MEMORY_PATH", "data/memory.json", str, "Files", "Memory Path", "Path to Maya's persistent memory JSON file."),
+    EnvField("RESPONSES_PATH", "data/responses.json", str, "Files", "Responses Path", "Path to the response template catalog."),
+    EnvField("APPS_PATH", "data/apps.json", str, "Files", "Apps Catalog Path", "Path to the allowed apps catalog JSON file."),
+    EnvField("KNOWLEDGE_PATH", "data/learned_knowledge.json", str, "Files", "Knowledge Path", "Path to the learned knowledge JSON file."),
+    EnvField("DEV_PROJECTS_PATH", "generated_projects", str, "Files", "Dev Projects Path", "Base folder where Maya creates generated development projects."),
 )
 
 ENV_FIELD_MAP = {field.key: field for field in ENV_FIELDS}
 
+ensure_runtime_layout()
 load_dotenv(ENV_FILE)
 
 
@@ -79,8 +163,16 @@ def get_env(key, default=None, cast=str):
 
 
 def get_path(key, default):
-    relative = get_env(key, default)
-    return BASE_DIR / relative
+    raw_value = get_env(key, default)
+    path = Path(raw_value)
+
+    if path.is_absolute():
+        return path
+
+    if key == "VOSK_MODEL_PATH":
+        return get_resource_path(path)
+
+    return get_runtime_path(path)
 
 
 def get_env_fields():
