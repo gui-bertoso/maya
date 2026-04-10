@@ -1,9 +1,7 @@
 .env
-models/vosk-model-en-us-0.42-gigaspeech
 __pycache__
 .idea
 tests/__pycache__/
 generated_projects/*
 models/piper/
-models/
 models/piper/en_US-lessac-high.onnx

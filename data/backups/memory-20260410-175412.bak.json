@@ -1,0 +1,58 @@
+{
+  "short_term_limit": 10,
+  "short_term": [
+    {
+      "role": "user",
+      "content": "as others have to go"
+    },
+    {
+      "role": "assistant",
+      "content": "i'm still learning, Up, but i'm here with you. i remember that you like to pursue me that tell you keep yourself well as a byproduct of a study of and supplies comes easier."
+    },
+    {
+      "role": "user",
+      "content": "earned up at a hobo with you"
+    },
+    {
+      "role": "assistant",
+      "content": "i'm still figuring things out, Up, but i'm with you. i remember that you like to pursue me that tell you keep yourself well as a byproduct of a study of and supplies comes easier."
+    },
+    {
+      "role": "user",
+      "content": "but you but your to be he causing"
+    },
+    {
+      "role": "assistant",
+      "content": "i'm still learning, Up, but i'm here with you. i remember that you like to pursue me that tell you keep yourself well as a byproduct of a study of and supplies comes easier."
+    },
+    {
+      "role": "user",
+      "content": "but he sheds that he had"
+    },
+    {
+      "role": "assistant",
+      "content": "i'm still learning, Up, but i'm here with you. i remember that you like to pursue me that tell you keep yourself well as a byproduct of a study of and supplies comes easier."
+    },
+    {
+      "role": "user",
+      "content": "yeah the most are no model"
+    },
+    {
+      "role": "assistant",
+      "content": "i'm still figuring things out, Up, but i'm with you. i remember that you like to pursue me that tell you keep yourself well as a byproduct of a study of and supplies comes easier."
+    }
+  ],
+  "long_term": {
+    "user_name": "Up",
+    "preferences": [
+      "to pursue me that tell you keep yourself well as a byproduct of a study of and supplies comes easier",
+      "it music milan italy france but fight"
+    ],
+    "known_facts": []
+  },
+  "state": {
+    "mood": "friendly",
+    "last_topic": "conversation",
+    "pending_learning": null
+  }
+}

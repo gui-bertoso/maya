@@ -1,0 +1,26 @@
+
+[2026-04-10T17:51:04.049065] Unhandled exception
+Traceback (most recent call last):
+  File "/home/patolizo/Documents/GitHub/maya/output/renderer.py", line 361, in paintEvent
+    self.renderer.ring.draw(painter)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/patolizo/Documents/GitHub/maya/output/renderer.py", line 318, in draw
+    self._build_ring_path(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        self._wave_radius(-11, 0.78) * presence_scale,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        1.2,
+        ^^^^
+    )
+    ^
+  File "/home/patolizo/Documents/GitHub/maya/output/renderer.py", line 246, in _build_ring_path
+    wave_b = math.sin((angle * 5.0) - (self.time * 1.6) + (offset * 0.7))
+KeyboardInterrupt
+
+[2026-04-10T17:54:42.609696] Unhandled exception
+Traceback (most recent call last):
+  File "/home/patolizo/Documents/GitHub/maya/output/renderer.py", line 1970, in update
+    def update(self):
+    
+KeyboardInterrupt
