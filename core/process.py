@@ -246,6 +246,16 @@ class Process:
         tokens = self.tokenize(without_browser)
         token_set = set(tokens)
 
+        launch_like_match = re.match(
+            r"^(?:open|launch|start|run)\s+([a-zA-Z0-9 .+-]+?)(?:\s+(?:for me|please))?$",
+            without_browser,
+            flags=re.IGNORECASE,
+        )
+        if launch_like_match and self.app_launcher:
+            launch_target = launch_like_match.group(1).strip()
+            if self.app_launcher.resolve_alias(launch_target):
+                return None
+
         if not token_set.intersection({"play", "open", "search", "find", "show", "toca", "toque", "bota", "coloca", "abre", "abrir"}):
             return None
 
