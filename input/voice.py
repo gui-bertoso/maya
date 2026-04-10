@@ -1,8 +1,14 @@
 import json
 import queue
 import threading
-import vosk
 from helpers.config import get_env
+
+try:
+    import vosk
+    _VOSK_IMPORT_ERROR = None
+except (ImportError, OSError, FileNotFoundError) as error:
+    vosk = None
+    _VOSK_IMPORT_ERROR = error
 
 try:
     import sounddevice as sd
@@ -37,6 +43,11 @@ class Voice:
         self.last_error = str(base_reason) if base_reason else "sounddevice is unavailable"
         return False
 
+    def _set_vosk_backend_error(self, reason=None):
+        base_reason = reason or _VOSK_IMPORT_ERROR
+        self.last_error = str(base_reason) if base_reason else "vosk is unavailable"
+        return False
+
     def has_input_device(self):
         if sd is None:
             return self._set_audio_backend_error()
@@ -65,6 +76,11 @@ class Voice:
         self.set_status("loading", on_status_change)
 
         try:
+            if vosk is None:
+                self._set_vosk_backend_error()
+                self.set_status("unavailable", on_status_change)
+                return
+
             if self.DEBUG_MODE:
                 print("loading vosk...")
             self.model = vosk.Model(self.model_path)
@@ -150,6 +166,11 @@ class Voice:
     def start_background(self, on_final_text=None, on_partial_text=None, on_status_change=None):
         if self.thread and self.thread.is_alive():
             return True
+
+        if vosk is None:
+            self._set_vosk_backend_error()
+            self.set_status("unavailable", on_status_change)
+            return False
 
         if sd is None:
             self._set_audio_backend_error()
