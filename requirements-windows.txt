@@ -1,10 +1,11 @@
+comtypes
 numpy
 psutil
 pynput
 PySide6
-piper-tts
+pyinstaller
 pyttsx3
-python-xlib
 python-dotenv
 sounddevice
 vosk
+pywin32; platform_system == "Windows"

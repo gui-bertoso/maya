@@ -6,6 +6,7 @@ import sys
 import threading
 import datetime
 import re
+import unicodedata
 
 
 def _configure_qt_platform():
@@ -198,28 +199,15 @@ class App:
 
     @staticmethod
     def _normalize_command(text):
-        normalized = (text or "").strip().lower()
-        replacements = {
-            "ç": "c",
-            "á": "a",
-            "à": "a",
-            "ã": "a",
-            "â": "a",
-            "é": "e",
-            "ê": "e",
-            "í": "i",
-            "ó": "o",
-            "ô": "o",
-            "õ": "o",
-            "ú": "u",
-        }
-        for source, target in replacements.items():
-            normalized = normalized.replace(source, target)
+        normalized = unicodedata.normalize("NFKD", (text or "").strip().lower())
+        normalized = "".join(char for char in normalized if not unicodedata.combining(char))
+        normalized = normalized.replace("-", " ").replace("_", " ")
+        normalized = re.sub(r"[^a-z0-9\\s']+", " ", normalized)
         return " ".join(normalized.split())
 
     def _is_settings_command(self, text):
         normalized = self._normalize_command(text)
-        return normalized in self.SETTINGS_COMMANDS
+        return any(self.process.contains_phrase(normalized, option) for option in self.SETTINGS_COMMANDS)
 
     def _create_speaker(self):
         default_rate = 150 if sys.platform.startswith("linux") else 180
@@ -352,28 +340,38 @@ class App:
 
     def _looks_like_startup_brief_yes(self, text):
         normalized = self._normalize_command(text)
-        return normalized in self.STARTUP_BRIEF_ACCEPT_INPUTS
+        return any(self.process.contains_phrase(normalized, option) for option in self.STARTUP_BRIEF_ACCEPT_INPUTS)
 
     def _looks_like_startup_brief_no(self, text):
         normalized = self._normalize_command(text)
-        return normalized in self.STARTUP_BRIEF_DECLINE_INPUTS
+        return any(self.process.contains_phrase(normalized, option) for option in self.STARTUP_BRIEF_DECLINE_INPUTS)
 
     def _looks_like_action_yes(self, text):
         normalized = self._normalize_command(text)
-        return normalized in self.ACTION_CONFIRM_INPUTS
+        return any(self.process.contains_phrase(normalized, option) for option in self.ACTION_CONFIRM_INPUTS)
 
     def _looks_like_action_no(self, text):
         normalized = self._normalize_command(text)
-        return normalized in self.ACTION_DECLINE_INPUTS
+        return any(self.process.contains_phrase(normalized, option) for option in self.ACTION_DECLINE_INPUTS)
 
     def _clear_pending_context_action(self):
         self.pending_context_action = None
 
-    def _set_pending_context_action(self, event_name, prompt, payload=None, timeout=18.0):
+    def _set_pending_context_action(
+        self,
+        event_name,
+        prompt,
+        payload=None,
+        timeout=18.0,
+        confirm_response="all right.",
+        decline_response="okay, we can leave it for now.",
+    ):
         self.pending_context_action = {
             "event": event_name,
             "payload": payload,
             "expires_at": time.time() + timeout,
+            "confirm_response": confirm_response,
+            "decline_response": decline_response,
         }
         self.send_event("response_text", prompt)
         self.send_event("voice_status", "speaking")
@@ -393,7 +391,7 @@ class App:
             action = dict(self.pending_context_action)
             self._clear_pending_context_action()
             self.send_event(action["event"], action.get("payload"))
-            response = "all right."
+            response = action.get("confirm_response") or "all right."
             self.send_event("response_text", response)
             self.send_event("voice_status", "speaking")
             self.speaker.stop()
@@ -401,8 +399,9 @@ class App:
             return response
 
         if self._looks_like_action_no(text):
+            action = dict(self.pending_context_action)
             self._clear_pending_context_action()
-            response = "okay, we can leave it for now."
+            response = action.get("decline_response") or "okay, we can leave it for now."
             self.send_event("response_text", response)
             self.send_event("voice_status", "speaking")
             self.speaker.stop()
@@ -433,6 +432,40 @@ class App:
             r"\bto triste\b",
             r"\bt[oô] triste\b",
             r"\bestou meio mal\b",
+            r"\bestou ansioso\b",
+            r"\bto ansioso\b",
+            r"\bt[oô] ansioso\b",
+            r"\bestou pensando demais\b",
+            r"\bto pensando demais\b",
+            r"\bt[oô] pensando demais\b",
+            r"\bestou sobrecarregado\b",
+            r"\bto sobrecarregado\b",
+            r"\bt[oô] sobrecarregado\b",
+            r"\bi'm overthinking\b",
+            r"\bi am overthinking\b",
+            r"\bi can't stop thinking\b",
+        ]
+        return any(re.search(pattern, normalized, flags=re.IGNORECASE) for pattern in patterns)
+
+    def _looks_like_dev_mode_suggestion_case(self, text):
+        normalized = self._normalize_command(text)
+        patterns = [
+            r"\bquero codar\b",
+            r"\bvou codar\b",
+            r"\bpreciso codar\b",
+            r"\bquero programar\b",
+            r"\bvou programar\b",
+            r"\bpreciso programar\b",
+            r"\bpreciso focar\b",
+            r"\bquero focar\b",
+            r"\bestou indo trabalhar\b",
+            r"\bquero trabalhar\b",
+            r"\bi need to focus\b",
+            r"\bi want to code\b",
+            r"\bi'm going to code\b",
+            r"\bi am going to code\b",
+            r"\bi need to work\b",
+            r"\blet's code\b",
         ]
         return any(re.search(pattern, normalized, flags=re.IGNORECASE) for pattern in patterns)
 
@@ -664,6 +697,20 @@ class App:
             return self._set_pending_context_action(
                 "app_start_thoughtful_workspace",
                 "do you want me to enter thoughtful mode and help with that?",
+                confirm_response="all right. entering thoughtful mode.",
+                decline_response="okay, we can keep it simple here instead.",
+            )
+
+        if (
+            self._looks_like_dev_mode_suggestion_case(text)
+            and not detected.get("dev_workspace_action")
+            and not detected.get("thoughtful_workspace_action")
+        ):
+            return self._set_pending_context_action(
+                "app_start_dev_workspace",
+                "do you want me to enter dev mode and set your workspace up?",
+                confirm_response="all right. entering dev mode.",
+                decline_response="okay, no dev mode for now.",
             )
 
         response = self.process.handle_input(text)

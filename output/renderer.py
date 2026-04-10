@@ -9,25 +9,32 @@ from PySide6.QtGui import QColor, QFont, QPainter, QPainterPath, QPen, QPixmap, 
 from PySide6.QtWidgets import (
     QApplication,
     QComboBox,
+    QFileDialog,
     QFormLayout,
     QFrame,
     QHBoxLayout,
     QLabel,
     QLineEdit,
+    QPlainTextEdit,
     QPushButton,
     QScrollArea,
     QVBoxLayout,
     QWidget,
 )
 
-from helpers.config import get_env, get_env_fields, get_env_values
+from helpers.config import get_env, get_env_defaults, get_env_fields, get_env_values
 from helpers.dev_workspace import DevWorkspaceOrchestrator
 from helpers.thoughtful_workspace import ThoughtfulWorkspaceOrchestrator
 from helpers.window_showcase import WindowShowcaseBackend
 
 
-def _overlay_window_flags(is_linux=False, interactive=False):
-    flags = Qt.FramelessWindowHint | Qt.Tool | Qt.WindowStaysOnTopHint | Qt.NoDropShadowWindowHint
+def _overlay_window_flags(is_linux=False, is_windows=False, interactive=False):
+    flags = Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.NoDropShadowWindowHint
+
+    if interactive and not is_windows:
+        flags |= Qt.Tool
+    elif not interactive:
+        flags |= Qt.Tool
 
     if is_linux and hasattr(Qt, "BypassWindowManagerHint"):
         flags |= Qt.BypassWindowManagerHint
@@ -38,7 +45,7 @@ def _overlay_window_flags(is_linux=False, interactive=False):
     return flags
 
 
-def _apply_windows_overlay_style(widget):
+def _apply_windows_overlay_style(widget, interactive=False):
     try:
         import ctypes
 
@@ -66,8 +73,12 @@ def _apply_windows_overlay_style(widget):
         user32.SetWindowLongW(hwnd, GWL_STYLE, style)
 
         ex_style = user32.GetWindowLongW(hwnd, GWL_EXSTYLE)
-        ex_style &= ~WS_EX_APPWINDOW
-        ex_style |= WS_EX_TOOLWINDOW
+        if interactive:
+            ex_style |= WS_EX_APPWINDOW
+            ex_style &= ~WS_EX_TOOLWINDOW
+        else:
+            ex_style &= ~WS_EX_APPWINDOW
+            ex_style |= WS_EX_TOOLWINDOW
         ex_style |= WS_EX_LAYERED
         user32.SetWindowLongW(hwnd, GWL_EXSTYLE, ex_style)
 
@@ -318,7 +329,11 @@ class OverlayWidget(QWidget):
     def __init__(self, renderer):
         super().__init__()
         self.renderer = renderer
-        flags = _overlay_window_flags(is_linux=self.renderer.is_linux, interactive=False)
+        flags = _overlay_window_flags(
+            is_linux=self.renderer.is_linux,
+            is_windows=self.renderer.is_windows,
+            interactive=False,
+        )
         if self.renderer.is_linux and hasattr(Qt, "WindowTransparentForInput"):
             flags |= Qt.WindowTransparentForInput
         self.setWindowFlags(flags)
@@ -350,7 +365,11 @@ class WindowShowcaseWidget(QWidget):
     def __init__(self, renderer):
         super().__init__()
         self.renderer = renderer
-        flags = _overlay_window_flags(is_linux=self.renderer.is_linux, interactive=True)
+        flags = _overlay_window_flags(
+            is_linux=self.renderer.is_linux,
+            is_windows=self.renderer.is_windows,
+            interactive=True,
+        )
         self.setWindowFlags(flags)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setFocusPolicy(Qt.StrongFocus)
@@ -420,10 +439,15 @@ class QuickInputWidget(QWidget):
     def __init__(self, renderer):
         super().__init__()
         self.renderer = renderer
-        flags = _overlay_window_flags(is_linux=self.renderer.is_linux, interactive=True)
+        flags = _overlay_window_flags(
+            is_linux=self.renderer.is_linux,
+            is_windows=self.renderer.is_windows,
+            interactive=True,
+        )
         self.setWindowFlags(flags)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setAttribute(Qt.WA_NoSystemBackground, True)
+        self.setFocusPolicy(Qt.StrongFocus)
         self.resize(renderer.quick_input_width, renderer.quick_input_height)
 
         container = QFrame(self)
@@ -480,6 +504,157 @@ class QuickInputWidget(QWidget):
         self.renderer.hide_quick_input()
 
 
+class DevEditorWidget(QWidget):
+    def __init__(self, renderer):
+        super().__init__()
+        self.renderer = renderer
+        self.current_file_path = None
+
+        self.setWindowFlags(Qt.Tool | Qt.WindowStaysOnTopHint)
+        self.setAttribute(Qt.WA_DeleteOnClose, False)
+        self.resize(1080, 760)
+
+        root_layout = QVBoxLayout(self)
+        root_layout.setContentsMargins(18, 18, 18, 18)
+        root_layout.setSpacing(12)
+
+        toolbar = QHBoxLayout()
+        toolbar.setSpacing(10)
+
+        self.path_label = QLabel("maya dev editor")
+        self.path_label.setStyleSheet("color: #d6dfeb; font-size: 13px; font-weight: 600;")
+
+        self.new_button = QPushButton("New")
+        self.open_button = QPushButton("Open")
+        self.save_button = QPushButton("Save")
+        self.save_as_button = QPushButton("Save As")
+
+        for button in (self.new_button, self.open_button, self.save_button, self.save_as_button):
+            button.setCursor(Qt.PointingHandCursor)
+            button.setMinimumHeight(34)
+            button.setStyleSheet(
+                "QPushButton {"
+                "background: #142033;"
+                "color: #ecf2f8;"
+                "border: 1px solid #2a4263;"
+                "border-radius: 10px;"
+                "padding: 6px 12px;"
+                "font-size: 12px;"
+                "font-weight: 600;"
+                "}"
+                "QPushButton:hover { background: #1b2c46; }"
+            )
+
+        toolbar.addWidget(self.path_label, 1)
+        toolbar.addWidget(self.new_button)
+        toolbar.addWidget(self.open_button)
+        toolbar.addWidget(self.save_button)
+        toolbar.addWidget(self.save_as_button)
+
+        self.editor = QPlainTextEdit()
+        self.editor.setPlaceholderText("// maya dev editor\n")
+        self.editor.setTabStopDistance(32)
+        editor_font = QFont("JetBrains Mono")
+        editor_font.setStyleHint(QFont.Monospace)
+        editor_font.setPointSize(12)
+        self.editor.setFont(editor_font)
+        self.editor.setStyleSheet(
+            "QPlainTextEdit {"
+            "background: #08111d;"
+            "color: #e7eef7;"
+            "border: 1px solid #1d324b;"
+            "border-radius: 16px;"
+            "padding: 14px;"
+            "selection-background-color: #234c82;"
+            "}"
+        )
+
+        self.status_label = QLabel("Ready.")
+        self.status_label.setStyleSheet("color: #97abc4; font-size: 12px;")
+
+        root_layout.addLayout(toolbar)
+        root_layout.addWidget(self.editor, 1)
+        root_layout.addWidget(self.status_label)
+
+        self.setStyleSheet("background: #060c14;")
+
+        self.new_button.clicked.connect(self.new_file)
+        self.open_button.clicked.connect(self.open_file)
+        self.save_button.clicked.connect(self.save_file)
+        self.save_as_button.clicked.connect(self.save_file_as)
+
+        self._load_default_template()
+
+    def _load_default_template(self):
+        self.editor.setPlainText(
+            "def main():\n"
+            "    print('maya dev mode is ready')\n"
+            "\n"
+            "\n"
+            "if __name__ == '__main__':\n"
+            "    main()\n"
+        )
+        self.current_file_path = None
+        self._update_title()
+        self.status_label.setText("New scratch file.")
+        self.editor.document().setModified(False)
+
+    def _update_title(self):
+        label = self.current_file_path or "maya dev editor"
+        self.setWindowTitle(f"{self.renderer.window_caption} dev editor")
+        self.path_label.setText(label)
+
+    def new_file(self):
+        self._load_default_template()
+
+    def open_file(self):
+        start_dir = os.getcwd()
+        file_path, _selected_filter = QFileDialog.getOpenFileName(
+            self,
+            "Open file in Maya editor",
+            start_dir,
+            "Code files (*.py *.js *.ts *.tsx *.jsx *.json *.md *.html *.css *.sh *.txt);;All files (*)",
+        )
+        if not file_path:
+            return
+        try:
+            with open(file_path, "r", encoding="utf-8") as file:
+                self.editor.setPlainText(file.read())
+            self.current_file_path = file_path
+            self._update_title()
+            self.status_label.setText(f"Opened {os.path.basename(file_path)}.")
+            self.editor.document().setModified(False)
+        except Exception as error:
+            self.status_label.setText(f"Could not open file: {error}")
+
+    def save_file(self):
+        if not self.current_file_path:
+            return self.save_file_as()
+        try:
+            with open(self.current_file_path, "w", encoding="utf-8") as file:
+                file.write(self.editor.toPlainText())
+            self._update_title()
+            self.status_label.setText(f"Saved {os.path.basename(self.current_file_path)}.")
+            self.editor.document().setModified(False)
+            return True
+        except Exception as error:
+            self.status_label.setText(f"Could not save file: {error}")
+            return False
+
+    def save_file_as(self):
+        start_dir = os.getcwd()
+        file_path, _selected_filter = QFileDialog.getSaveFileName(
+            self,
+            "Save file from Maya editor",
+            start_dir,
+            "Code files (*.py *.js *.ts *.tsx *.jsx *.json *.md *.html *.css *.sh *.txt);;All files (*)",
+        )
+        if not file_path:
+            return False
+        self.current_file_path = file_path
+        return self.save_file()
+
+
 class SettingsWindow(QWidget):
     def __init__(self, renderer):
         super().__init__()
@@ -501,6 +676,12 @@ class SettingsWindow(QWidget):
         root_layout.addWidget(title)
         root_layout.addWidget(subtitle)
 
+        self.filter_input = QLineEdit()
+        self.filter_input.setPlaceholderText("Filter settings by name, category, or help text")
+        self.filter_input.setObjectName("settingsInput")
+        self.filter_input.textChanged.connect(self.apply_filter)
+        root_layout.addWidget(self.filter_input)
+
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
         scroll_area.setFrameShape(QFrame.NoFrame)
@@ -509,9 +690,12 @@ class SettingsWindow(QWidget):
         self.sections_layout = QVBoxLayout(scroll_content)
         self.sections_layout.setContentsMargins(0, 0, 0, 0)
         self.sections_layout.setSpacing(14)
+        self.sections = []
+        self.field_rows = []
 
         current_category = None
         current_form = None
+        current_section = None
         for field in get_env_fields():
             if field.category != current_category:
                 section = QFrame()
@@ -531,7 +715,14 @@ class SettingsWindow(QWidget):
                 current_form.setVerticalSpacing(12)
                 section_layout.addLayout(current_form)
                 self.sections_layout.addWidget(section)
+                self.sections.append(
+                    {
+                        "widget": section,
+                        "category": field.category,
+                    }
+                )
                 current_category = field.category
+                current_section = section
 
             label = QLabel(field.label or field.key.replace("_", " ").title())
             label.setObjectName("settingsLabel")
@@ -557,8 +748,20 @@ class SettingsWindow(QWidget):
                 help_label.setObjectName("settingsHelp")
                 help_label.setWordWrap(True)
                 field_layout.addWidget(help_label)
+            else:
+                help_label = None
 
             current_form.addRow(label, field_layout)
+            self.field_rows.append(
+                {
+                    "field": field,
+                    "label": label,
+                    "control": control,
+                    "layout": field_layout,
+                    "help_label": help_label,
+                    "section": current_section,
+                }
+            )
 
         self.sections_layout.addStretch(1)
         scroll_area.setWidget(scroll_content)
@@ -572,6 +775,8 @@ class SettingsWindow(QWidget):
 
         refresh_button = QPushButton("Reload")
         refresh_button.clicked.connect(self.load_values)
+        defaults_button = QPushButton("Reset Defaults")
+        defaults_button.clicked.connect(self.load_defaults)
         apply_button = QPushButton("Apply")
         apply_button.setObjectName("primaryButton")
         apply_button.clicked.connect(self.apply_changes)
@@ -579,6 +784,7 @@ class SettingsWindow(QWidget):
         close_button.clicked.connect(self.hide)
 
         actions.addWidget(refresh_button)
+        actions.addWidget(defaults_button)
         actions.addWidget(apply_button)
         actions.addWidget(close_button)
         root_layout.addLayout(actions)
@@ -669,6 +875,40 @@ class SettingsWindow(QWidget):
         for key, control in self.inputs.items():
             self._set_control_value(control, values.get(key, ""))
         self.status_label.setText("")
+        self.apply_filter(self.filter_input.text())
+
+    def load_defaults(self):
+        values = get_env_defaults()
+        for key, control in self.inputs.items():
+            self._set_control_value(control, values.get(key, ""))
+        self.status_label.setText("Loaded default values into the form.")
+        self.apply_filter(self.filter_input.text())
+
+    def apply_filter(self, text):
+        normalized = (text or "").strip().lower()
+        visible_sections = set()
+
+        for row in self.field_rows:
+            field = row["field"]
+            haystack = " ".join(
+                [
+                    field.key,
+                    field.category,
+                    field.label or "",
+                    field.help_text or "",
+                ]
+            ).lower()
+            visible = not normalized or normalized in haystack
+            row["label"].setVisible(visible)
+            row["control"].setVisible(visible)
+            row["layout"].itemAt(0).widget().setVisible(visible)
+            if row["help_label"] is not None:
+                row["help_label"].setVisible(visible)
+            if visible:
+                visible_sections.add(row["section"])
+
+        for section in self.sections:
+            section["widget"].setVisible(section["widget"] in visible_sections or not normalized)
 
     def apply_changes(self):
         values = {
@@ -715,6 +955,7 @@ class Renderer:
         self.initial_monitor = max(1, get_env("INITIAL_MONITOR", 2, int))
         self.initial_scale = get_env("INITIAL_SCALE", 0.5, float)
         self.is_linux = sys.platform.startswith("linux")
+        self.is_windows = sys.platform.startswith("win")
         self.window_positioning_limited = self.is_linux and os.getenv("XDG_SESSION_TYPE", "").strip().lower() == "wayland"
 
         self.app = QApplication.instance() or QApplication(sys.argv)
@@ -772,13 +1013,14 @@ class Renderer:
         self.window_catalog = WindowShowcaseBackend(own_pid=os.getpid(), own_caption=self.window_caption)
         self.window_showcase_window = WindowShowcaseWidget(self)
         self.quick_input_window = QuickInputWidget(self)
+        self.dev_editor_window = DevEditorWidget(self)
         self.settings_window = SettingsWindow(self)
         self.window_showcase_window.setWindowTitle(self.showcase_window_title)
         self.quick_input_window.setWindowTitle(self.quick_input_window_title)
         self.settings_window.setWindowTitle(self.settings_window_title)
-        _apply_windows_overlay_style(self.root)
-        _apply_windows_overlay_style(self.quick_input_window)
-        _apply_windows_overlay_style(self.window_showcase_window)
+        _apply_windows_overlay_style(self.root, interactive=False)
+        _apply_windows_overlay_style(self.quick_input_window, interactive=True)
+        _apply_windows_overlay_style(self.window_showcase_window, interactive=True)
 
         self.set_scale("set", self.initial_scale)
         self.move_overlay(self.initial_position, self.initial_monitor - 1)
@@ -1187,10 +1429,12 @@ class Renderer:
         self.ring.set_state("ready")
         if self.window_showcase_window.isVisible():
             self.hide_window_showcase()
+        self.hide_dev_editor()
         self.bring_to_front()
 
     def start_dev_workspace(self, payload=None):
         self._begin_dev_workspace_animation()
+        self.show_dev_editor()
         if self.dev_mode_worker and self.dev_mode_worker.is_alive():
             return
 
@@ -1496,6 +1740,28 @@ class Renderer:
         y = screen["y"] + screen["height"] - self.quick_input_height - self.window_margin
         self.quick_input_window.setGeometry(x, y, self.quick_input_width, self.quick_input_height)
 
+    def position_dev_editor(self):
+        if not hasattr(self, "dev_editor_window") or self.dev_editor_window is None:
+            return
+        screen, _safe_index = self._get_screen(0)
+        margin = max(20, self.window_margin - 8)
+        width = max(760, screen["width"] - (margin * 2))
+        height = max(520, screen["height"] - (margin * 2))
+        x = screen["x"] + margin
+        y = screen["y"] + margin
+        self.dev_editor_window.setGeometry(x, y, width, height)
+
+    def show_dev_editor(self):
+        self.position_dev_editor()
+        self.dev_editor_window.show()
+        self.dev_editor_window.raise_()
+        self.dev_editor_window.activateWindow()
+        self.dev_editor_window.editor.setFocus()
+
+    def hide_dev_editor(self):
+        if hasattr(self, "dev_editor_window") and self.dev_editor_window is not None:
+            self.dev_editor_window.hide()
+
     def handle_quick_input_keypress(self, _event=None):
         if self.keep_awake_callback:
             self.keep_awake_callback()
@@ -1504,10 +1770,15 @@ class Renderer:
         if self.keep_awake_callback:
             self.keep_awake_callback()
         self.position_quick_input()
+        self.position_dev_editor()
+        if self.is_windows:
+            self.quick_input_window.showNormal()
         self.quick_input_window.show()
         self.quick_input_window.raise_()
         self.quick_input_window.activateWindow()
-        self.quick_input_window.entry.setFocus()
+        self.quick_input_window.setFocus(Qt.ActiveWindowFocusReason)
+        self.quick_input_window.entry.setFocus(Qt.ActiveWindowFocusReason)
+        self.quick_input_window.entry.selectAll()
 
     def hide_quick_input(self):
         self.quick_input_window.hide()
@@ -1554,6 +1825,7 @@ class Renderer:
         x, y = self._compute_window_location(self.initial_position, self.initial_monitor - 1)
         self._snap_to_position(x, y, self.current_monitor_index)
         self.position_quick_input()
+        self.position_dev_editor()
 
     def set_voice_status(self, status):
         self.voice_status = status
@@ -1593,6 +1865,7 @@ class Renderer:
         else:
             self._set_target_position(x, y, self.current_monitor_index)
         self.position_quick_input()
+        self.position_dev_editor()
         self.bring_to_front()
 
     def set_scale(self, scale_mode, scale_value):
@@ -1610,12 +1883,14 @@ class Renderer:
         x, y = self._compute_window_location(self.current_position_name, self.current_monitor_index)
         self._snap_to_position(x, y, self.current_monitor_index)
         self.position_quick_input()
+        self.position_dev_editor()
 
     def send_to_background(self):
         self.is_backgrounded = True
         self._reset_visual_transition_state()
         self.hide_window_showcase()
         self.hide_quick_input()
+        self.hide_dev_editor()
         self.root.hide()
 
     def hide_overlay(self):
@@ -1632,6 +1907,7 @@ class Renderer:
         if not self.window_positioning_limited:
             self.root.raise_()
         self.position_quick_input()
+        self.position_dev_editor()
 
     def handle_events(self):
         while not self.events.empty():
@@ -1672,7 +1948,7 @@ class Renderer:
                 self.start_thoughtful_workspace()
             elif event == "app_stop_dev_workspace":
                 launcher = AppLauncher()
-                for alias in ("spotify", "firefox", "vscode"):
+                for alias in ("spotify", "firefox"):
                     app_key = launcher.resolve_alias(alias)
                     if app_key:
                         launcher.close(app_key)

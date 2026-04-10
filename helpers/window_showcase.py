@@ -2,6 +2,7 @@ import json
 import os
 import subprocess
 from dataclasses import dataclass
+import sys
 
 
 @dataclass(frozen=True)
@@ -24,9 +25,13 @@ class WindowShowcaseBackend:
         self.protocol = None
         self._atoms = {}
         self.backend_name = ""
+        self.win32 = None
+
+        if sys.platform.startswith("win") and self._init_windows_backend():
+            return
 
         if not sys_platform_linux():
-            self.reason = "window showcase currently only supports Linux sessions."
+            self.reason = "window showcase is unavailable on this session."
             return
 
         if self._init_hyprland_backend():
@@ -57,6 +62,24 @@ class WindowShowcaseBackend:
 
     def update_own_caption(self, caption):
         self.own_caption = (caption or "").strip().lower()
+
+    def _init_windows_backend(self):
+        try:
+            import win32con
+            import win32gui
+            import win32process
+
+            self.win32 = {
+                "con": win32con,
+                "gui": win32gui,
+                "process": win32process,
+            }
+            self.backend_name = "windows"
+            self.available = True
+            return True
+        except Exception as error:
+            self.reason = f"pywin32 is not available: {error}"
+            return False
 
     def _wayland_reason(self):
         desktop = os.getenv("XDG_CURRENT_DESKTOP", "").strip() or os.getenv("DESKTOP_SESSION", "").strip()
@@ -122,6 +145,81 @@ class WindowShowcaseBackend:
                 if parts:
                     return parts[-1]
         return normalized
+
+    def _list_windows_windows(self, limit):
+        if not self.win32:
+            return [], self.reason or "windows backend is unavailable."
+
+        win32gui = self.win32["gui"]
+        win32process = self.win32["process"]
+        foreground_hwnd = win32gui.GetForegroundWindow()
+        snapshots = []
+        seen_ids = set()
+
+        def callback(hwnd, _extra):
+            if len(snapshots) >= max(1, limit):
+                return False
+
+            if not win32gui.IsWindowVisible(hwnd):
+                return True
+
+            if win32gui.GetWindow(hwnd, self.win32["con"].GW_OWNER):
+                return True
+
+            title = (win32gui.GetWindowText(hwnd) or "").strip()
+            if not title:
+                return True
+
+            try:
+                _thread_id, pid = win32process.GetWindowThreadProcessId(hwnd)
+            except Exception:
+                pid = None
+
+            if pid == self.own_pid:
+                return True
+
+            normalized_title = title.lower()
+            if self.own_caption and normalized_title.startswith(self.own_caption):
+                return True
+
+            if hwnd in seen_ids:
+                return True
+
+            app_name = ""
+            if pid:
+                try:
+                    import psutil
+                    app_name = psutil.Process(pid).name()
+                except Exception:
+                    app_name = ""
+
+            if not app_name:
+                try:
+                    app_name = win32gui.GetClassName(hwnd)
+                except Exception:
+                    app_name = ""
+
+            snapshots.append(
+                WindowSnapshot(
+                    window_id=str(hwnd),
+                    title=title,
+                    app_name=(app_name or self._infer_app_name_from_title(title)).strip(),
+                    is_active=hwnd == foreground_hwnd,
+                )
+            )
+            seen_ids.add(hwnd)
+            return True
+
+        try:
+            win32gui.EnumWindows(callback, None)
+        except Exception as error:
+            return [], f"could not enumerate Windows desktop windows: {error}"
+
+        if not snapshots:
+            return [], "i could not find viewable app windows to show right now."
+
+        snapshots.sort(key=lambda item: (not item.is_active, item.app_name.lower(), item.title.lower()))
+        return snapshots[:limit], ""
 
     def _list_kwin_windows(self, limit):
         try:
@@ -337,6 +435,8 @@ class WindowShowcaseBackend:
         if not self.available:
             return [], self.reason
 
+        if self.backend_name == "windows":
+            return self._list_windows_windows(limit)
         if self.backend_name == "hyprland":
             return self._list_hyprland_windows(limit)
         if self.backend_name == "kwin":
@@ -399,6 +499,17 @@ class WindowShowcaseBackend:
         if not window_id:
             return False, "no window was selected."
 
+        if self.backend_name == "windows":
+            try:
+                win32gui = self.win32["gui"]
+                win32con = self.win32["con"]
+                target_id = int(str(window_id), 0)
+                win32gui.ShowWindow(target_id, win32con.SW_RESTORE)
+                win32gui.SetForegroundWindow(target_id)
+                return True, ""
+            except Exception as error:
+                return False, f"could not focus the selected window: {error}"
+
         if self.backend_name == "hyprland":
             target_id = str(window_id).strip()
             try:
@@ -447,6 +558,14 @@ class WindowShowcaseBackend:
         if not self.available or not window_id:
             return False
 
+        if self.backend_name == "windows":
+            try:
+                target_id = int(str(window_id), 0)
+                self.win32["gui"].ShowWindow(target_id, self.win32["con"].SW_MINIMIZE)
+                return True
+            except Exception:
+                return False
+
         if self.backend_name in {"hyprland", "kwin"}:
             return False
 
@@ -461,6 +580,14 @@ class WindowShowcaseBackend:
     def restore_window(self, window_id):
         if not self.available or not window_id:
             return False
+
+        if self.backend_name == "windows":
+            try:
+                target_id = int(str(window_id), 0)
+                self.win32["gui"].ShowWindow(target_id, self.win32["con"].SW_RESTORE)
+                return True
+            except Exception:
+                return False
 
         if self.backend_name == "hyprland":
             return False
