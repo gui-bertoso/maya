@@ -1,7 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 from pathlib import Path
 
-from PyInstaller.utils.hooks import collect_submodules
+from PyInstaller.utils.hooks import collect_dynamic_libs, collect_submodules
 
 
 PROJECT_DIR = Path(__file__).resolve().parent
@@ -21,11 +21,18 @@ def build_datas():
 hiddenimports = [
     "pyttsx3.drivers.sapi5",
     "sounddevice",
+    "pythoncom",
+    "pywintypes",
+    "win32api",
+    "win32con",
+    "win32gui",
+    "win32process",
 ]
 hiddenimports += collect_submodules("comtypes")
 hiddenimports += collect_submodules("pynput")
 
 datas = build_datas()
+binaries = collect_dynamic_libs("vosk")
 
 block_cipher = None
 
@@ -33,7 +40,7 @@ block_cipher = None
 a = Analysis(
     ["app.py"],
     pathex=[str(PROJECT_DIR)],
-    binaries=[],
+    binaries=binaries,
     datas=datas,
     hiddenimports=hiddenimports,
     hookspath=[],

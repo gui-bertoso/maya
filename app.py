@@ -7,6 +7,8 @@ import threading
 import datetime
 import re
 import unicodedata
+import traceback
+from pathlib import Path
 
 
 def _configure_qt_platform():
@@ -25,6 +27,45 @@ def _configure_qt_platform():
 
 
 _configure_qt_platform()
+
+
+def _runtime_log_path():
+    if getattr(sys, "frozen", False):
+        if sys.platform.startswith("win"):
+            base_dir = Path(os.getenv("APPDATA") or (Path.home() / "AppData" / "Roaming")) / "maya"
+        elif sys.platform == "darwin":
+            base_dir = Path.home() / "Library" / "Application Support" / "maya"
+        else:
+            base_dir = Path(os.getenv("XDG_DATA_HOME") or (Path.home() / ".local" / "share")) / "maya"
+    else:
+        base_dir = Path(__file__).resolve().parent
+
+    logs_dir = base_dir / "logs"
+    logs_dir.mkdir(parents=True, exist_ok=True)
+    return logs_dir / "startup-error.log"
+
+
+def _log_unhandled_exception(exc_type, exc_value, exc_traceback):
+    try:
+        log_path = _runtime_log_path()
+        with open(log_path, "a", encoding="utf-8") as log_file:
+            log_file.write(f"\n[{datetime.datetime.now().isoformat()}] Unhandled exception\n")
+            traceback.print_exception(exc_type, exc_value, exc_traceback, file=log_file)
+    except Exception:
+        pass
+
+    sys.__excepthook__(exc_type, exc_value, exc_traceback)
+
+
+sys.excepthook = _log_unhandled_exception
+
+
+def _log_thread_exception(args):
+    _log_unhandled_exception(args.exc_type, args.exc_value, args.exc_traceback)
+
+
+if hasattr(threading, "excepthook"):
+    threading.excepthook = _log_thread_exception
 
 from output.renderer import Renderer
 from core.process import Process
