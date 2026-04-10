@@ -3,7 +3,15 @@
   "short_term": [
     {
       "role": "user",
-      "content": "maya blame my a lack of the music's"
+      "content": "yeah the most are no model"
+    },
+    {
+      "role": "assistant",
+      "content": "i'm still figuring things out, Up, but i'm with you. i remember that you like to pursue me that tell you keep yourself well as a byproduct of a study of and supplies comes easier."
+    },
+    {
+      "role": "user",
+      "content": "el hage of was to the munition"
     },
     {
       "role": "assistant",
@@ -11,35 +19,27 @@
     },
     {
       "role": "user",
-      "content": "i like it music milan italy france but fight"
+      "content": "echo mother the least i totally other thing why don't they always could then to fall on the age boom mrl a veggie the all seeing as i go follow it the was also mingle kick wasn't goes kaput you"
     },
     {
       "role": "assistant",
-      "content": "okay, i'll remember that you like it music milan italy france but fight."
+      "content": "i'm not fully there yet, Up, but i'm listening. i remember that you like to pursue me that tell you keep yourself well as a byproduct of a study of and supplies comes easier."
     },
     {
       "role": "user",
-      "content": "play liked musics"
+      "content": "they suck down we don't want real suffers willingly easy"
     },
     {
       "role": "assistant",
-      "content": "playing liked musics on Spotify."
+      "content": "i'm still figuring things out, Up, but i'm with you. i remember that you like to pursue me that tell you keep yourself well as a byproduct of a study of and supplies comes easier."
     },
     {
       "role": "user",
-      "content": "they were that book or you call me for the phone"
+      "content": "becoming processing portuguese through"
     },
     {
       "role": "assistant",
       "content": "i'm still learning, Up, but i'm here with you. i remember that you like to pursue me that tell you keep yourself well as a byproduct of a study of and supplies comes easier."
-    },
-    {
-      "role": "user",
-      "content": "open google"
-    },
-    {
-      "role": "assistant",
-      "content": "opening Spotify for google."
     }
   ],
   "long_term": {
@@ -52,7 +52,7 @@
   },
   "state": {
     "mood": "friendly",
-    "last_topic": "spotify",
+    "last_topic": "conversation",
     "pending_learning": null
   }
 }

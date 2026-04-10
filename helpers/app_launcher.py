@@ -47,6 +47,11 @@ class AppLauncher:
         config = self.apps.get(app_key, {})
         return config.get("display_name", app_key)
 
+    def get_subapps(self, app_key):
+        config = self.apps.get(app_key, {})
+        subapps = config.get("subapps")
+        return subapps if isinstance(subapps, dict) else {}
+
     def resolve_alias(self, alias):
         if not alias:
             return None
@@ -61,6 +66,28 @@ class AppLauncher:
 
     def available_aliases(self):
         return sorted(self.get_alias_map().keys())
+
+    def get_subapp_alias_map(self, app_key):
+        alias_map = {}
+
+        for subapp_key, config in self.get_subapps(app_key).items():
+            aliases = config.get("aliases", [])
+            for alias in aliases:
+                alias_map[alias.strip().lower()] = subapp_key
+
+        return alias_map
+
+    def resolve_subapp_alias(self, app_key, alias):
+        if not alias:
+            return None
+
+        alias_map = self.get_subapp_alias_map(app_key)
+        normalized = alias.strip().lower()
+        return alias_map.get(normalized)
+
+    def get_subapp_display_name(self, app_key, subapp_key):
+        config = self.get_subapps(app_key).get(subapp_key, {})
+        return config.get("display_name", subapp_key)
 
     def expand_command_value(self, value):
         if not isinstance(value, str):
@@ -198,6 +225,23 @@ class AppLauncher:
             return False, "launch_failed"
 
         return True, None
+
+    def launch_subapp(self, app_key, subapp_alias):
+        config = self.apps.get(app_key)
+        if not config:
+            return False, "unknown_app"
+
+        subapp_key = self.resolve_subapp_alias(app_key, subapp_alias)
+        if not subapp_key:
+            return False, "unknown_subapp"
+
+        subapp_config = self.get_subapps(app_key).get(subapp_key, {})
+        target = self.get_platform_value(subapp_config, "target")
+        if not target:
+            return False, "missing_target"
+
+        resolved_target = self.resolve_command(target)
+        return self.launch_with_target(app_key, resolved_target)
 
     def launch_any(self, raw_target):
         if not raw_target or not raw_target.strip():

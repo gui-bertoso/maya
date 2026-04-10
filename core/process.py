@@ -52,7 +52,10 @@ class Process:
             return json.load(file)
 
     def pick_response(self, key, **values):
-        templates = self.responses.get(key, [])
+        response_key = key
+        if str(self.LANGUAGE).lower().startswith("pt") and f"{key}_pt" in self.responses:
+            response_key = f"{key}_pt"
+        templates = self.responses.get(response_key, [])
         if not templates:
             raise KeyError(f"missing response templates for key: {key}")
         return self._choose(templates).format(**values)
@@ -233,7 +236,7 @@ class Process:
         lowered = stripped.lower()
 
         for browser_alias in sorted(known_browser_aliases, key=len, reverse=True):
-            for connector in (" using ", " in ", " on "):
+            for connector in (" using ", " in ", " on ", " no ", " na ", " em "):
                 suffix = f"{connector}{browser_alias}"
                 if lowered.endswith(suffix):
                     return stripped[: -len(suffix)].strip(), browser_alias
@@ -247,7 +250,7 @@ class Process:
         token_set = set(tokens)
 
         launch_like_match = re.match(
-            r"^(?:open|launch|start|run)\s+([a-zA-Z0-9 .+-]+?)(?:\s+(?:for me|please))?$",
+            r"^(?:open|launch|start|run|abre|abrir|inicia|iniciar|roda|rodar)\s+([a-zA-Z0-9 .+-]+?)(?:\s+(?:for me|please|pra mim|por favor))?$",
             without_browser,
             flags=re.IGNORECASE,
         )
@@ -261,8 +264,8 @@ class Process:
 
         if "youtube music" in without_browser:
             query = re.sub(r"\s+on\s+youtube music$", "", without_browser, flags=re.IGNORECASE).strip()
-            query = re.sub(r"^(?:play|open|search|find|show)\s+", "", query, flags=re.IGNORECASE).strip()
-            query = re.sub(r"^(?:some|a)\s+", "", query, flags=re.IGNORECASE).strip()
+            query = re.sub(r"^(?:play|open|search|find|show|toca|toque|abre|abrir|procura|pesquisa|mostra)\s+", "", query, flags=re.IGNORECASE).strip()
+            query = re.sub(r"^(?:some|a|uma|um)\s+", "", query, flags=re.IGNORECASE).strip()
             if query:
                 return {
                     "kind": "media",
@@ -281,11 +284,11 @@ class Process:
         image_tokens = {"image", "images", "picture", "pictures", "photo", "photos", "pics"}
 
         if token_set.intersection(video_tokens):
-            query = re.sub(r"^(?:play|open|search|find|show(?: me)?)\s+", "", without_browser, flags=re.IGNORECASE).strip()
-            query = re.sub(r"^(?:some|a)\s+", "", query, flags=re.IGNORECASE).strip()
+            query = re.sub(r"^(?:play|open|search|find|show(?: me)?|toca|toque|abre|abrir|procura|pesquisa|mostra)\s+", "", without_browser, flags=re.IGNORECASE).strip()
+            query = re.sub(r"^(?:some|a|uma|um)\s+", "", query, flags=re.IGNORECASE).strip()
             query = re.sub(r"^(?:video|videos|clip|clips)\b", "", query, flags=re.IGNORECASE).strip()
             query = re.sub(r"\s+(?:video|videos|clip|clips)\b", "", query, flags=re.IGNORECASE).strip()
-            query = re.sub(r"^(?:of|for|about)\s+", "", query, flags=re.IGNORECASE).strip()
+            query = re.sub(r"^(?:of|for|about|de|sobre)\s+", "", query, flags=re.IGNORECASE).strip()
             query = re.sub(r"\s+on\s+youtube$", "", query, flags=re.IGNORECASE).strip()
             if query:
                 return {
@@ -296,11 +299,11 @@ class Process:
                 }
 
         if token_set.intersection(image_tokens):
-            query = re.sub(r"^(?:open|search|find|show(?: me)?|look up)\s+", "", without_browser, flags=re.IGNORECASE).strip()
-            query = re.sub(r"^(?:some|a)\s+", "", query, flags=re.IGNORECASE).strip()
+            query = re.sub(r"^(?:open|search|find|show(?: me)?|look up|abre|abrir|procura|pesquisa|mostra)\s+", "", without_browser, flags=re.IGNORECASE).strip()
+            query = re.sub(r"^(?:some|a|uma|um)\s+", "", query, flags=re.IGNORECASE).strip()
             query = re.sub(r"^(?:image|images|picture|pictures|photo|photos|pics)\b", "", query, flags=re.IGNORECASE).strip()
             query = re.sub(r"\s+(?:image|images|picture|pictures|photo|photos|pics)\b", "", query, flags=re.IGNORECASE).strip()
-            query = re.sub(r"^(?:of|for)\s+", "", query, flags=re.IGNORECASE).strip()
+            query = re.sub(r"^(?:of|for|de)\s+", "", query, flags=re.IGNORECASE).strip()
             if query:
                 return {
                     "kind": "web",
@@ -314,7 +317,7 @@ class Process:
     def parse_natural_site_action(self, text_lower):
         cleaned = self.strip_polite_prefixes(text_lower)
         without_browser, browser_alias = self.extract_browser_clause(cleaned)
-        match = re.match(r"^(?:open|go to|visit)\s+(.+)$", without_browser, flags=re.IGNORECASE)
+        match = re.match(r"^(?:open|go to|visit|abre|abrir|acessa|acessar|visita|visitar|ir para|vai para)\s+(.+)$", without_browser, flags=re.IGNORECASE)
         if not match:
             return None
 
@@ -327,7 +330,10 @@ class Process:
         if not browser_alias and not explicit_site and "." not in target and not re.match(r"^https?://", target, flags=re.IGNORECASE):
             return None
 
-        if any(token in target for token in [" video", " image", " playlist", "spotify", "youtube music"]):
+        if any(token in target for token in [" video", " image", " playlist", "youtube music"]):
+            return None
+
+        if "spotify" in target and not browser_alias:
             return None
 
         if re.search(r"\b(?:project|app)\b", target):
@@ -338,6 +344,49 @@ class Process:
             "query": target,
             "browser_alias": browser_alias,
         }
+
+    def parse_hosted_app_action(self, text_lower):
+        if not self.app_launcher:
+            return None
+
+        cleaned = self.strip_polite_prefixes(text_lower)
+        cleaned = re.sub(r"[.!?,;:]+$", "", cleaned).strip()
+        match = re.match(
+            r"^(?:open|launch|start|run|play|abre|abrir|inicia|iniciar|roda|rodar|joga|jogar)\s+(.+?)\s+(?:on|in|using|via|no|na|em|pelo|pela)\s+([a-zA-Z0-9 .+-]+?)(?:\s+(?:for me|please|pra mim|por favor))?$",
+            cleaned,
+            flags=re.IGNORECASE,
+        )
+        if not match:
+            return None
+
+        target_alias = match.group(1).strip()
+        host_alias = match.group(2).strip()
+        host_key = self.app_launcher.resolve_alias(host_alias)
+        if not host_key:
+            return None
+
+        if host_key in {"firefox", "chrome", "edge", "opera", "brave"}:
+            blocked_terms = (" video", " videos", " image", " images", " playlist", " youtube music")
+            lowered_target = f" {target_alias.lower()} "
+            if not any(term in lowered_target for term in blocked_terms):
+                return {
+                    "kind": "web",
+                    "mode": "site",
+                    "query": target_alias,
+                    "browser_alias": host_alias,
+                }
+
+        subapp_key = self.app_launcher.resolve_subapp_alias(host_key, target_alias)
+        if subapp_key:
+            return {
+                "kind": "subapp",
+                "host_alias": host_alias,
+                "host_key": host_key,
+                "subapp_alias": target_alias,
+                "subapp_key": subapp_key,
+            }
+
+        return None
 
     @staticmethod
     def normalize_move_position(raw_position):
@@ -703,13 +752,13 @@ class Process:
         status_words = {"good", "okay", "ok", "fine", "alright", "well"}
         if {"are", "you"}.issubset(token_set) and token_set.intersection(status_words):
             return True
-        if self.contains_any(cleaned, ["you good", "you okay", "you alright", "everything okay"]):
+        if self.contains_any(cleaned, ["you good", "you okay", "you alright", "everything okay", "voce ta bem", "você ta bem", "voce esta bem", "você está bem", "ta tudo bem", "tá tudo bem"]):
             return True
         return False
 
     def parse_natural_capabilities_request(self, text_lower):
         cleaned = self.strip_polite_prefixes(text_lower)
-        if self.contains_any(cleaned, ["what can you do", "your capabilities", "help me"]):
+        if self.contains_any(cleaned, ["what can you do", "your capabilities", "help me", "o que voce pode fazer", "o que você pode fazer", "quais suas capacidades", "me ajuda"]):
             return True
         if self.starts_with_any(cleaned, ["can you ", "could you "]) and "?" not in cleaned:
             return False
@@ -1033,6 +1082,12 @@ class Process:
                 text,
             )
 
+        if patterns["subapp_action"]:
+            return self.handle_launch_subapp(
+                patterns["subapp_host_alias"],
+                patterns["subapp_alias"],
+            )
+
         if patterns["spotify_action"]:
             return self.handle_spotify_action(
                 patterns["spotify_mode"],
@@ -1127,6 +1182,33 @@ class Process:
             return self.pick_response("launch_app_missing_command", app_name=display_name)
 
         return self.pick_response("launch_app_failed", app_name=display_name)
+
+    def handle_launch_subapp(self, host_alias, subapp_alias):
+        if not self.app_launcher:
+            return self.pick_response("launch_app_unavailable")
+
+        host_key = self.app_launcher.resolve_alias(host_alias)
+        if not host_key:
+            return self.pick_response("launch_app_unknown", app_alias=host_alias)
+
+        success, reason = self.app_launcher.launch_subapp(host_key, subapp_alias)
+        host_name = self.app_launcher.get_display_name(host_key)
+        subapp_key = self.app_launcher.resolve_subapp_alias(host_key, subapp_alias)
+        subapp_name = self.app_launcher.get_subapp_display_name(host_key, subapp_key) if subapp_key else subapp_alias
+
+        if success:
+            return self.pick_response("launch_subapp_success", subapp_name=subapp_name, app_name=host_name)
+
+        if reason == "unknown_subapp":
+            return self.pick_response("launch_subapp_unknown", subapp_alias=subapp_alias, app_name=host_name)
+
+        if reason == "missing_target":
+            return self.pick_response("launch_subapp_missing_target", subapp_name=subapp_name, app_name=host_name)
+
+        if reason == "missing_command":
+            return self.pick_response("launch_app_missing_command", app_name=host_name)
+
+        return self.pick_response("launch_subapp_failed", subapp_name=subapp_name, app_name=host_name)
 
     def handle_close_app(self, app_alias):
         if not self.app_launcher:
@@ -1686,6 +1768,9 @@ class Process:
             "launch_app": False,
             "close_app": False,
             "app_alias": None,
+            "subapp_action": False,
+            "subapp_host_alias": None,
+            "subapp_alias": None,
             "dev_project_action": False,
             "dev_project_spec": None,
             "spotify_action": False,
@@ -2068,7 +2153,7 @@ class Process:
         ):
             patterns["insult"] = True
 
-        if any(phrase in text_lower for phrase in ["what time is it", "tell me the time", "current time", "que horas são", "que horas sao"]):
+        if any(phrase in text_lower for phrase in ["what time is it", "tell me the time", "current time", "que horas são", "que horas sao", "me fala as horas", "me diz as horas", "qual a hora", "qual hora e", "qual hora é"]):
             patterns["asks_time"] = True
 
         if any(
@@ -2083,6 +2168,8 @@ class Process:
                 "qual o clima hoje",
                 "como ta o tempo",
                 "como tá o tempo",
+                "vai chover hoje",
+                "me fala o clima",
             ]
         ):
             patterns["asks_weather"] = True
@@ -2095,6 +2182,10 @@ class Process:
                 "what's today's date",
                 "what is the date today",
                 "today's date",
+                "qual a data de hoje",
+                "que dia e hoje",
+                "que dia é hoje",
+                "me fala a data de hoje",
             ]
         ):
             patterns["asks_date"] = True
@@ -2113,6 +2204,8 @@ class Process:
                 "me fale as notícias",
                 "quais sao as noticias",
                 "quais são as notícias",
+                "me mostra as noticias de hoje",
+                "me mostra as notícias de hoje",
             ]
         ):
             patterns["asks_news"] = True
@@ -2203,7 +2296,7 @@ class Process:
             patterns["window_showcase"] = True
             patterns["window_showcase_action"] = showcase_target
 
-        if any(phrase in text_lower for phrase in ["what can you do", "help me", "your capabilities"]) or self.parse_natural_capabilities_request(text_lower):
+        if any(phrase in text_lower for phrase in ["what can you do", "help me", "your capabilities", "o que você pode fazer", "o que voce pode fazer", "me ajuda"]) or self.parse_natural_capabilities_request(text_lower):
             patterns["asks_capabilities"] = True
 
         if self.dev_assistant:
@@ -2211,6 +2304,18 @@ class Process:
             if dev_project_spec:
                 patterns["dev_project_action"] = True
                 patterns["dev_project_spec"] = dev_project_spec
+
+        hosted_app = self.parse_hosted_app_action(text_lower)
+        if hosted_app:
+            if hosted_app["kind"] == "subapp":
+                patterns["subapp_action"] = True
+                patterns["subapp_host_alias"] = hosted_app["host_alias"]
+                patterns["subapp_alias"] = hosted_app["subapp_alias"]
+            elif hosted_app["kind"] == "web":
+                patterns["web_action"] = True
+                patterns["web_mode"] = hosted_app["mode"]
+                patterns["web_query"] = hosted_app["query"]
+                patterns["web_browser_alias"] = hosted_app["browser_alias"]
 
         natural_media = self.parse_natural_media_action(text_lower)
         if natural_media:
@@ -2238,7 +2343,7 @@ class Process:
             patterns["web_browser_alias"] = natural_site["browser_alias"]
 
         site_match = re.search(
-            r"\b(?:open|go to|visit)\s+(?:site|website)\s+([a-zA-Z0-9.-]+\.[a-z]{2,}(?:/[^\s]+)?)$",
+            r"\b(?:open|go to|visit|abre|abrir|acessa|acessar|visita|visitar)\s+(?:site|website|site da|pagina|página)\s+([a-zA-Z0-9.-]+\.[a-z]{2,}(?:/[^\s]+)?)$",
             text_lower
         )
         if site_match and not patterns["web_action"]:
@@ -2249,7 +2354,7 @@ class Process:
             patterns["app_alias"] = None
 
         image_match = re.search(
-            r"\b(?:search|find|show me|look up)\s+(?:images|image|pictures|pics|photos)\s+(?:of|for)?\s+(.+)$",
+            r"\b(?:search|find|show me|look up|procura|pesquisa|mostra|abre)\s+(?:images|image|pictures|pics|photos|imagens|imagem|fotos|foto)\s+(?:of|for|de)?\s+(.+)$",
             text_lower
         )
         if image_match and not patterns["web_action"]:
@@ -2258,7 +2363,7 @@ class Process:
             patterns["web_query"] = image_match.group(1).strip()
 
         video_match = re.search(
-            r"\b(?:search|find|show me|look up)\s+(?:videos|video)\s+(?:of|for|about)?\s+(.+)$",
+            r"\b(?:search|find|show me|look up|procura|pesquisa|mostra|abre)\s+(?:videos|video|vídeos|vídeo)\s+(?:of|for|about|de|sobre)?\s+(.+)$",
             text_lower
         )
         if video_match and not patterns["web_action"]:
@@ -2267,7 +2372,7 @@ class Process:
             patterns["web_query"] = video_match.group(1).strip()
 
         targeted_video_match = re.search(
-            r"\b(?:open|search|find|show me|look up)\s+(?:a\s+)?(.+?)\s+video(?:s)?\s+(?:in|on|using)\s+([a-zA-Z0-9 .+-]+)$",
+            r"\b(?:open|search|find|show me|look up|abre|procura|pesquisa|mostra)\s+(?:a\s+|um\s+|uma\s+)?(.+?)\s+video(?:s)?\s+(?:in|on|using|no|na|em)\s+([a-zA-Z0-9 .+-]+)$",
             text_lower
         )
         if targeted_video_match and not patterns["web_action"]:
@@ -2279,15 +2384,15 @@ class Process:
             patterns["app_alias"] = None
 
         launch_match = re.search(
-            r"\b(?:open|launch|start|run)\s+([a-zA-Z0-9 .+-]+?)(?:\s+(?:for me|please))?$",
+            r"\b(?:open|launch|start|run|abre|abrir|inicia|iniciar|roda|rodar)\s+([a-zA-Z0-9 .+-]+?)(?:\s+(?:for me|please|pra mim|por favor))?$",
             text_lower
         )
-        if launch_match and not patterns["web_action"] and not patterns["spotify_action"] and not patterns["media_action"] and not patterns["dev_project_action"]:
+        if launch_match and not patterns["web_action"] and not patterns["spotify_action"] and not patterns["media_action"] and not patterns["dev_project_action"] and not patterns["subapp_action"]:
             patterns["launch_app"] = True
             patterns["app_alias"] = launch_match.group(1).strip()
 
         close_match = re.search(
-            r"\b(?:close|quit|exit|stop)\s+([a-zA-Z0-9 .+-]+?)(?:\s+(?:for me|please))?$",
+            r"\b(?:close|quit|exit|stop|fecha|fechar|encerra|encerrar)\s+([a-zA-Z0-9 .+-]+?)(?:\s+(?:for me|please|pra mim|por favor))?$",
             text_lower
         )
         if close_match and not patterns["exit_self"] and not patterns["web_action"] and not patterns["spotify_action"] and not patterns["media_action"] and not patterns["dev_project_action"]:
@@ -2295,7 +2400,7 @@ class Process:
             patterns["app_alias"] = close_match.group(1).strip()
 
         text_search_match = re.search(
-            r"\b(?:search for|look up|google|search)\s+(.+)$",
+            r"\b(?:search for|look up|google|search|procura|pesquisa|pesquise|busca|buscar)\s+(.+)$",
             text_lower
         )
         if text_search_match and not patterns["web_action"]:
@@ -2381,6 +2486,7 @@ class Process:
                 patterns["asks_capabilities"],
                 patterns["dev_project_action"],
                 patterns["launch_app"],
+                patterns["subapp_action"],
                 patterns["close_app"],
                 patterns["spotify_action"],
                 patterns["media_action"],
