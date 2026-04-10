@@ -1,0 +1,57 @@
+{
+  "short_term_limit": 10,
+  "short_term": [
+    {
+      "role": "user",
+      "content": "c l cause i was a slap"
+    },
+    {
+      "role": "assistant",
+      "content": "i'm still building that part out, Up, but i'm with you."
+    },
+    {
+      "role": "user",
+      "content": "lsc mother that he had systemic"
+    },
+    {
+      "role": "assistant",
+      "content": "i'm still figuring things out, Up, but i'm with you."
+    },
+    {
+      "role": "user",
+      "content": "the up this up his own hide yourself pelosi up i guess i love to pursue me that tell you keep yourself well as a byproduct of a study of and supplies comes easier"
+    },
+    {
+      "role": "assistant",
+      "content": "sure, i'll get out of the way and stay in the background."
+    },
+    {
+      "role": "user",
+      "content": "west coast guard at the failure"
+    },
+    {
+      "role": "assistant",
+      "content": "i'm still learning, Up, but i'm here with you. i remember that you like to pursue me that tell you keep yourself well as a byproduct of a study of and supplies comes easier."
+    },
+    {
+      "role": "user",
+      "content": "got a person i can look purely i see my bus service on his woke is late the the border collie baba was a little other get a to"
+    },
+    {
+      "role": "assistant",
+      "content": "i'm not fully there yet, Up, but i'm listening. i remember that you like to pursue me that tell you keep yourself well as a byproduct of a study of and supplies comes easier."
+    }
+  ],
+  "long_term": {
+    "user_name": "Up",
+    "preferences": [
+      "to pursue me that tell you keep yourself well as a byproduct of a study of and supplies comes easier"
+    ],
+    "known_facts": []
+  },
+  "state": {
+    "mood": "friendly",
+    "last_topic": "conversation",
+    "pending_learning": null
+  }
+}

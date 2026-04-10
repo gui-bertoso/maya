@@ -3,48 +3,50 @@
   "short_term": [
     {
       "role": "user",
-      "content": "modo pensativo"
+      "content": "l l l opinion of will appeal"
     },
     {
       "role": "assistant",
-      "content": "opening the thoughtful setup now."
+      "content": "i'm still learning, Up, but i'm here with you. i remember that you like to pursue me that tell you keep yourself well as a byproduct of a study of and supplies comes easier."
     },
     {
       "role": "user",
-      "content": "show open windows please"
+      "content": "it's about up a little other the lab who's"
     },
     {
       "role": "assistant",
-      "content": "that app isn't in my launcher list yet: windows."
+      "content": "i'm still building that part out, Up, but i'm with you. i remember that you like to pursue me that tell you keep yourself well as a byproduct of a study of and supplies comes easier."
     },
     {
       "role": "user",
-      "content": "show open windows"
+      "content": "cut about this niggaz to pump they need the a than what rope"
     },
     {
       "role": "assistant",
-      "content": "all right, bringing up the window carousel."
+      "content": "i'm still learning, Up, but i'm here with you. i remember that you like to pursue me that tell you keep yourself well as a byproduct of a study of and supplies comes easier."
     },
     {
       "role": "user",
-      "content": "think mode please"
+      "content": "that's according to be pissed almontaser hickory moments"
     },
     {
       "role": "assistant",
-      "content": "i'm still learning, I, but i'm here with you."
+      "content": "i don't fully have that yet, Up, but i'm paying attention. i remember that you like to pursue me that tell you keep yourself well as a byproduct of a study of and supplies comes easier."
     },
     {
       "role": "user",
-      "content": "modo pensativo"
+      "content": "let them you know"
     },
     {
       "role": "assistant",
-      "content": "all right, switching to thoughtful mode."
+      "content": "i'm still figuring things out, Up, but i'm with you. i remember that you like to pursue me that tell you keep yourself well as a byproduct of a study of and supplies comes easier."
     }
   ],
   "long_term": {
-    "user_name": "I",
-    "preferences": [],
+    "user_name": "Up",
+    "preferences": [
+      "to pursue me that tell you keep yourself well as a byproduct of a study of and supplies comes easier"
+    ],
     "known_facts": []
   },
   "state": {
