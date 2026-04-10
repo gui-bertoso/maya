@@ -6,3 +6,4 @@ tests
 generated_projects/*
 models/piper/
 models/
+models/piper/en_US-lessac-high.onnx
