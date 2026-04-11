@@ -24,6 +24,7 @@ from PySide6.QtWidgets import (
 
 from helpers.config import get_env, get_env_defaults, get_env_fields, get_env_values
 from helpers.dev_workspace import DevWorkspaceOrchestrator
+from helpers.i18n import is_portuguese, localize_env_field, ui_text
 from helpers.thoughtful_workspace import ThoughtfulWorkspaceOrchestrator
 from helpers.window_showcase import WindowShowcaseBackend
 
@@ -456,7 +457,7 @@ class QuickInputWidget(QWidget):
         layout.setContentsMargins(18, 14, 18, 14)
 
         self.entry = QLineEdit()
-        self.entry.setPlaceholderText("Talk to Maya...")
+        self.entry.setPlaceholderText(self.renderer.tr("quick_input_placeholder"))
         self.entry.returnPressed.connect(self.submit_text)
         self.entry.textEdited.connect(lambda _text: self.renderer.handle_quick_input_keypress())
         self.entry.installEventFilter(self)
@@ -486,6 +487,9 @@ class QuickInputWidget(QWidget):
             """
         )
         self.hide()
+
+    def retranslate_ui(self):
+        self.entry.setPlaceholderText(self.renderer.tr("quick_input_placeholder"))
 
     def eventFilter(self, _obj, event):
         if event.type() == event.Type.KeyPress and event.key() == Qt.Key_Escape:
@@ -521,13 +525,13 @@ class DevEditorWidget(QWidget):
         toolbar = QHBoxLayout()
         toolbar.setSpacing(10)
 
-        self.path_label = QLabel("maya dev editor")
+        self.path_label = QLabel(self.renderer.tr("dev_editor_title"))
         self.path_label.setStyleSheet("color: #d6dfeb; font-size: 13px; font-weight: 600;")
 
-        self.new_button = QPushButton("New")
-        self.open_button = QPushButton("Open")
-        self.save_button = QPushButton("Save")
-        self.save_as_button = QPushButton("Save As")
+        self.new_button = QPushButton(self.renderer.tr("dev_editor_new"))
+        self.open_button = QPushButton(self.renderer.tr("dev_editor_open"))
+        self.save_button = QPushButton(self.renderer.tr("dev_editor_save"))
+        self.save_as_button = QPushButton(self.renderer.tr("dev_editor_save_as"))
 
         for button in (self.new_button, self.open_button, self.save_button, self.save_as_button):
             button.setCursor(Qt.PointingHandCursor)
@@ -552,7 +556,7 @@ class DevEditorWidget(QWidget):
         toolbar.addWidget(self.save_as_button)
 
         self.editor = QPlainTextEdit()
-        self.editor.setPlaceholderText("// maya dev editor\n")
+        self.editor.setPlaceholderText(self.renderer.tr("dev_editor_placeholder"))
         self.editor.setTabStopDistance(32)
         editor_font = QFont("JetBrains Mono")
         editor_font.setStyleHint(QFont.Monospace)
@@ -569,7 +573,7 @@ class DevEditorWidget(QWidget):
             "}"
         )
 
-        self.status_label = QLabel("Ready.")
+        self.status_label = QLabel(self.renderer.tr("dev_editor_ready"))
         self.status_label.setStyleSheet("color: #97abc4; font-size: 12px;")
 
         root_layout.addLayout(toolbar)
@@ -585,10 +589,20 @@ class DevEditorWidget(QWidget):
 
         self._load_default_template()
 
+    def retranslate_ui(self):
+        self.new_button.setText(self.renderer.tr("dev_editor_new"))
+        self.open_button.setText(self.renderer.tr("dev_editor_open"))
+        self.save_button.setText(self.renderer.tr("dev_editor_save"))
+        self.save_as_button.setText(self.renderer.tr("dev_editor_save_as"))
+        self.editor.setPlaceholderText(self.renderer.tr("dev_editor_placeholder"))
+        if not self.current_file_path:
+            self.path_label.setText(self.renderer.tr("dev_editor_title"))
+        self._update_title()
+
     def _load_default_template(self):
         self.editor.setPlainText(
             "def main():\n"
-            "    print('maya dev mode is ready')\n"
+            f"    print('{self.renderer.tr('dev_editor_template_message')}')\n"
             "\n"
             "\n"
             "if __name__ == '__main__':\n"
@@ -596,12 +610,12 @@ class DevEditorWidget(QWidget):
         )
         self.current_file_path = None
         self._update_title()
-        self.status_label.setText("New scratch file.")
+        self.status_label.setText(self.renderer.tr("dev_editor_default_status"))
         self.editor.document().setModified(False)
 
     def _update_title(self):
-        label = self.current_file_path or "maya dev editor"
-        self.setWindowTitle(f"{self.renderer.window_caption} dev editor")
+        label = self.current_file_path or self.renderer.tr("dev_editor_title")
+        self.setWindowTitle(self.renderer.tr("dev_editor_window_title", caption=self.renderer.window_caption))
         self.path_label.setText(label)
 
     def new_file(self):
@@ -611,7 +625,7 @@ class DevEditorWidget(QWidget):
         start_dir = os.getcwd()
         file_path, _selected_filter = QFileDialog.getOpenFileName(
             self,
-            "Open file in Maya editor",
+            self.renderer.tr("dev_editor_open_dialog_title"),
             start_dir,
             "Code files (*.py *.js *.ts *.tsx *.jsx *.json *.md *.html *.css *.sh *.txt);;All files (*)",
         )
@@ -622,10 +636,10 @@ class DevEditorWidget(QWidget):
                 self.editor.setPlainText(file.read())
             self.current_file_path = file_path
             self._update_title()
-            self.status_label.setText(f"Opened {os.path.basename(file_path)}.")
+            self.status_label.setText(self.renderer.tr("dev_editor_opened", name=os.path.basename(file_path)))
             self.editor.document().setModified(False)
         except Exception as error:
-            self.status_label.setText(f"Could not open file: {error}")
+            self.status_label.setText(self.renderer.tr("dev_editor_open_failed", error=error))
 
     def save_file(self):
         if not self.current_file_path:
@@ -634,18 +648,18 @@ class DevEditorWidget(QWidget):
             with open(self.current_file_path, "w", encoding="utf-8") as file:
                 file.write(self.editor.toPlainText())
             self._update_title()
-            self.status_label.setText(f"Saved {os.path.basename(self.current_file_path)}.")
+            self.status_label.setText(self.renderer.tr("dev_editor_saved", name=os.path.basename(self.current_file_path)))
             self.editor.document().setModified(False)
             return True
         except Exception as error:
-            self.status_label.setText(f"Could not save file: {error}")
+            self.status_label.setText(self.renderer.tr("dev_editor_save_failed", error=error))
             return False
 
     def save_file_as(self):
         start_dir = os.getcwd()
         file_path, _selected_filter = QFileDialog.getSaveFileName(
             self,
-            "Save file from Maya editor",
+            self.renderer.tr("dev_editor_save_dialog_title"),
             start_dir,
             "Code files (*.py *.js *.ts *.tsx *.jsx *.json *.md *.html *.css *.sh *.txt);;All files (*)",
         )
@@ -661,23 +675,23 @@ class SettingsWindow(QWidget):
         self.renderer = renderer
         self.inputs = {}
 
-        self.setWindowTitle("Maya User Settings")
+        self.setWindowTitle(self.renderer.tr("settings_window_title"))
         self.resize(680, 760)
 
         root_layout = QVBoxLayout(self)
         root_layout.setContentsMargins(20, 20, 20, 20)
         root_layout.setSpacing(14)
 
-        title = QLabel("Maya User Settings")
-        title.setObjectName("settingsTitle")
-        subtitle = QLabel("Edit `.env` values here and apply changes immediately.")
-        subtitle.setObjectName("settingsSubtitle")
-        subtitle.setWordWrap(True)
-        root_layout.addWidget(title)
-        root_layout.addWidget(subtitle)
+        self.title_label = QLabel(self.renderer.tr("settings_title"))
+        self.title_label.setObjectName("settingsTitle")
+        self.subtitle_label = QLabel(self.renderer.tr("settings_subtitle"))
+        self.subtitle_label.setObjectName("settingsSubtitle")
+        self.subtitle_label.setWordWrap(True)
+        root_layout.addWidget(self.title_label)
+        root_layout.addWidget(self.subtitle_label)
 
         self.filter_input = QLineEdit()
-        self.filter_input.setPlaceholderText("Filter settings by name, category, or help text")
+        self.filter_input.setPlaceholderText(self.renderer.tr("settings_filter_placeholder"))
         self.filter_input.setObjectName("settingsInput")
         self.filter_input.textChanged.connect(self.apply_filter)
         root_layout.addWidget(self.filter_input)
@@ -697,14 +711,15 @@ class SettingsWindow(QWidget):
         current_form = None
         current_section = None
         for field in get_env_fields():
-            if field.category != current_category:
+            localized = localize_env_field(field, self.renderer.language)
+            if localized["category"] != current_category:
                 section = QFrame()
                 section.setObjectName("settingsSection")
                 section_layout = QVBoxLayout(section)
                 section_layout.setContentsMargins(18, 18, 18, 18)
                 section_layout.setSpacing(10)
 
-                section_title = QLabel(field.category)
+                section_title = QLabel(localized["category"])
                 section_title.setObjectName("settingsSectionTitle")
                 section_layout.addWidget(section_title)
 
@@ -718,15 +733,16 @@ class SettingsWindow(QWidget):
                 self.sections.append(
                     {
                         "widget": section,
-                        "category": field.category,
+                        "category": localized["category"],
+                        "title": section_title,
                     }
                 )
-                current_category = field.category
+                current_category = localized["category"]
                 current_section = section
 
-            label = QLabel(field.label or field.key.replace("_", " ").title())
+            label = QLabel(localized["label"])
             label.setObjectName("settingsLabel")
-            label.setToolTip(field.help_text)
+            label.setToolTip(localized["help_text"])
 
             if field.options:
                 control = QComboBox()
@@ -737,14 +753,14 @@ class SettingsWindow(QWidget):
                 control.setPlaceholderText(field.default)
 
             control.setObjectName("settingsInput")
-            control.setToolTip(field.help_text)
+            control.setToolTip(localized["help_text"])
             self.inputs[field.key] = control
 
             field_layout = QVBoxLayout()
             field_layout.setSpacing(4)
             field_layout.addWidget(control)
-            if field.help_text:
-                help_label = QLabel(field.help_text)
+            if localized["help_text"]:
+                help_label = QLabel(localized["help_text"])
                 help_label.setObjectName("settingsHelp")
                 help_label.setWordWrap(True)
                 field_layout.addWidget(help_label)
@@ -760,6 +776,7 @@ class SettingsWindow(QWidget):
                     "layout": field_layout,
                     "help_label": help_label,
                     "section": current_section,
+                    "section_entry": self.sections[-1],
                 }
             )
 
@@ -773,20 +790,20 @@ class SettingsWindow(QWidget):
         self.status_label.setObjectName("settingsStatus")
         actions.addWidget(self.status_label, 1)
 
-        refresh_button = QPushButton("Reload")
-        refresh_button.clicked.connect(self.load_values)
-        defaults_button = QPushButton("Reset Defaults")
-        defaults_button.clicked.connect(self.load_defaults)
-        apply_button = QPushButton("Apply")
-        apply_button.setObjectName("primaryButton")
-        apply_button.clicked.connect(self.apply_changes)
-        close_button = QPushButton("Close")
-        close_button.clicked.connect(self.hide)
+        self.refresh_button = QPushButton(self.renderer.tr("settings_reload"))
+        self.refresh_button.clicked.connect(self.load_values)
+        self.defaults_button = QPushButton(self.renderer.tr("settings_defaults"))
+        self.defaults_button.clicked.connect(self.load_defaults)
+        self.apply_button = QPushButton(self.renderer.tr("settings_apply"))
+        self.apply_button.setObjectName("primaryButton")
+        self.apply_button.clicked.connect(self.apply_changes)
+        self.close_button = QPushButton(self.renderer.tr("settings_close"))
+        self.close_button.clicked.connect(self.hide)
 
-        actions.addWidget(refresh_button)
-        actions.addWidget(defaults_button)
-        actions.addWidget(apply_button)
-        actions.addWidget(close_button)
+        actions.addWidget(self.refresh_button)
+        actions.addWidget(self.defaults_button)
+        actions.addWidget(self.apply_button)
+        actions.addWidget(self.close_button)
         root_layout.addLayout(actions)
 
         self.setStyleSheet(
@@ -854,6 +871,27 @@ class SettingsWindow(QWidget):
 
         self.hide()
 
+    def retranslate_ui(self):
+        self.setWindowTitle(self.renderer.tr("settings_window_title"))
+        self.title_label.setText(self.renderer.tr("settings_title"))
+        self.subtitle_label.setText(self.renderer.tr("settings_subtitle"))
+        self.filter_input.setPlaceholderText(self.renderer.tr("settings_filter_placeholder"))
+        self.refresh_button.setText(self.renderer.tr("settings_reload"))
+        self.defaults_button.setText(self.renderer.tr("settings_defaults"))
+        self.apply_button.setText(self.renderer.tr("settings_apply"))
+        self.close_button.setText(self.renderer.tr("settings_close"))
+        for section in self.sections:
+            section["title"].setText(section["category"])
+        for row in self.field_rows:
+            localized = localize_env_field(row["field"], self.renderer.language)
+            row["label"].setText(localized["label"])
+            row["label"].setToolTip(localized["help_text"])
+            row["control"].setToolTip(localized["help_text"])
+            if row["help_label"] is not None:
+                row["help_label"].setText(localized["help_text"])
+            row["section_entry"]["category"] = localized["category"]
+            row["section_entry"]["title"].setText(localized["category"])
+
     def _set_control_value(self, control, value):
         text = "" if value is None else str(value)
         if isinstance(control, QComboBox):
@@ -881,7 +919,7 @@ class SettingsWindow(QWidget):
         values = get_env_defaults()
         for key, control in self.inputs.items():
             self._set_control_value(control, values.get(key, ""))
-        self.status_label.setText("Loaded default values into the form.")
+        self.status_label.setText(self.renderer.tr("settings_loaded_defaults"))
         self.apply_filter(self.filter_input.text())
 
     def apply_filter(self, text):
@@ -893,9 +931,9 @@ class SettingsWindow(QWidget):
             haystack = " ".join(
                 [
                     field.key,
-                    field.category,
-                    field.label or "",
-                    field.help_text or "",
+                    localize_env_field(field, self.renderer.language)["category"],
+                    localize_env_field(field, self.renderer.language)["label"],
+                    localize_env_field(field, self.renderer.language)["help_text"],
                 ]
             ).lower()
             visible = not normalized or normalized in haystack
@@ -935,7 +973,8 @@ class Renderer:
         self.submit_input_callback = submit_input_callback
         self.periodic_callback = periodic_callback
         self.keep_awake_callback = keep_awake_callback
-        self.apply_settings_callback = settings_apply_callback or (lambda _values: (False, "Settings apply callback not configured."))
+        self.language = get_env("LANGUAGE", "en")
+        self.apply_settings_callback = settings_apply_callback or (lambda _values: (False, self.tr("settings_apply_callback_missing")))
         self.settings_values_callback = settings_values_callback or get_env_values
 
         self.window_size_x = get_env("WINDOW_WIDTH", 260, int)
@@ -943,10 +982,10 @@ class Renderer:
         self.base_window_size_x = self.window_size_x
         self.base_window_size_y = self.window_size_y
         self.window_caption = get_env("WINDOW_CAPTION", "maya")
-        self.overlay_window_title = f"{self.window_caption} overlay"
-        self.showcase_window_title = f"{self.window_caption} showcase"
-        self.quick_input_window_title = f"{self.window_caption} quick input"
-        self.settings_window_title = f"{self.window_caption} settings"
+        self.overlay_window_title = self.tr("overlay_window_title", caption=self.window_caption)
+        self.showcase_window_title = self.tr("showcase_window_title", caption=self.window_caption)
+        self.quick_input_window_title = self.tr("quick_input_window_title", caption=self.window_caption)
+        self.settings_window_title = self.tr("settings_window_caption", caption=self.window_caption)
         self.window_margin = get_env("WINDOW_MARGIN", 32, int)
         self.quick_input_width = get_env("QUICK_INPUT_WIDTH", 420, int)
         self.quick_input_height = get_env("QUICK_INPUT_HEIGHT", 92, int)
@@ -1028,6 +1067,50 @@ class Renderer:
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.update)
+
+    def tr(self, key, **kwargs):
+        english = {
+            "quick_input_placeholder": "Talk to Maya...",
+            "dev_editor_title": "maya dev editor",
+            "dev_editor_window_title": "{caption} dev editor",
+            "dev_editor_new": "New",
+            "dev_editor_open": "Open",
+            "dev_editor_save": "Save",
+            "dev_editor_save_as": "Save As",
+            "dev_editor_placeholder": "// maya dev editor\n",
+            "dev_editor_ready": "Ready.",
+            "dev_editor_default_status": "New scratch file.",
+            "dev_editor_open_dialog_title": "Open file in Maya editor",
+            "dev_editor_save_dialog_title": "Save file from Maya editor",
+            "dev_editor_opened": "Opened {name}.",
+            "dev_editor_open_failed": "Could not open file: {error}",
+            "dev_editor_saved": "Saved {name}.",
+            "dev_editor_save_failed": "Could not save file: {error}",
+            "dev_editor_template_message": "maya dev mode is ready",
+            "settings_window_title": "Maya User Settings",
+            "settings_title": "Maya User Settings",
+            "settings_subtitle": "Edit `.env` values here and apply changes immediately.",
+            "settings_filter_placeholder": "Filter settings by name, category, or help text",
+            "settings_reload": "Reload",
+            "settings_defaults": "Reset Defaults",
+            "settings_apply": "Apply",
+            "settings_close": "Close",
+            "settings_loaded_defaults": "Loaded default values into the form.",
+            "settings_apply_callback_missing": "Settings apply callback not configured.",
+            "showcase_title": "window disco",
+            "showcase_empty": "No open windows available for the showcase.",
+            "showcase_focus_failed": "I could not focus that window.",
+            "showcase_active": "ACTIVE",
+            "showcase_status": "left/right or mouse wheel to rotate. enter to focus. esc to close.",
+            "overlay_window_title": "{caption} overlay",
+            "showcase_window_title": "{caption} showcase",
+            "quick_input_window_title": "{caption} quick input",
+            "settings_window_caption": "{caption} settings",
+        }
+        if is_portuguese(self.language):
+            return ui_text(key, self.language, **kwargs)
+        template = english.get(key, key)
+        return template.format(**kwargs) if kwargs else template
 
     def _get_screens(self):
         screens = []
@@ -1534,7 +1617,7 @@ class Renderer:
             self.hide_window_showcase(restore_windows=False)
             self.send_to_background()
         else:
-            self.showcase_message = message or "i could not focus that window."
+            self.showcase_message = message or self.tr("showcase_focus_failed")
 
     def paint_window_showcase(self, painter, rect):
         pulse_boost = 1.0 + (self.showcase_scale_pulse * 0.18)
@@ -1575,7 +1658,7 @@ class Renderer:
             painter.drawText(
                 QRectF(track_center_x - 220, track_center_y - 64, 440, 128),
                 Qt.AlignCenter | Qt.TextWordWrap,
-                self.showcase_message or "No open windows available for the showcase.",
+                self.showcase_message or self.tr("showcase_empty"),
             )
             return
 
@@ -1691,7 +1774,7 @@ class Renderer:
             painter.setPen(QColor(176, 210, 225, int(220 * alpha)))
             subtitle = entry.app_name
             if entry.is_active:
-                subtitle = f"{subtitle}  ACTIVE"
+                subtitle = f"{subtitle}  {self.tr('showcase_active')}"
             painter.drawText(
                 QRectF(
                     preview_rect.x() + 12,
@@ -1711,14 +1794,14 @@ class Renderer:
         painter.drawText(
             QRectF(track_center_x - 120, track_center_y - radius_y - card_height * 0.95, 240, 28),
             Qt.AlignCenter | Qt.AlignVCenter,
-            "window disco",
+            self.tr("showcase_title"),
         )
 
         subtitle_font = QFont()
         subtitle_font.setPointSize(10)
         painter.setFont(subtitle_font)
         painter.setPen(QColor(190, 221, 235, 210))
-        status_line = "left/right or mouse wheel to rotate. enter to focus. esc to close."
+        status_line = self.tr("showcase_status")
         if self.showcase_message:
             status_line = self.showcase_message
         painter.drawText(
@@ -1795,15 +1878,16 @@ class Renderer:
         self.settings_window.activateWindow()
 
     def apply_runtime_settings(self):
+        self.language = get_env("LANGUAGE", "en")
         self.window_size_x = get_env("WINDOW_WIDTH", 260, int)
         self.window_size_y = get_env("WINDOW_HEIGHT", 260, int)
         self.base_window_size_x = self.window_size_x
         self.base_window_size_y = self.window_size_y
         self.window_caption = get_env("WINDOW_CAPTION", "maya")
-        self.overlay_window_title = f"{self.window_caption} overlay"
-        self.showcase_window_title = f"{self.window_caption} showcase"
-        self.quick_input_window_title = f"{self.window_caption} quick input"
-        self.settings_window_title = f"{self.window_caption} settings"
+        self.overlay_window_title = self.tr("overlay_window_title", caption=self.window_caption)
+        self.showcase_window_title = self.tr("showcase_window_title", caption=self.window_caption)
+        self.quick_input_window_title = self.tr("quick_input_window_title", caption=self.window_caption)
+        self.settings_window_title = self.tr("settings_window_caption", caption=self.window_caption)
         self.window_margin = get_env("WINDOW_MARGIN", 32, int)
         self.quick_input_width = get_env("QUICK_INPUT_WIDTH", 420, int)
         self.quick_input_height = get_env("QUICK_INPUT_HEIGHT", 92, int)
@@ -1817,6 +1901,9 @@ class Renderer:
         self.quick_input_window.setWindowTitle(self.quick_input_window_title)
         self.settings_window.setWindowTitle(self.settings_window_title)
         self.window_catalog.update_own_caption(self.window_caption)
+        self.quick_input_window.retranslate_ui()
+        self.dev_editor_window.retranslate_ui()
+        self.settings_window.retranslate_ui()
         self.root._update_mask()
         self.ring.default_radius = get_env("UI_RING_RADIUS", 72, int)
         self.ring.default_thickness = get_env("UI_RING_THICKNESS", 18, int)
