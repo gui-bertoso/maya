@@ -38,6 +38,8 @@ class Speaker:
         self.is_speaking = False
         self.active_process = None
         self._piper_voice = None
+        self._piper_disabled = False
+        self._piper_error = None
 
         self.thread = threading.Thread(target=self._run, daemon=True)
         self.thread.start()
@@ -48,6 +50,8 @@ class Speaker:
 
     @property
     def use_piper(self):
+        if self._piper_disabled:
+            return False
         if self.engine_preference == "system":
             return False
         if self.engine_preference == "piper":
@@ -89,13 +93,19 @@ class Speaker:
         if model_path is None:
             return None
         if self._piper_voice is None:
-            self._piper_voice = PiperVoice.load(model_path)
+            try:
+                self._piper_voice = PiperVoice.load(model_path)
+            except Exception as error:
+                self._piper_disabled = True
+                self._piper_error = error
+                print(f"piper disabled, falling back to system tts: {error!r}")
+                return None
         return self._piper_voice
 
     def _speak_with_piper(self, text):
         voice = self._get_piper_voice()
         if voice is None:
-            raise RuntimeError("piper voice unavailable")
+            return False
 
         audio_arrays = []
         sample_rate = None
@@ -112,6 +122,7 @@ class Speaker:
         audio = audio * max(0.0, min(self.volume, 1.0))
         sd.play(audio, sample_rate)
         sd.wait()
+        return True
 
     def _select_linux_voice(self):
         normalized = self.language.replace("_", "-")
@@ -228,8 +239,12 @@ class Speaker:
                 self.is_speaking = True
 
                 try:
+                    spoke_with_piper = False
                     if self.use_piper:
-                        self._speak_with_piper(text)
+                        spoke_with_piper = self._speak_with_piper(text)
+
+                    if spoke_with_piper:
+                        pass
                     elif self.use_linux_espeak and self.use_system_tts:
                         self._speak_with_linux_espeak(text)
                     else:

@@ -67,14 +67,21 @@ class Process:
     def _build_memory_hint(self, preferences, known_facts):
         preference = self._first_or_none(preferences)
         fact = self._first_or_none(known_facts)
+        is_pt = str(self.LANGUAGE).lower().startswith("pt")
 
         if preference and fact:
+            if is_pt:
+                return f" eu lembro que voce gosta de {preference} e que {fact}."
             return f" i remember that you like {preference}, and that {fact}."
 
         if preference:
+            if is_pt:
+                return f" eu lembro que voce gosta de {preference}."
             return f" i remember that you like {preference}."
 
         if fact:
+            if is_pt:
+                return f" eu lembro que {fact}."
             return f" i remember that {fact}."
 
         return ""

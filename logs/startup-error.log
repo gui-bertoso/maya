@@ -1,26 +1,28 @@
 
-[2026-04-10T17:51:04.049065] Unhandled exception
+[2026-04-11T00:56:11.154627] Unhandled exception
 Traceback (most recent call last):
-  File "/home/patolizo/Documents/GitHub/maya/output/renderer.py", line 361, in paintEvent
-    self.renderer.ring.draw(painter)
-    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
-  File "/home/patolizo/Documents/GitHub/maya/output/renderer.py", line 318, in draw
-    self._build_ring_path(
-    ~~~~~~~~~~~~~~~~~~~~~^
-        self._wave_radius(-11, 0.78) * presence_scale,
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    ...<2 lines>...
-        1.2,
-        ^^^^
-    )
-    ^
-  File "/home/patolizo/Documents/GitHub/maya/output/renderer.py", line 246, in _build_ring_path
-    wave_b = math.sin((angle * 5.0) - (self.time * 1.6) + (offset * 0.7))
+  File "/home/patolizo/Documents/GitHub/maya/output/renderer.py", line 2057, in update
+    def update(self):
+    
 KeyboardInterrupt
 
-[2026-04-10T17:54:42.609696] Unhandled exception
+[2026-04-11T00:58:44.342343] Unhandled exception
 Traceback (most recent call last):
-  File "/home/patolizo/Documents/GitHub/maya/output/renderer.py", line 1970, in update
+  File "/home/patolizo/Documents/GitHub/maya/output/renderer.py", line 2057, in update
+    def update(self):
+    
+KeyboardInterrupt
+
+[2026-04-11T01:02:54.532204] Unhandled exception
+Traceback (most recent call last):
+  File "/home/patolizo/Documents/GitHub/maya/output/renderer.py", line 2057, in update
+    def update(self):
+    
+KeyboardInterrupt
+
+[2026-04-11T01:08:20.480997] Unhandled exception
+Traceback (most recent call last):
+  File "/home/patolizo/Documents/GitHub/maya/output/renderer.py", line 2057, in update
     def update(self):
     
 KeyboardInterrupt
