@@ -189,7 +189,6 @@ class App:
             rate=get_env("TTS_RATE", default_rate, int),
             volume=get_env("TTS_VOLUME", 1.0, float),
             voice_id=get_env("TTS_VOICE_ID"),
-            preferred_gender=get_env("TTS_VOICE_GENDER", "female"),
             language=self.LANGUAGE,
             muted=self.speech_muted,
             engine_preference=get_env("TTS_ENGINE", "auto"),

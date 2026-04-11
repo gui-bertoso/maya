@@ -3,56 +3,53 @@
   "short_term": [
     {
       "role": "user",
-      "content": "oi"
+      "content": "abre spotify in firefox"
     },
     {
       "role": "assistant",
-      "content": "oi de novo, Up. eu lembro que voce gosta de to pursue me that tell you keep yourself well as a byproduct of a study of and supplies comes easier."
+      "content": "certo, abrindo spotify."
     },
     {
       "role": "user",
-      "content": "kill yourself please"
+      "content": "mute"
     },
     {
       "role": "assistant",
-      "content": "ok, vou encerrar agora."
+      "content": "ainda estou construindo essa parte, Gui, mas sigo com voce."
     },
     {
       "role": "user",
-      "content": "configurações"
+      "content": "volume 0"
     },
     {
       "role": "assistant",
-      "content": "ainda estou entendendo melhor isso, Up, mas estou com voce. eu lembro que voce gosta de to pursue me that tell you keep yourself well as a byproduct of a study of and supplies comes easier."
+      "content": "ainda estou entendendo melhor isso, Gui, mas estou com voce."
     },
     {
       "role": "user",
-      "content": "opa"
+      "content": "play eminem"
     },
     {
       "role": "assistant",
-      "content": "ainda nao tenho isso totalmente, Up, mas estou prestando atencao. eu lembro que voce gosta de to pursue me that tell you keep yourself well as a byproduct of a study of and supplies comes easier."
+      "content": "abrindo Spotify para eminem."
     },
     {
       "role": "user",
-      "content": "kill yourself"
+      "content": "abre pycharm"
     },
     {
       "role": "assistant",
-      "content": "beleza, vou desligar a mim mesma."
+      "content": "abrindo PyCharm."
     }
   ],
   "long_term": {
-    "user_name": "Up",
-    "preferences": [
-      "to pursue me that tell you keep yourself well as a byproduct of a study of and supplies comes easier",
-      "it music milan italy france but fight"
-    ],
+    "user_name": "Gui",
+    "preferences": [],
     "known_facts": []
   },
   "state": {
     "mood": "friendly",
-    "last_topic": "conversation",
+    "last_topic": "apps",
     "pending_learning": null
   }
 }

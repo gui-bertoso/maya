@@ -140,6 +140,16 @@ class MayaRing:
         self.motion_speed = 0.0
         self.render_scale = 1.0
         self.render_alpha = 1.0
+        self.palette = {
+            "idle": QColor("#d8dee6"),
+            "ready": QColor("#62ff8f"),
+            "hearing": QColor("#ffd75e"),
+            "speaking": QColor("#9ed0ff"),
+            "error": QColor("#ff6b6b"),
+            "wake": QColor("#62ff8f"),
+            "fallback": QColor("#dcdcdc"),
+            "core": QColor("#ffffff"),
+        }
 
     def resize(self, width, height):
         self.width = width
@@ -170,39 +180,47 @@ class MayaRing:
 
         if state == "idle":
             self.target_energy = 1.8
-            self.state_color = QColor("#d8dee6")
-            self.core_color = QColor("#ffffff")
+            self.state_color = QColor(self.palette["idle"])
+            self.core_color = QColor(self.palette["core"])
             self.background_fill = QColor(0, 0, 0, 0)
         elif state == "ready":
             self.target_energy = 4.0
-            self.state_color = QColor("#62ff8f")
-            self.core_color = QColor("#ffffff")
+            self.state_color = QColor(self.palette["ready"])
+            self.core_color = QColor(self.palette["core"])
             self.background_fill = QColor(0, 0, 0, 0)
         elif state == "hearing":
             self.target_energy = 14.0
-            self.state_color = QColor("#ffd75e")
-            self.core_color = QColor("#ffffff")
+            self.state_color = QColor(self.palette["hearing"])
+            self.core_color = QColor(self.palette["core"])
             self.background_fill = QColor(0, 0, 0, 0)
         elif state == "speaking":
             self.target_energy = 9.0
-            self.state_color = QColor("#9ed0ff")
-            self.core_color = QColor("#ffffff")
+            self.state_color = QColor(self.palette["speaking"])
+            self.core_color = QColor(self.palette["core"])
             self.background_fill = QColor(0, 0, 0, 0)
         elif state == "error":
             self.target_energy = 8.0
-            self.state_color = QColor("#ff6b6b")
-            self.core_color = QColor("#ffffff")
+            self.state_color = QColor(self.palette["error"])
+            self.core_color = QColor(self.palette["core"])
             self.background_fill = QColor(0, 0, 0, 0)
         elif state == "wake":
             self.target_energy = 22.0
-            self.state_color = QColor("#62ff8f")
-            self.core_color = QColor("#ffffff")
+            self.state_color = QColor(self.palette["wake"])
+            self.core_color = QColor(self.palette["core"])
             self.background_fill = QColor(0, 0, 0, 0)
         else:
             self.target_energy = 3.0
-            self.state_color = QColor("#dcdcdc")
-            self.core_color = QColor("#ffffff")
+            self.state_color = QColor(self.palette["fallback"])
+            self.core_color = QColor(self.palette["core"])
             self.background_fill = QColor(0, 0, 0, 0)
+
+    def set_palette(self, palette):
+        if not palette:
+            return
+        for key, color in palette.items():
+            if isinstance(color, QColor) and color.isValid():
+                self.palette[key] = QColor(color)
+        self.set_state(self.state, duration=max(0.0, self.state_timer))
 
     def update(self, dt):
         self.time += dt
@@ -981,7 +999,7 @@ class Renderer:
         self.window_size_y = get_env("WINDOW_HEIGHT", 260, int)
         self.base_window_size_x = self.window_size_x
         self.base_window_size_y = self.window_size_y
-        self.window_caption = get_env("WINDOW_CAPTION", "maya")
+        self.window_caption = "maya"
         self.overlay_window_title = self.tr("overlay_window_title", caption=self.window_caption)
         self.showcase_window_title = self.tr("showcase_window_title", caption=self.window_caption)
         self.quick_input_window_title = self.tr("quick_input_window_title", caption=self.window_caption)
@@ -1045,6 +1063,7 @@ class Renderer:
             radius=get_env("UI_RING_RADIUS", 72, int),
             thickness=get_env("UI_RING_THICKNESS", 18, int),
         )
+        self._apply_ring_palette_from_settings()
         self.ring.set_state("idle")
 
         self.root = OverlayWidget(self)
@@ -1111,6 +1130,28 @@ class Renderer:
             return ui_text(key, self.language, **kwargs)
         template = english.get(key, key)
         return template.format(**kwargs) if kwargs else template
+
+    @staticmethod
+    def _color_from_env(key, fallback):
+        value = str(get_env(key, fallback) or "").strip()
+        color = QColor(value)
+        if color.isValid():
+            return color
+        return QColor(fallback)
+
+    def _apply_ring_palette_from_settings(self):
+        ready_color = self._color_from_env("UI_COLOR_READY", "#62ff8f")
+        palette = {
+            "idle": self._color_from_env("UI_COLOR_IDLE", "#d8dee6"),
+            "ready": ready_color,
+            "hearing": self._color_from_env("UI_COLOR_HEARING", "#ffd75e"),
+            "speaking": self._color_from_env("UI_COLOR_SPEAKING", "#9ed0ff"),
+            "error": self._color_from_env("UI_COLOR_ERROR", "#ff6b6b"),
+            "wake": ready_color,
+            "fallback": self._color_from_env("UI_COLOR_IDLE", "#dcdcdc"),
+            "core": self._color_from_env("UI_COLOR_CORE", "#ffffff"),
+        }
+        self.ring.set_palette(palette)
 
     def _get_screens(self):
         screens = []
@@ -1883,7 +1924,7 @@ class Renderer:
         self.window_size_y = get_env("WINDOW_HEIGHT", 260, int)
         self.base_window_size_x = self.window_size_x
         self.base_window_size_y = self.window_size_y
-        self.window_caption = get_env("WINDOW_CAPTION", "maya")
+        self.window_caption = "maya"
         self.overlay_window_title = self.tr("overlay_window_title", caption=self.window_caption)
         self.showcase_window_title = self.tr("showcase_window_title", caption=self.window_caption)
         self.quick_input_window_title = self.tr("quick_input_window_title", caption=self.window_caption)
@@ -1907,6 +1948,7 @@ class Renderer:
         self.root._update_mask()
         self.ring.default_radius = get_env("UI_RING_RADIUS", 72, int)
         self.ring.default_thickness = get_env("UI_RING_THICKNESS", 18, int)
+        self._apply_ring_palette_from_settings()
         self.ring.set_scale(self.scale_factor)
         self.set_scale("set", self.initial_scale)
         x, y = self._compute_window_location(self.initial_position, self.initial_monitor - 1)

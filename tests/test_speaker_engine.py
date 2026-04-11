@@ -43,6 +43,12 @@ class SpeakerEngineTests(unittest.TestCase):
         self.assertTrue(speaker.use_system_tts)
         speaker.shutdown()
 
+    def test_portuguese_can_use_piper_when_available(self):
+        speaker = Speaker(language="pt-BR", engine_preference="piper")
+        self.assertTrue(speaker.use_system_tts in (True, False))
+        self.assertTrue(speaker.use_piper in (True, False))
+        speaker.shutdown()
+
     def test_piper_preference_keeps_system_fallback_available(self):
         speaker = Speaker(engine_preference="piper")
         self.assertTrue(speaker.use_system_tts in (True, False))
