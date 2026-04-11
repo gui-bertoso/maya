@@ -1,0 +1,222 @@
+{
+  "voice_filler_inputs": [
+    "huh",
+    "uh",
+    "um",
+    "hmm",
+    "hm",
+    "ah",
+    "eh",
+    "yeah",
+    "yes",
+    "no",
+    "okay",
+    "ok",
+    "maya"
+  ],
+  "voice_question_starters": [
+    "what",
+    "what's",
+    "whats",
+    "who",
+    "where",
+    "when",
+    "why",
+    "how",
+    "which",
+    "o",
+    "qual",
+    "quais",
+    "quem",
+    "onde",
+    "quando",
+    "como",
+    "porque",
+    "por"
+  ],
+  "fallback_prefixes": [
+    "i'm still learning",
+    "i'm still figuring things out",
+    "i'm not fully there yet",
+    "ainda estou aprendendo",
+    "ainda estou entendendo melhor isso",
+    "ainda nao estou completa nisso"
+  ],
+  "settings_commands": [
+    "open settings",
+    "open user settings",
+    "show settings",
+    "show user settings",
+    "maya open settings",
+    "maya open user settings",
+    "maya settings",
+    "user settings",
+    "settings",
+    "abrir configuracoes",
+    "abrir configuracao",
+    "abrir settings",
+    "abrir configuracoes da maya",
+    "maya abrir configuracoes"
+  ],
+  "startup_brief_accept_inputs": [
+    "yes",
+    "yeah",
+    "yep",
+    "sure",
+    "ok",
+    "okay",
+    "tell me",
+    "show me",
+    "manda",
+    "sim",
+    "claro",
+    "bora"
+  ],
+  "startup_brief_decline_inputs": [
+    "no",
+    "nope",
+    "nah",
+    "not now",
+    "later",
+    "agora nao",
+    "agora não",
+    "nao",
+    "não",
+    "depois"
+  ],
+  "action_confirm_inputs": [
+    "yes",
+    "yeah",
+    "yep",
+    "sure",
+    "ok",
+    "okay",
+    "sim",
+    "claro",
+    "bora",
+    "please do",
+    "do it",
+    "manda",
+    "vai"
+  ],
+  "action_decline_inputs": [
+    "no",
+    "nope",
+    "nah",
+    "not now",
+    "later",
+    "cancel",
+    "agora nao",
+    "agora não",
+    "nao",
+    "não",
+    "depois",
+    "deixa"
+  ],
+  "startup_greeting_options": {
+    "en": [
+      "good morning. welcome back. want a quick summary of the day?",
+      "hey, welcome back. do you want the day in a quick brief?",
+      "hi there. i'm up. want weather, time, date, and a few headlines?",
+      "welcome back. want me to give you the essentials for today?",
+      "hey. i'm here. should i give you a quick day summary?"
+    ],
+    "pt-BR": [
+      "bom dia. bem-vindo de volta. quer um resumo rapido do dia?",
+      "oi, bem-vindo de volta. quer um panorama rapido do dia?",
+      "oi. estou pronta. quer clima, hora, data e algumas manchetes?",
+      "que bom ter voce de volta. quer que eu te passe o essencial de hoje?",
+      "oi. estou aqui. quer que eu faca um resumo rapido do seu dia?"
+    ]
+  },
+  "startup_brief_decline_options": {
+    "en": [
+      "all right. i'll be here if you want it later.",
+      "no problem. we can do it whenever you want.",
+      "okay. i'll stay quiet for now."
+    ],
+    "pt-BR": [
+      "beleza. fico por aqui se quiser isso depois.",
+      "sem problema. a gente faz isso quando voce quiser.",
+      "ok. vou ficar quietinha por enquanto."
+    ]
+  },
+  "startup_brief_error_options": {
+    "en": [
+      "i tried to pull the day brief, but the network did not cooperate.",
+      "i couldn't fetch the daily brief right now, but i can try again later.",
+      "the daily brief did not come through just now."
+    ],
+    "pt-BR": [
+      "eu tentei montar o resumo do dia, mas a rede nao ajudou.",
+      "nao consegui buscar o resumo diario agora, mas posso tentar de novo depois.",
+      "o resumo diario nao chegou agora ha pouco."
+    ]
+  },
+  "messages": {
+    "settings_applied": {
+      "en": "Settings applied to Maya.",
+      "pt-BR": "Configuracoes aplicadas na Maya."
+    },
+    "settings_apply_failed_prefix": {
+      "en": "Could not apply settings",
+      "pt-BR": "Nao foi possivel aplicar as configuracoes"
+    },
+    "pending_confirm_default": {
+      "en": "all right.",
+      "pt-BR": "beleza."
+    },
+    "pending_decline_default": {
+      "en": "okay, we can leave it for now.",
+      "pt-BR": "ok, podemos deixar isso para depois."
+    },
+    "open_settings_response": {
+      "en": "Opening Maya user settings.",
+      "pt-BR": "Abrindo as configuracoes da Maya."
+    },
+    "daily_brief_request_response": {
+      "en": "all right, i'll give you today's headlines.",
+      "pt-BR": "certo, vou te passar o resumo de hoje."
+    },
+    "thoughtful_prompt": {
+      "en": "do you want me to enter thoughtful mode and help with that?",
+      "pt-BR": "quer que eu entre no modo reflexivo e te ajude com isso?"
+    },
+    "thoughtful_confirm": {
+      "en": "all right. entering thoughtful mode.",
+      "pt-BR": "beleza. entrando no modo reflexivo."
+    },
+    "thoughtful_decline": {
+      "en": "okay, we can keep it simple here instead.",
+      "pt-BR": "ok, podemos manter tudo simples por aqui."
+    },
+    "dev_prompt": {
+      "en": "do you want me to enter dev mode and set your workspace up?",
+      "pt-BR": "quer que eu entre no modo dev e prepare seu workspace?"
+    },
+    "dev_confirm": {
+      "en": "all right. entering dev mode.",
+      "pt-BR": "beleza. entrando no modo dev."
+    },
+    "dev_decline": {
+      "en": "okay, no dev mode for now.",
+      "pt-BR": "ok, sem modo dev por enquanto."
+    },
+    "daily_brief_date": {
+      "en": "today is {date_text}.",
+      "pt-BR": "hoje e {date_text}."
+    },
+    "daily_brief_time": {
+      "en": "the time is {time_text}.",
+      "pt-BR": "agora sao {time_text}."
+    },
+    "daily_brief_weather": {
+      "en": "right now the weather is {weather_text}.",
+      "pt-BR": "agora o clima esta {weather_text}."
+    },
+    "daily_brief_headlines": {
+      "en": "three headlines for now: {headlines}.",
+      "pt-BR": "tres manchetes por enquanto: {headlines}."
+    }
+  }
+}

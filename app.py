@@ -76,102 +76,21 @@ from input.clap_detector import ClapDetector
 from output.speaker import Speaker
 from helpers.config import get_env, reload_env, save_env_values
 from helpers.app_launcher import AppLauncher
+from helpers.app_text import load_app_text
 from helpers.dev_assistant import DevAssistant
 from helpers.global_hotkey import GlobalHotkeyListener
+from helpers.runtime_console import RuntimeConsole, should_enable_runtime_console
 from helpers.web_assistant import WebAssistant
 from helpers.spotify_assistant import SpotifyAssistant
 
 
+RUNTIME_CONSOLE = RuntimeConsole()
+RUNTIME_CONSOLE.sync(should_enable_runtime_console())
+
+
 class App:
-    VOICE_FILLER_INPUTS = {
-        "huh",
-        "uh",
-        "um",
-        "hmm",
-        "hm",
-        "ah",
-        "eh",
-        "yeah",
-        "yes",
-        "no",
-        "okay",
-        "ok",
-        "maya",
-    }
-
-    VOICE_QUESTION_STARTERS = {
-        "what",
-        "what's",
-        "whats",
-        "who",
-        "where",
-        "when",
-        "why",
-        "how",
-        "which",
-        "o",
-        "qual",
-        "quais",
-        "quem",
-        "onde",
-        "quando",
-        "como",
-        "porque",
-        "por",
-    }
-
-    FALLBACK_PREFIXES = (
-        "i'm still learning",
-        "i'm still figuring things out",
-        "i'm not fully there yet",
-    )
-    SETTINGS_COMMANDS = {
-        "open settings",
-        "open user settings",
-        "show settings",
-        "show user settings",
-        "maya open settings",
-        "maya open user settings",
-        "maya settings",
-        "user settings",
-        "settings",
-        "abrir configuracoes",
-        "abrir configuracao",
-        "abrir settings",
-        "abrir configuracoes da maya",
-        "maya abrir configuracoes",
-    }
-    STARTUP_BRIEF_ACCEPT_INPUTS = {
-        "yes", "yeah", "yep", "sure", "ok", "okay", "tell me", "show me", "manda", "sim", "claro", "bora",
-    }
-    STARTUP_BRIEF_DECLINE_INPUTS = {
-        "no", "nope", "nah", "not now", "later", "agora nao", "agora não", "nao", "não", "depois",
-    }
-    ACTION_CONFIRM_INPUTS = {
-        "yes", "yeah", "yep", "sure", "ok", "okay", "sim", "claro", "bora", "please do", "do it", "manda", "vai",
-    }
-    ACTION_DECLINE_INPUTS = {
-        "no", "nope", "nah", "not now", "later", "cancel", "agora nao", "agora não", "nao", "não", "depois", "deixa",
-    }
-    STARTUP_GREETING_OPTIONS = [
-        "good morning. welcome back. want a quick summary of the day?",
-        "hey, welcome back. do you want the day in a quick brief?",
-        "hi there. i'm up. want weather, time, date, and a few headlines?",
-        "welcome back. want me to give you the essentials for today?",
-        "hey. i'm here. should i give you a quick day summary?",
-    ]
-    STARTUP_BRIEF_DECLINE_OPTIONS = [
-        "all right. i'll be here if you want it later.",
-        "no problem. we can do it whenever you want.",
-        "okay. i'll stay quiet for now.",
-    ]
-    STARTUP_BRIEF_ERROR_OPTIONS = [
-        "i tried to pull the day brief, but the network did not cooperate.",
-        "i couldn't fetch the daily brief right now, but i can try again later.",
-        "the daily brief did not come through just now.",
-    ]
-
     def __init__(self):
+        self.app_text = load_app_text()
         vocabulary_manager.load_vocabulary()
         self.events = queue.Queue()
 
@@ -188,6 +107,7 @@ class App:
         self.hotkey_listener = GlobalHotkeyListener()
 
         self.DEBUG_MODE = get_env("DEBUG_MODE", "false").lower() == "true"
+        RUNTIME_CONSOLE.sync(self.DEBUG_MODE)
         self.UI_MODE = get_env("UI_MODE", "maya")
         self.LANGUAGE = get_env("LANGUAGE", "en")
         self.WAKE_RESPONSE_TEXT = get_env("WAKE_RESPONSE_TEXT", "yes?")
@@ -261,7 +181,7 @@ class App:
 
     def _is_settings_command(self, text):
         normalized = self._normalize_command(text)
-        return any(self.process.contains_phrase(normalized, option) for option in self.SETTINGS_COMMANDS)
+        return any(self.process.contains_phrase(normalized, option) for option in self._app_text_values("settings_commands"))
 
     def _create_speaker(self):
         default_rate = 150 if sys.platform.startswith("linux") else 180
@@ -288,10 +208,45 @@ class App:
             sample_rate=get_env("VOICE_SAMPLE_RATE", 16000, int),
         )
 
+    def _is_portuguese(self):
+        return str(self.LANGUAGE).lower().startswith("pt")
+
+    def _reload_app_text(self):
+        self.app_text = load_app_text()
+
+    def _app_text_values(self, key):
+        values = self.app_text.get(key, [])
+        return tuple(item.strip() for item in values if isinstance(item, str) and item.strip())
+
+    def _app_text_localized_values(self, key):
+        values = self.app_text.get(key, {})
+        if not isinstance(values, dict):
+            return ()
+
+        if self._is_portuguese():
+            selected = values.get("pt-BR") or values.get("pt") or values.get("en", [])
+        else:
+            selected = values.get("en") or []
+
+        return tuple(item.strip() for item in selected if isinstance(item, str) and item.strip())
+
+    def _app_message(self, key, **values):
+        messages = self.app_text.get("messages", {})
+        entry = messages.get(key, {})
+        if not isinstance(entry, dict):
+            template = ""
+        elif self._is_portuguese():
+            template = entry.get("pt-BR") or entry.get("pt") or entry.get("en", "")
+        else:
+            template = entry.get("en", "")
+        return template.format(**values) if values else template
+
     def apply_runtime_settings(self):
         reload_env()
+        self._reload_app_text()
 
         self.DEBUG_MODE = get_env("DEBUG_MODE", "false").lower() == "true"
+        RUNTIME_CONSOLE.sync(self.DEBUG_MODE)
         self.UI_MODE = get_env("UI_MODE", "maya")
         self.LANGUAGE = get_env("LANGUAGE", "en")
         self.WAKE_RESPONSE_TEXT = get_env("WAKE_RESPONSE_TEXT", "yes?")
@@ -357,9 +312,10 @@ class App:
         try:
             save_env_values(values)
             self.apply_runtime_settings()
-            return True, "Settings applied to Maya."
+            return True, self._app_message("settings_applied")
         except Exception as error:
-            return False, f"Could not apply settings: {error}"
+            prefix = self._app_message("settings_apply_failed_prefix")
+            return False, f"{prefix}: {error}"
 
     def get_wake_response_text(self):
         if self.wake_response_options:
@@ -375,7 +331,8 @@ class App:
         timer.start()
 
     def _deliver_startup_greeting(self):
-        greeting = random.choice(self.STARTUP_GREETING_OPTIONS)
+        options = self._app_text_localized_values("startup_greeting_options")
+        greeting = random.choice(options)
         self.awaiting_startup_brief_response = True
         self.maya_awake_until = time.time() + self.startup_brief_response_window
         self.send_event("response_text", greeting)
@@ -402,19 +359,19 @@ class App:
 
     def _looks_like_startup_brief_yes(self, text):
         normalized = self._normalize_command(text)
-        return any(self.process.contains_phrase(normalized, option) for option in self.STARTUP_BRIEF_ACCEPT_INPUTS)
+        return any(self.process.contains_phrase(normalized, option) for option in self._app_text_values("startup_brief_accept_inputs"))
 
     def _looks_like_startup_brief_no(self, text):
         normalized = self._normalize_command(text)
-        return any(self.process.contains_phrase(normalized, option) for option in self.STARTUP_BRIEF_DECLINE_INPUTS)
+        return any(self.process.contains_phrase(normalized, option) for option in self._app_text_values("startup_brief_decline_inputs"))
 
     def _looks_like_action_yes(self, text):
         normalized = self._normalize_command(text)
-        return any(self.process.contains_phrase(normalized, option) for option in self.ACTION_CONFIRM_INPUTS)
+        return any(self.process.contains_phrase(normalized, option) for option in self._app_text_values("action_confirm_inputs"))
 
     def _looks_like_action_no(self, text):
         normalized = self._normalize_command(text)
-        return any(self.process.contains_phrase(normalized, option) for option in self.ACTION_DECLINE_INPUTS)
+        return any(self.process.contains_phrase(normalized, option) for option in self._app_text_values("action_decline_inputs"))
 
     def _clear_pending_context_action(self):
         self.pending_context_action = None
@@ -425,15 +382,15 @@ class App:
         prompt,
         payload=None,
         timeout=18.0,
-        confirm_response="all right.",
-        decline_response="okay, we can leave it for now.",
+        confirm_response=None,
+        decline_response=None,
     ):
         self.pending_context_action = {
             "event": event_name,
             "payload": payload,
             "expires_at": time.time() + timeout,
-            "confirm_response": confirm_response,
-            "decline_response": decline_response,
+            "confirm_response": confirm_response or self._app_message("pending_confirm_default"),
+            "decline_response": decline_response or self._app_message("pending_decline_default"),
         }
         self.send_event("response_text", prompt)
         self.send_event("voice_status", "speaking")
@@ -453,7 +410,7 @@ class App:
             action = dict(self.pending_context_action)
             self._clear_pending_context_action()
             self.send_event(action["event"], action.get("payload"))
-            response = action.get("confirm_response") or "all right."
+            response = action.get("confirm_response") or self._app_message("pending_confirm_default")
             self.send_event("response_text", response)
             self.send_event("voice_status", "speaking")
             self.speaker.stop()
@@ -463,7 +420,7 @@ class App:
         if self._looks_like_action_no(text):
             action = dict(self.pending_context_action)
             self._clear_pending_context_action()
-            response = action.get("decline_response") or "okay, we can leave it for now."
+            response = action.get("decline_response") or self._app_message("pending_decline_default")
             self.send_event("response_text", response)
             self.send_event("voice_status", "speaking")
             self.speaker.stop()
@@ -542,12 +499,15 @@ class App:
         if not weather_text and not headlines:
             return None
 
-        parts = [f"today is {date_text}.", f"the time is {time_text}."]
+        parts = [
+            self._app_message("daily_brief_date", date_text=date_text),
+            self._app_message("daily_brief_time", time_text=time_text),
+        ]
         if weather_text:
-            parts.append(f"right now the weather is {weather_text}.")
+            parts.append(self._app_message("daily_brief_weather", weather_text=weather_text))
         if headlines:
             joined = "; ".join(headlines[:3])
-            parts.append(f"three headlines for now: {joined}.")
+            parts.append(self._app_message("daily_brief_headlines", headlines=joined))
 
         return " ".join(parts)
 
@@ -555,7 +515,8 @@ class App:
         def worker():
             brief = self._build_daily_brief_text()
             if not brief:
-                brief = random.choice(self.STARTUP_BRIEF_ERROR_OPTIONS)
+                options = self._app_text_localized_values("startup_brief_error_options")
+                brief = random.choice(options)
             self.send_event("response_text", brief)
             self.send_event("voice_status", "speaking")
             self.speaker.stop()
@@ -642,7 +603,7 @@ class App:
         if not normalized:
             return False
 
-        if normalized in self.VOICE_FILLER_INPUTS:
+        if normalized in self._app_text_values("voice_filler_inputs"):
             return False
 
         if not hasattr(self.process, "tokenize"):
@@ -652,7 +613,7 @@ class App:
         if not tokens:
             return False
 
-        if tokens[0] in self.VOICE_QUESTION_STARTERS:
+        if tokens[0] in self._app_text_values("voice_question_starters"):
             return True
 
         if len(tokens) == 1 and normalized not in {"hello", "hi", "hey", "thanks", "thank", "bye"}:
@@ -678,7 +639,7 @@ class App:
 
     def _should_suppress_voice_response(self, text, response):
         normalized_response = (response or "").strip().lower()
-        if not normalized_response.startswith(self.FALLBACK_PREFIXES):
+        if not normalized_response.startswith(self._app_text_values("fallback_prefixes")):
             return False
 
         if not hasattr(self.process, "tokenize"):
@@ -726,7 +687,8 @@ class App:
                 return None
             if self._looks_like_startup_brief_no(text):
                 self.awaiting_startup_brief_response = False
-                response = random.choice(self.STARTUP_BRIEF_DECLINE_OPTIONS)
+                options = self._app_text_localized_values("startup_brief_decline_options")
+                response = random.choice(options)
                 self.send_event("response_text", response)
                 self.send_event("voice_status", "speaking")
                 self.speaker.stop()
@@ -739,10 +701,10 @@ class App:
 
         if self._is_settings_command(text):
             self.send_event("app_show_settings", None)
-            return "Abrindo as configuracoes da Maya." if self.LANGUAGE.lower().startswith("pt") else "Opening Maya user settings."
+            return self._app_message("open_settings_response")
 
         if self._looks_like_daily_brief_request(text):
-            response = "certo, vou te passar o resumo de hoje." if self.LANGUAGE.lower().startswith("pt") else "all right, i'll give you today's headlines."
+            response = self._app_message("daily_brief_request_response")
             self.send_event("response_text", response)
             self.send_event("voice_status", "speaking")
             self.speaker.stop()
@@ -758,9 +720,9 @@ class App:
         ):
             return self._set_pending_context_action(
                 "app_start_thoughtful_workspace",
-                "do you want me to enter thoughtful mode and help with that?",
-                confirm_response="all right. entering thoughtful mode.",
-                decline_response="okay, we can keep it simple here instead.",
+                self._app_message("thoughtful_prompt"),
+                confirm_response=self._app_message("thoughtful_confirm"),
+                decline_response=self._app_message("thoughtful_decline"),
             )
 
         if (
@@ -770,9 +732,9 @@ class App:
         ):
             return self._set_pending_context_action(
                 "app_start_dev_workspace",
-                "do you want me to enter dev mode and set your workspace up?",
-                confirm_response="all right. entering dev mode.",
-                decline_response="okay, no dev mode for now.",
+                self._app_message("dev_prompt"),
+                confirm_response=self._app_message("dev_confirm"),
+                decline_response=self._app_message("dev_decline"),
             )
 
         response = self.process.handle_input(text)

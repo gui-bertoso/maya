@@ -67,6 +67,7 @@ def ensure_runtime_layout():
 
     for relative_path in (
         ".env",
+        "data/app_text.json",
         "data/apps.json",
         "data/learned_knowledge.json",
         "data/memory.json",
@@ -138,6 +139,7 @@ ENV_FIELDS = (
     EnvField("VOCAB_PATH", "data/vocabulary.json", str, "Files", "Vocabulary Path", "Path to the learned vocabulary JSON file."),
     EnvField("MEMORY_PATH", "data/memory.json", str, "Files", "Memory Path", "Path to Maya's persistent memory JSON file."),
     EnvField("RESPONSES_PATH", "data/responses.json", str, "Files", "Responses Path", "Path to the response template catalog."),
+    EnvField("APP_TEXT_PATH", "data/app_text.json", str, "Files", "App Text Path", "Path to the app text/config JSON file."),
     EnvField("APPS_PATH", "data/apps.json", str, "Files", "Apps Catalog Path", "Path to the allowed apps catalog JSON file."),
     EnvField("KNOWLEDGE_PATH", "data/learned_knowledge.json", str, "Files", "Knowledge Path", "Path to the learned knowledge JSON file."),
     EnvField("DEV_PROJECTS_PATH", "generated_projects", str, "Files", "Dev Projects Path", "Base folder where Maya creates generated development projects."),
