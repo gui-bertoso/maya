@@ -266,7 +266,7 @@ class Process:
             if self.app_launcher.resolve_alias(launch_target):
                 return None
 
-        if not token_set.intersection({"play", "open", "search", "find", "show", "toca", "toque", "bota", "coloca", "abre", "abrir"}):
+        if not token_set.intersection({"play", "open", "search", "find", "show", "toca", "toque", "tocar", "bota", "coloca", "reproduz", "reproduzir", "abre", "abrir"}):
             return None
 
         if "youtube music" in without_browser:
@@ -1530,10 +1530,10 @@ class Process:
         if any(t in tokens for t in ["oi", "ola", "hello", "hey", "hi"]):
             return "greeting"
 
-        if any(t in tokens for t in ["bye", "goodbye", "cya", "later"]):
+        if any(t in tokens for t in ["bye", "goodbye", "cya", "later", "tchau", "adeus", "falou"]):
             return "farewell"
 
-        if any(t in tokens for t in ["thanks", "thank"]):
+        if any(t in tokens for t in ["thanks", "thank", "obrigado", "obrigada", "valeu"]):
             return "gratitude"
 
         if "how" in tokens and "you" in tokens:
@@ -1545,34 +1545,34 @@ class Process:
         if "joke" in tokens or "piada" in tokens:
             return "joke"
 
-        if "friend" in tokens or "amigos" in tokens:
+        if "friend" in tokens or "amigos" in tokens or "amizade" in tokens:
             return "relationship"
 
-        if "happy" in tokens or "feliz" in tokens or "excited" in tokens:
+        if "happy" in tokens or "feliz" in tokens or "excited" in tokens or "animado" in tokens:
             return "positive_emotion"
 
         if "sad" in tokens or "triste" in tokens or "tired" in tokens or "cansado" in tokens:
             return "negative_emotion"
 
-        if "time" in tokens:
+        if "time" in tokens or "hora" in tokens or "horas" in tokens:
             return "time_question"
 
-        if "date" in tokens or "today" in tokens:
+        if "date" in tokens or "today" in tokens or "data" in tokens or "hoje" in tokens:
             return "date_question"
 
-        if "sorry" in tokens:
+        if "sorry" in tokens or "desculpa" in tokens:
             return "apology"
 
-        if "awesome" in tokens or "smart" in tokens:
+        if "awesome" in tokens or "smart" in tokens or "incrivel" in tokens or "inteligente" in tokens:
             return "compliment"
 
-        if "stupid" in tokens or "dumb" in tokens:
+        if "stupid" in tokens or "dumb" in tokens or "burra" in tokens or "idiota" in tokens:
             return "insult"
 
-        if "remember" in tokens and "like" in tokens:
+        if ("remember" in tokens and "like" in tokens) or ("lembra" in tokens and "gosto" in tokens):
             return "preference_store"
 
-        if "remember" in tokens and "that" in tokens:
+        if ("remember" in tokens and "that" in tokens) or ("lembra" in tokens and "que" in tokens):
             return "fact_store"
 
         return "unknown"
@@ -1596,8 +1596,16 @@ class Process:
             "ready",
             "real",
             "human",
+            "feliz",
+            "triste",
+            "cansado",
+            "ansioso",
+            "sozinho",
+            "bem",
+            "pronto",
+            "humano",
         }
-        match = re.search(r"\b(?:my name is|i am|i'm)\s+([a-zA-Z][a-zA-Z'-]*)", text_lower)
+        match = re.search(r"\b(?:my name is|i am|i'm|meu nome e|me chamo|eu sou|pode me chamar de)\s+([a-zA-Z][a-zA-Z'-]*)", text_lower)
         if match:
             candidate = match.group(1).strip(".,!?")
             if candidate.lower() in blocked_names:
@@ -1610,7 +1618,11 @@ class Process:
         patterns = [
             r"\bi like\s+(.+)",
             r"\bi love\s+(.+)",
-            r"\bmy favorite\s+\w+\s+is\s+(.+)"
+            r"\bmy favorite\s+\w+\s+is\s+(.+)",
+            r"\beu gosto de\s+(.+)",
+            r"\beu amo\s+(.+)",
+            r"\beu adoro\s+(.+)",
+            r"\beu curto\s+(.+)",
         ]
 
         for pattern in patterns:
@@ -1626,7 +1638,12 @@ class Process:
         patterns = [
             r"\bi don't like\s+(.+)",
             r"\bi do not like\s+(.+)",
-            r"\bforget that i like\s+(.+)"
+            r"\bforget that i like\s+(.+)",
+            r"\beu nao gosto de\s+(.+)",
+            r"\beu não gosto de\s+(.+)",
+            r"\bnao curto\s+(.+)",
+            r"\bnão curto\s+(.+)",
+            r"\besquece que eu gosto de\s+(.+)"
         ]
 
         for pattern in patterns:
@@ -1642,7 +1659,11 @@ class Process:
         patterns = [
             r"\bremember that\s+(.+)",
             r"\bkeep in mind that\s+(.+)",
-            r"\bthe fact is\s+(.+)"
+            r"\bthe fact is\s+(.+)",
+            r"\blembra que\s+(.+)",
+            r"\blembre que\s+(.+)",
+            r"\bquero que voce saiba que\s+(.+)",
+            r"\bquero que você saiba que\s+(.+)"
         ]
 
         for pattern in patterns:
@@ -1658,7 +1679,10 @@ class Process:
         patterns = [
             r"\bdo i like\s+(.+)",
             r"\bis\s+(.+)\s+my favorite",
-            r"\bdo you remember that i like\s+(.+)"
+            r"\bdo you remember that i like\s+(.+)",
+            r"\bvoce lembra que eu gosto de\s+(.+)",
+            r"\bvocê lembra que eu gosto de\s+(.+)",
+            r"\beu gosto de\s+(.+)\??$"
         ]
 
         for pattern in patterns:
@@ -1673,7 +1697,11 @@ class Process:
     def extract_fact_query(text_lower):
         patterns = [
             r"\bdo you remember that\s+(.+)",
-            r"\bdo you know that\s+(.+)"
+            r"\bdo you know that\s+(.+)",
+            r"\bvoce lembra que\s+(.+)",
+            r"\bvocê lembra que\s+(.+)",
+            r"\bvoce sabe que\s+(.+)",
+            r"\bvocê sabe que\s+(.+)"
         ]
 
         for pattern in patterns:

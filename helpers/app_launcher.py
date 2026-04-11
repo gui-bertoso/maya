@@ -2,6 +2,7 @@ import json
 import os
 import glob
 import getpass
+import re
 import subprocess
 import sys
 
@@ -58,6 +59,9 @@ class AppLauncher:
 
         alias_map = self.get_alias_map()
         normalized = alias.strip().lower()
+
+        normalized = re.sub(r"^(?:o|a|os|as)\s+", "", normalized).strip()
+        normalized = re.sub(r"\s+(?:app|aplicativo|programa)$", "", normalized).strip()
 
         if normalized in alias_map:
             return alias_map[normalized]

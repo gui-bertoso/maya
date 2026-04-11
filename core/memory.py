@@ -1,4 +1,6 @@
 import os
+import re
+import unicodedata
 from helpers.backup_manager import safe_json_dump, safe_json_load
 from helpers.config import get_path
 
@@ -19,6 +21,47 @@ class Memory:
             "last_topic": None,
             "pending_learning": None
         }
+
+    @staticmethod
+    def _normalize_memory_text(value):
+        normalized = unicodedata.normalize("NFKD", (value or "").strip().lower())
+        normalized = "".join(char for char in normalized if not unicodedata.combining(char))
+        normalized = re.sub(r"\s+", " ", normalized)
+        return normalized.strip()
+
+    @classmethod
+    def _is_valid_preference(cls, preference):
+        normalized = cls._normalize_memory_text(preference)
+        if not normalized:
+            return False
+
+        tokens = re.findall(r"[a-z0-9']+", normalized)
+        if not tokens or len(tokens) > 8:
+            return False
+
+        blocked_tokens = {
+            "i", "you", "me", "my", "your", "that", "keep", "study", "supplies",
+            "pursue", "tell", "easier", "voce", "você", "eu", "que", "mim",
+        }
+        blocked_hits = sum(1 for token in tokens if token in blocked_tokens)
+        if blocked_hits >= 2:
+            return False
+
+        if len(tokens) >= 5 and blocked_hits >= 1:
+            return False
+
+        return True
+
+    @classmethod
+    def _clean_preferences(cls, preferences):
+        cleaned = []
+        for preference in preferences or []:
+            if not cls._is_valid_preference(preference):
+                continue
+            normalized = cls._normalize_memory_text(preference)
+            if normalized not in cleaned:
+                cleaned.append(normalized)
+        return cleaned
 
     def add_message(self, role, content):
         if not content:
@@ -49,10 +92,10 @@ class Memory:
         return self.long_term["user_name"]
 
     def add_preference(self, preference):
-        if not preference:
+        if not preference or not self._is_valid_preference(preference):
             return
 
-        preference = preference.strip().lower()
+        preference = self._normalize_memory_text(preference)
 
         if preference not in self.long_term["preferences"]:
             self.long_term["preferences"].append(preference)
@@ -144,6 +187,7 @@ class Memory:
             "preferences": [],
             "known_facts": []
         })
+        self.long_term["preferences"] = self._clean_preferences(self.long_term.get("preferences", []))
         self.state = data.get("state", {
             "mood": "neutral",
             "last_topic": None,

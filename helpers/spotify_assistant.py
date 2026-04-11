@@ -9,8 +9,8 @@ class SpotifyAssistant:
     def _clean_request_tail(text):
         cleaned = (text or "").strip()
         cleaned = re.sub(r"[.!?,;:]+$", "", cleaned).strip()
-        cleaned = re.sub(r"\s+(?:on|in|using|via)\s+spotify$", "", cleaned, flags=re.IGNORECASE).strip()
-        cleaned = re.sub(r"\s+(?:no|na|pelo|via)\s+spotify$", "", cleaned, flags=re.IGNORECASE).strip()
+        cleaned = re.sub(r"\s+(?:on|in|using|via)\s+(?:the\s+)?spotify$", "", cleaned, flags=re.IGNORECASE).strip()
+        cleaned = re.sub(r"\s+(?:no|na|pelo|pela|via|em)\s+(?:o\s+|a\s+)?spotify$", "", cleaned, flags=re.IGNORECASE).strip()
         cleaned = re.sub(r"\s+(?:for me|please|pra mim|por favor)$", "", cleaned, flags=re.IGNORECASE).strip()
         return cleaned
 
@@ -74,8 +74,8 @@ class SpotifyAssistant:
                     }
 
         direct_open_patterns = [
-            r"^(?:open|start|launch)\s+spotify$",
-            r"^(?:abre|abrir|inicia|iniciar)\s+spotify$",
+            r"^(?:open|start|launch)\s+(?:the\s+)?spotify$",
+            r"^(?:abre|abrir|inicia|iniciar)\s+(?:o\s+|a\s+)?spotify$",
         ]
         if any(re.match(pattern, stripped, flags=re.IGNORECASE) for pattern in direct_open_patterns):
             return {
@@ -97,10 +97,10 @@ class SpotifyAssistant:
                     }
 
         track_patterns = [
-            r"^(?:play|open)\s+(.+?)\s+on\s+spotify$",
+            r"^(?:play|open)\s+(.+?)\s+on\s+(?:the\s+)?spotify$",
             r"^open spotify and play\s+(.+)$",
-            r"^(?:toca|toque|tocar|abre|abrir|reproduz|reproduzir)\s+(.+?)\s+(?:no|na|em)\s+spotify$",
-            r"^abre\s+spotify\s+e\s+(?:toca|toque|tocar|reproduz|reproduzir)\s+(.+)$",
+            r"^(?:toca|toque|tocar|abre|abrir|reproduz|reproduzir)\s+(.+?)\s+(?:no|na|em)\s+(?:o\s+|a\s+)?spotify$",
+            r"^abre\s+(?:o\s+|a\s+)?spotify\s+e\s+(?:toca|toque|tocar|reproduz|reproduzir)\s+(.+)$",
         ]
         for pattern in track_patterns:
             match = re.match(pattern, stripped, flags=re.IGNORECASE)
