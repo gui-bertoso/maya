@@ -39,6 +39,24 @@ def has_gui_support():
     return bool(os.getenv("DISPLAY") or os.getenv("WAYLAND_DISPLAY"))
 
 
+def windows_subprocess_kwargs():
+    if not is_windows():
+        return {}
+
+    kwargs = {"creationflags": getattr(subprocess, "CREATE_NO_WINDOW", 0)}
+    startupinfo_cls = getattr(subprocess, "STARTUPINFO", None)
+    startf_use_showwindow = getattr(subprocess, "STARTF_USESHOWWINDOW", 0)
+    sw_hide = getattr(subprocess, "SW_HIDE", 0)
+
+    if startupinfo_cls is not None:
+        startupinfo = startupinfo_cls()
+        startupinfo.dwFlags |= startf_use_showwindow
+        startupinfo.wShowWindow = sw_hide
+        kwargs["startupinfo"] = startupinfo
+
+    return kwargs
+
+
 class Reporter:
     def info(self, message):
         print(message)
@@ -275,7 +293,7 @@ def run(command, cwd=None, check=True, reporter=None):
         reporter.detail(command_text)
     else:
         print(command_text)
-    return subprocess.run(command, cwd=cwd, check=check)
+    return subprocess.run(command, cwd=cwd, check=check, **windows_subprocess_kwargs())
 
 
 def ensure_runtime_root(reporter=None):
@@ -410,6 +428,7 @@ def find_python_launcher():
                 stderr=subprocess.PIPE,
                 check=True,
                 text=True,
+                **windows_subprocess_kwargs(),
             )
             return candidate
         except Exception:
@@ -500,7 +519,7 @@ def launch(project_dir, reporter=None):
         if reporter:
             reporter.info("Launching Maya...")
 
-        subprocess.Popen([str(executable)], cwd=project_dir, env=env)
+        subprocess.Popen([str(executable)], cwd=project_dir, env=env, **windows_subprocess_kwargs())
         return
 
     python_bin = venv_python(project_dir)
@@ -510,7 +529,7 @@ def launch(project_dir, reporter=None):
     if reporter:
         reporter.info("Launching Maya...")
 
-    subprocess.Popen([str(python_bin), "app.py"], cwd=project_dir, env=env)
+    subprocess.Popen([str(python_bin), "app.py"], cwd=project_dir, env=env, **windows_subprocess_kwargs())
 
 
 def sync_repo(project_dir, reporter=None):

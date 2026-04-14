@@ -59,6 +59,8 @@ PT_BR_UI = {
     "field_WAKE_RESPONSE_TEXT_help": "Resposta falada padrao quando a Maya desperta.",
     "field_WAKE_RESPONSE_OPTIONS_label": "Opcoes de Resposta de Despertar",
     "field_WAKE_RESPONSE_OPTIONS_help": "Frases separadas por | para despertar, por exemplo: oi?|fala comigo?",
+    "field_SPEAK_WAKE_RESPONSE_label": "Falar ao Despertar",
+    "field_SPEAK_WAKE_RESPONSE_help": "Define se a Maya fala alguma resposta quando desperta.",
     "field_SPEAK_WAKE_RESPONSE_ON_CLAP_label": "Responder com Palmas",
     "field_SPEAK_WAKE_RESPONSE_ON_CLAP_help": "Define se a Maya fala apos despertar com palmas.",
     "field_SPEAK_WAKE_RESPONSE_ON_HOTKEY_label": "Responder com Atalho",

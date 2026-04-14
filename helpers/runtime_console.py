@@ -8,7 +8,9 @@ def _is_enabled(value):
 
 def should_enable_runtime_console(env_getter=None):
     getter = env_getter or os.getenv
-    return _is_enabled(getter("DEBUG_MODE", "false"))
+    return _is_enabled(getter("DEBUG_MODE", "false")) and _is_enabled(
+        getter("MAYA_ENABLE_RUNTIME_CONSOLE", "false")
+    )
 
 
 class RuntimeConsole:

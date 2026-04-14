@@ -16,7 +16,7 @@ if errorlevel 1 goto :error
 "%PYTHON_EXE%" -m pip install pyinstaller
 if errorlevel 1 goto :error
 
-"%PYTHON_EXE%" -m PyInstaller --noconfirm --clean --onefile --name setup setup.py
+"%PYTHON_EXE%" -m PyInstaller --noconfirm --clean setup.spec
 if errorlevel 1 goto :error
 
 echo.
