@@ -28,6 +28,7 @@ PT_BR_UI = {
     "settings_apply": "Aplicar",
     "settings_close": "Fechar",
     "settings_pick_color": "Escolher cor",
+    "settings_version": "Versao: {version}",
     "settings_loaded_defaults": "Valores padrao carregados no formulario.",
     "settings_apply_callback_missing": "Callback para aplicar configuracoes nao foi definido.",
     "showcase_title": "disco das janelas",
