@@ -20,6 +20,8 @@ BUILD_REVISION_FILE = ".maya_build_revision"
 SOURCE_REVISION_FILE = ".maya_source_revision"
 
 GITHUB_API_COMMIT_URL = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/commits/{REPO_BRANCH}"
+GITHUB_API_COMPARE_URL = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/compare/{{base}}...{{head}}"
+GITHUB_API_COMMITS_URL = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/commits?sha={REPO_BRANCH}&per_page={{limit}}"
 GITHUB_ARCHIVE_URL = f"https://github.com/{REPO_OWNER}/{REPO_NAME}/archive/refs/heads/{REPO_BRANCH}.zip"
 
 PRESERVED_PATHS = {".venv", "dist", SOURCE_REVISION_FILE}
@@ -67,6 +69,12 @@ class Reporter:
     def error(self, message):
         print(message, file=sys.stderr)
 
+    def release_notes(self, title, items):
+        if title:
+            print(title)
+        for item in items or ():
+            print(f"- {item}")
+
     def close_success(self):
         return
 
@@ -91,8 +99,8 @@ class SetupWindow(Reporter):
                 pass
 
         self.root.title("Maya Setup")
-        self.root.geometry("760x460")
-        self.root.minsize(640, 380)
+        self.root.geometry("980x560")
+        self.root.minsize(820, 440)
         self.root.configure(bg="#f5efe4")
         self.root.protocol("WM_DELETE_WINDOW", self._on_close)
         self.root.grid_columnconfigure(0, weight=1)
@@ -121,11 +129,27 @@ class SetupWindow(Reporter):
 
         body = tk.Frame(self.root, bg="#f5efe4")
         body.grid(row=2, column=0, sticky="nsew", padx=22, pady=(0, 12))
-        body.grid_columnconfigure(0, weight=1)
+        body.grid_columnconfigure(0, weight=3)
+        body.grid_columnconfigure(1, weight=2)
         body.grid_rowconfigure(0, weight=1)
 
+        log_panel = tk.Frame(body, bg="#f5efe4")
+        log_panel.grid(row=0, column=0, sticky="nsew", padx=(0, 12))
+        log_panel.grid_columnconfigure(0, weight=1)
+        log_panel.grid_rowconfigure(1, weight=1)
+
+        self.log_title = tk.Label(
+            log_panel,
+            text="Setup Log",
+            font=("Segoe UI", 11, "bold"),
+            bg="#f5efe4",
+            fg="#1f2933",
+            anchor="w",
+        )
+        self.log_title.grid(row=0, column=0, sticky="ew", pady=(0, 6))
+
         self.log_text = tk.Text(
-            body,
+            log_panel,
             wrap="word",
             font=("Consolas", 10),
             bg="#fffdf8",
@@ -135,11 +159,44 @@ class SetupWindow(Reporter):
             padx=14,
             pady=12,
         )
-        self.log_text.grid(row=0, column=0, sticky="nsew")
+        self.log_text.grid(row=1, column=0, sticky="nsew")
 
-        scrollbar = ttk.Scrollbar(body, orient="vertical", command=self.log_text.yview)
-        scrollbar.grid(row=0, column=1, sticky="ns")
-        self.log_text.configure(yscrollcommand=scrollbar.set, state="disabled")
+        log_scrollbar = ttk.Scrollbar(log_panel, orient="vertical", command=self.log_text.yview)
+        log_scrollbar.grid(row=1, column=1, sticky="ns")
+        self.log_text.configure(yscrollcommand=log_scrollbar.set, state="disabled")
+
+        changes_panel = tk.Frame(body, bg="#f5efe4")
+        changes_panel.grid(row=0, column=1, sticky="nsew")
+        changes_panel.grid_columnconfigure(0, weight=1)
+        changes_panel.grid_rowconfigure(1, weight=1)
+
+        self.changes_title = tk.Label(
+            changes_panel,
+            text="What's New",
+            font=("Segoe UI", 11, "bold"),
+            bg="#f5efe4",
+            fg="#1f2933",
+            anchor="w",
+        )
+        self.changes_title.grid(row=0, column=0, sticky="ew", pady=(0, 6))
+
+        self.changes_text = tk.Text(
+            changes_panel,
+            wrap="word",
+            font=("Consolas", 10),
+            bg="#fffdf8",
+            fg="#1f2933",
+            insertbackground="#1f2933",
+            relief="flat",
+            padx=14,
+            pady=12,
+        )
+        self.changes_text.grid(row=1, column=0, sticky="nsew")
+
+        changes_scrollbar = ttk.Scrollbar(changes_panel, orient="vertical", command=self.changes_text.yview)
+        changes_scrollbar.grid(row=1, column=1, sticky="ns")
+        self.changes_text.configure(yscrollcommand=changes_scrollbar.set, state="disabled")
+        self._set_changes("Checking for updates...")
 
         footer = tk.Frame(self.root, bg="#f5efe4")
         footer.grid(row=3, column=0, sticky="ew", padx=22, pady=(0, 18))
@@ -182,6 +239,9 @@ class SetupWindow(Reporter):
     def error(self, message):
         self._queue.put(("error", message))
 
+    def release_notes(self, title, items):
+        self._queue.put(("release_notes", {"title": title, "items": list(items or [])}))
+
     def close_success(self):
         self._queue.put(("close_success", "Maya started."))
 
@@ -217,6 +277,13 @@ class SetupWindow(Reporter):
             self._allow_close = True
             return
 
+        if kind == "release_notes":
+            payload = message or {}
+            title = payload.get("title") or "What's New"
+            items = payload.get("items") or []
+            self._set_changes(title, items)
+            return
+
         if kind == "close_success":
             self.status_var.set(message)
             self.progress.stop()
@@ -236,6 +303,17 @@ class SetupWindow(Reporter):
         self.log_text.insert("end", f"{message}\n")
         self.log_text.see("end")
         self.log_text.configure(state="disabled")
+
+    def _set_changes(self, title, items=None):
+        self.changes_title.configure(text=title)
+        self.changes_text.configure(state="normal")
+        self.changes_text.delete("1.0", "end")
+        if items:
+            for item in items:
+                self.changes_text.insert("end", f"- {item}\n\n")
+        else:
+            self.changes_text.insert("end", "No release notes available for this update.")
+        self.changes_text.configure(state="disabled")
 
     def _on_close(self):
         if self._allow_close:
@@ -348,6 +426,65 @@ def remote_revision(reporter=None):
     return str(payload.get("sha") or "").strip()
 
 
+def latest_remote_commits(limit=8, reporter=None):
+    payload = read_json(GITHUB_API_COMMITS_URL.format(limit=max(1, limit)), reporter=reporter)
+    items = []
+    for entry in payload or []:
+        sha = str(entry.get("sha") or "").strip()[:7]
+        commit = entry.get("commit") or {}
+        message = str(commit.get("message") or "").strip().splitlines()[0]
+        if message:
+            items.append(f"{sha} {message}" if sha else message)
+    return items
+
+
+def compare_remote_changes(base_revision, head_revision, reporter=None):
+    if not base_revision or not head_revision or base_revision == head_revision:
+        return []
+
+    payload = read_json(
+        GITHUB_API_COMPARE_URL.format(base=base_revision, head=head_revision),
+        reporter=reporter,
+    )
+    items = []
+    for entry in payload.get("commits") or []:
+        sha = str(entry.get("sha") or "").strip()[:7]
+        commit = entry.get("commit") or {}
+        message = str(commit.get("message") or "").strip().splitlines()[0]
+        if message:
+            items.append(f"{sha} {message}" if sha else message)
+    return items
+
+
+def current_known_revision(project_dir):
+    return current_source_revision(project_dir) or installed_revision(project_dir)
+
+
+def update_release_notes(project_dir, remote_rev, reporter=None):
+    local_rev = current_known_revision(project_dir)
+
+    if local_rev and remote_rev and local_rev == remote_rev:
+        if reporter:
+            reporter.release_notes("What's New", ["You already have the latest version installed."])
+        return
+
+    try:
+        if local_rev:
+            items = compare_remote_changes(local_rev, remote_rev, reporter=reporter)
+            if items:
+                title = f"What's New Since {local_rev[:7]}"
+                if reporter:
+                    reporter.release_notes(title, items)
+                return
+        items = latest_remote_commits(reporter=reporter)
+        title = "Latest Changes"
+        if reporter:
+            reporter.release_notes(title, items or ["Could not load recent changes."])
+    except Exception as error:
+        if reporter:
+            reporter.release_notes("What's New", [f"Could not load update notes: {error}"])
+
+
 def clear_project_dir(project_dir):
     project_dir.mkdir(parents=True, exist_ok=True)
     for child in project_dir.iterdir():
@@ -384,6 +521,7 @@ def sync_repo_from_github(project_dir, reporter=None):
     project_dir.mkdir(parents=True, exist_ok=True)
 
     revision = remote_revision(reporter=reporter)
+    update_release_notes(project_dir, revision, reporter=reporter)
     if revision and revision == current_source_revision(project_dir):
         if reporter:
             reporter.info("Maya source is already up to date.")
