@@ -3,43 +3,43 @@
   "short_term": [
     {
       "role": "user",
-      "content": "abre spotify in firefox"
+      "content": "kill yourself"
     },
     {
       "role": "assistant",
-      "content": "certo, abrindo spotify."
+      "content": "certo, vou me fechar."
     },
     {
       "role": "user",
-      "content": "mute"
+      "content": "hello"
     },
     {
       "role": "assistant",
-      "content": "ainda estou construindo essa parte, Gui, mas sigo com voce."
+      "content": "ola, Gui. bom falar com voce de novo."
     },
     {
       "role": "user",
-      "content": "volume 0"
+      "content": "ola"
     },
     {
       "role": "assistant",
-      "content": "ainda estou entendendo melhor isso, Gui, mas estou com voce."
+      "content": "bom ter voce aqui, Gui."
     },
     {
       "role": "user",
-      "content": "play eminem"
+      "content": "oi"
     },
     {
       "role": "assistant",
-      "content": "abrindo Spotify para eminem."
+      "content": "ola, Gui. bom falar com voce de novo."
     },
     {
       "role": "user",
-      "content": "abre pycharm"
+      "content": "open pycharm"
     },
     {
       "role": "assistant",
-      "content": "abrindo PyCharm."
+      "content": "certo, iniciando PyCharm."
     }
   ],
   "long_term": {

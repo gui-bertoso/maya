@@ -40,3 +40,38 @@ Traceback (most recent call last):
     def update(self):
     
 KeyboardInterrupt
+
+[2026-04-12T18:42:03.454452] Unhandled exception
+Traceback (most recent call last):
+  File "/home/patolizo/Documents/GitHub/maya/output/renderer.py", line 2099, in update
+    def update(self):
+    
+KeyboardInterrupt
+
+[2026-04-12T19:19:57.626662] Unhandled exception
+Traceback (most recent call last):
+  File "/home/patolizo/Documents/GitHub/maya/output/renderer.py", line 2099, in update
+    def update(self):
+    
+KeyboardInterrupt
+
+[2026-04-12T19:21:11.271807] Unhandled exception
+Traceback (most recent call last):
+  File "/home/patolizo/Documents/GitHub/maya/output/renderer.py", line 2099, in update
+    def update(self):
+    
+KeyboardInterrupt
+
+[2026-04-12T19:22:57.557334] Unhandled exception
+Traceback (most recent call last):
+  File "/home/patolizo/Documents/GitHub/maya/output/renderer.py", line 2099, in update
+    def update(self):
+    
+KeyboardInterrupt
+
+[2026-04-12T19:26:03.683889] Unhandled exception
+Traceback (most recent call last):
+  File "/home/patolizo/Documents/GitHub/maya/output/renderer.py", line 2099, in update
+    def update(self):
+    
+KeyboardInterrupt

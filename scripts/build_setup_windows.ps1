@@ -11,7 +11,7 @@ $python = Join-Path $projectRoot ".venv\Scripts\python.exe"
 
 & $python -m pip install --upgrade pip
 & $python -m pip install pyinstaller
-& $python -m PyInstaller --noconfirm --clean --onefile --name setup setup.py
+& $python -m PyInstaller --noconfirm --clean setup.spec
 
 Write-Host ""
 Write-Host "Build finalizado."

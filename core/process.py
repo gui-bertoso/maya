@@ -384,7 +384,7 @@ class Process:
                 }
 
         subapp_key = self.app_launcher.resolve_subapp_alias(host_key, target_alias)
-        if subapp_key:
+        if subapp_key or host_key == "steam":
             return {
                 "kind": "subapp",
                 "host_alias": host_alias,

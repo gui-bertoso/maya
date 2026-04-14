@@ -116,6 +116,7 @@ class App:
             option.strip() for option in wake_response_options.split("|")
             if option.strip()
         ]
+        self.speak_wake_response = get_env("SPEAK_WAKE_RESPONSE", "true").lower() == "true"
         self.speak_wake_response_on_clap = get_env("SPEAK_WAKE_RESPONSE_ON_CLAP", "true").lower() == "true"
         self.speak_wake_response_on_hotkey = get_env("SPEAK_WAKE_RESPONSE_ON_HOTKEY", "true").lower() == "true"
         self.microphone_enabled = get_env("MICROPHONE_ENABLED", "true").lower() == "true"
@@ -254,6 +255,7 @@ class App:
             option.strip() for option in wake_response_options.split("|")
             if option.strip()
         ]
+        self.speak_wake_response = get_env("SPEAK_WAKE_RESPONSE", "true").lower() == "true"
         self.speak_wake_response_on_clap = get_env("SPEAK_WAKE_RESPONSE_ON_CLAP", "true").lower() == "true"
         self.speak_wake_response_on_hotkey = get_env("SPEAK_WAKE_RESPONSE_ON_HOTKEY", "true").lower() == "true"
         self.microphone_enabled = get_env("MICROPHONE_ENABLED", "true").lower() == "true"
@@ -535,7 +537,7 @@ class App:
         self.send_event("app_foreground", None)
         self.send_event("double_clap", None)
 
-        should_speak_for_source = (
+        should_speak_for_source = self.speak_wake_response and (
             (trigger_source == "clap" and self.speak_wake_response_on_clap)
             or (trigger_source == "hotkey" and self.speak_wake_response_on_hotkey)
         )

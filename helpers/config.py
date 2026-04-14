@@ -105,6 +105,7 @@ ENV_FIELDS = (
     EnvField("WAKE_RESPONSE_COOLDOWN", "2.5", float, "Wake", "Wake Response Cooldown", "Minimum delay between spoken wake responses."),
     EnvField("WAKE_RESPONSE_TEXT", "yes?", str, "Wake", "Wake Response Text", "Fallback spoken answer when Maya wakes."),
     EnvField("WAKE_RESPONSE_OPTIONS", "", str, "Wake", "Wake Response Options", "Pipe-separated wake phrases, for example: yes?|what's up?"),
+    EnvField("SPEAK_WAKE_RESPONSE", "true", str, "Wake", "Speak Wake Response", "Whether Maya speaks when it wakes up.", ("true", "false")),
     EnvField("SPEAK_WAKE_RESPONSE_ON_CLAP", "true", str, "Wake", "Speak On Clap", "Whether Maya speaks after double clap.", ("true", "false")),
     EnvField("SPEAK_WAKE_RESPONSE_ON_HOTKEY", "true", str, "Wake", "Speak On Hotkey", "Whether Maya speaks after hotkey wake.", ("true", "false")),
     EnvField("STARTUP_GREETING_ENABLED", "true", str, "Wake", "Startup Greeting", "Whether Maya greets you after login/startup.", ("true", "false")),
