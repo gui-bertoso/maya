@@ -8,6 +8,7 @@ from PySide6.QtCore import QPointF, QRect, QRectF, Qt, QTimer
 from PySide6.QtGui import QColor, QFont, QPainter, QPainterPath, QPen, QPixmap, QRegion
 from PySide6.QtWidgets import (
     QApplication,
+    QColorDialog,
     QComboBox,
     QFileDialog,
     QFormLayout,
@@ -114,6 +115,67 @@ def _apply_windows_overlay_style(widget, interactive=False):
         user32.SetWindowPos(hwnd, 0, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED)
     except Exception:
         pass
+
+
+class ColorSettingInput(QWidget):
+    def __init__(self, renderer, initial_value=""):
+        super().__init__()
+        self.renderer = renderer
+        self._color_value = ""
+
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(10)
+
+        self.swatch = QFrame()
+        self.swatch.setObjectName("settingsColorSwatch")
+        self.swatch.setFixedSize(38, 38)
+
+        self.input = QLineEdit()
+        self.input.setObjectName("settingsInput")
+        self.input.setReadOnly(True)
+
+        self.button = QPushButton(self.renderer.tr("settings_pick_color"))
+        self.button.setObjectName("settingsColorButton")
+        self.button.clicked.connect(self.pick_color)
+
+        layout.addWidget(self.swatch)
+        layout.addWidget(self.input, 1)
+        layout.addWidget(self.button)
+
+        self.setToolTip("")
+        self.set_color_text(initial_value)
+
+    def retranslate_ui(self):
+        self.button.setText(self.renderer.tr("settings_pick_color"))
+
+    def setToolTip(self, text):
+        super().setToolTip(text)
+        self.input.setToolTip(text)
+        self.swatch.setToolTip(text)
+        self.button.setToolTip(text)
+
+    def color_text(self):
+        return self._color_value
+
+    def set_color_text(self, value):
+        color = QColor((value or "").strip())
+        if color.isValid():
+            self._color_value = color.name().lower()
+        else:
+            self._color_value = ""
+        self.input.setText(self._color_value)
+        swatch_color = self._color_value or "#0f1820"
+        border_color = "#8ee0ff" if self._color_value else "rgba(124, 176, 212, 80)"
+        self.swatch.setStyleSheet(
+            f"background: {swatch_color}; border: 1px solid {border_color}; border-radius: 12px;"
+        )
+
+    def pick_color(self):
+        initial = QColor(self._color_value or "#ffffff")
+        color = QColorDialog.getColor(initial, self, self.renderer.tr("settings_pick_color"))
+        if color.isValid():
+            self.set_color_text(color.name())
 
 
 class MayaRing:
@@ -762,7 +824,9 @@ class SettingsWindow(QWidget):
             label.setObjectName("settingsLabel")
             label.setToolTip(localized["help_text"])
 
-            if field.options:
+            if field.key.startswith("UI_COLOR_"):
+                control = ColorSettingInput(self.renderer, field.default)
+            elif field.options:
                 control = QComboBox()
                 control.addItems(list(field.options))
                 control.setEditable(False)
@@ -868,6 +932,9 @@ class SettingsWindow(QWidget):
                 padding: 0 12px;
                 selection-background-color: rgba(94, 175, 219, 120);
             }
+            QPushButton#settingsColorButton {
+                min-width: 88px;
+            }
             QScrollArea {
                 background: transparent;
             }
@@ -905,6 +972,8 @@ class SettingsWindow(QWidget):
             row["label"].setText(localized["label"])
             row["label"].setToolTip(localized["help_text"])
             row["control"].setToolTip(localized["help_text"])
+            if isinstance(row["control"], ColorSettingInput):
+                row["control"].retranslate_ui()
             if row["help_label"] is not None:
                 row["help_label"].setText(localized["help_text"])
             row["section_entry"]["category"] = localized["category"]
@@ -918,12 +987,16 @@ class SettingsWindow(QWidget):
                 control.setCurrentIndex(index)
             elif control.count() > 0:
                 control.setCurrentIndex(0)
+        elif isinstance(control, ColorSettingInput):
+            control.set_color_text(text)
         else:
             control.setText(text)
 
     def _get_control_value(self, control):
         if isinstance(control, QComboBox):
             return control.currentText().strip()
+        if isinstance(control, ColorSettingInput):
+            return control.color_text().strip()
         return control.text().strip()
 
     def load_values(self):
@@ -1114,6 +1187,7 @@ class Renderer:
             "settings_defaults": "Reset Defaults",
             "settings_apply": "Apply",
             "settings_close": "Close",
+            "settings_pick_color": "Pick Color",
             "settings_loaded_defaults": "Loaded default values into the form.",
             "settings_apply_callback_missing": "Settings apply callback not configured.",
             "showcase_title": "window disco",
