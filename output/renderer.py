@@ -27,6 +27,7 @@ from helpers.config import get_env, get_env_defaults, get_env_fields, get_env_va
 from helpers.dev_workspace import DevWorkspaceOrchestrator
 from helpers.i18n import is_portuguese, localize_env_field, ui_text
 from helpers.thoughtful_workspace import ThoughtfulWorkspaceOrchestrator
+from helpers.version import get_version_display
 from helpers.window_showcase import WindowShowcaseBackend
 
 
@@ -767,8 +768,11 @@ class SettingsWindow(QWidget):
         self.subtitle_label = QLabel(self.renderer.tr("settings_subtitle"))
         self.subtitle_label.setObjectName("settingsSubtitle")
         self.subtitle_label.setWordWrap(True)
+        self.version_label = QLabel(self.renderer.tr("settings_version", version=self.renderer.app_version_display))
+        self.version_label.setObjectName("settingsVersion")
         root_layout.addWidget(self.title_label)
         root_layout.addWidget(self.subtitle_label)
+        root_layout.addWidget(self.version_label)
 
         self.filter_input = QLineEdit()
         self.filter_input.setPlaceholderText(self.renderer.tr("settings_filter_placeholder"))
@@ -908,6 +912,12 @@ class SettingsWindow(QWidget):
             QLabel#settingsSubtitle {
                 color: rgba(227, 237, 246, 170);
             }
+            QLabel#settingsVersion {
+                color: #78c6a3;
+                font-size: 12px;
+                font-weight: 700;
+                letter-spacing: 0.5px;
+            }
             QLabel#settingsSectionTitle {
                 font-size: 16px;
                 font-weight: 700;
@@ -960,6 +970,7 @@ class SettingsWindow(QWidget):
         self.setWindowTitle(self.renderer.tr("settings_window_title"))
         self.title_label.setText(self.renderer.tr("settings_title"))
         self.subtitle_label.setText(self.renderer.tr("settings_subtitle"))
+        self.version_label.setText(self.renderer.tr("settings_version", version=self.renderer.app_version_display))
         self.filter_input.setPlaceholderText(self.renderer.tr("settings_filter_placeholder"))
         self.refresh_button.setText(self.renderer.tr("settings_reload"))
         self.defaults_button.setText(self.renderer.tr("settings_defaults"))
@@ -1073,6 +1084,7 @@ class Renderer:
         self.base_window_size_x = self.window_size_x
         self.base_window_size_y = self.window_size_y
         self.window_caption = "maya"
+        self.app_version_display = get_version_display()
         self.overlay_window_title = self.tr("overlay_window_title", caption=self.window_caption)
         self.showcase_window_title = self.tr("showcase_window_title", caption=self.window_caption)
         self.quick_input_window_title = self.tr("quick_input_window_title", caption=self.window_caption)
@@ -1188,6 +1200,7 @@ class Renderer:
             "settings_apply": "Apply",
             "settings_close": "Close",
             "settings_pick_color": "Pick Color",
+            "settings_version": "Version: {version}",
             "settings_loaded_defaults": "Loaded default values into the form.",
             "settings_apply_callback_missing": "Settings apply callback not configured.",
             "showcase_title": "window disco",
