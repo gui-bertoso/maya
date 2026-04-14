@@ -4,7 +4,7 @@
 
 ## PT-BR
 
-A Maya e minha assistente virtual local feita em Python.
+A Maya e uma assistente virtual local feita em Python.
 
 Nao e um produto pronto. E um projeto funcional, experimental e bem editavel, que roda no desktop, escuta voz, responde, guarda memoria em JSON e automatiza algumas coisas no sistema.
 
@@ -19,8 +19,12 @@ Nao e um produto pronto. E um projeto funcional, experimental e bem editavel, qu
 - respostas em `data/responses.json`
 - textos/config leve em `data/app_text.json`
 - launcher de apps/sites
+- comandos naturais para Spotify
+- manchetes do dia via feed web
 - window showcase
+- painel de configuracao rapido
 - modo dev e modo reflexivo
+- console de runtime opcional no modo debug
 
 ### Stack
 
@@ -51,6 +55,12 @@ maya/
 
 ```bash
 python app.py
+```
+
+ou, para usar o fluxo de setup/update automatico:
+
+```bash
+python setup.py
 ```
 
 Primeira vez:
@@ -90,12 +100,21 @@ sudo pacman -S portaudio
 As variaveis principais sao:
 
 - `LANGUAGE`
+- `DEBUG_MODE`
 - `VOSK_MODEL_PATH`
 - `TTS_ENGINE`
 - `MICROPHONE_ENABLED`
 - `WAKE_RESPONSE_TEXT`
+- `WAKE_RESPONSE_OPTIONS`
+- `SPEAK_WAKE_RESPONSE`
+- `SPEAK_WAKE_RESPONSE_ON_CLAP`
+- `SPEAK_WAKE_RESPONSE_ON_HOTKEY`
 - `STARTUP_GREETING_ENABLED`
+- `STARTUP_GREETING_DELAY`
+- `STARTUP_BRIEF_RESPONSE_WINDOW`
 - `DAILY_BRIEF_LOCATION`
+- `WAKE_DURATION`
+- `VOICE_IGNORE_COOLDOWN`
 - `MEMORY_PATH`
 - `RESPONSES_PATH`
 - `APP_TEXT_PATH`
@@ -126,6 +145,8 @@ ou
 .\scripts\build_setup_windows.bat
 ```
 
+O `setup.py` baixa/atualiza o projeto a partir do GitHub, preserva a `.venv` local e gera logs de setup quando algo falha.
+
 ### Autostart
 
 No Linux, a Maya pode subir no login via `~/.config/autostart/maya.desktop`, apontando para `scripts/start_maya.sh`.
@@ -144,8 +165,10 @@ python -m unittest discover -s tests
 - `me mostra as noticias de hoje`
 - `abrir spotify no chrome`
 - `tocar dua lipa no spotify`
+- `tocar playlist anos 80 no spotify`
 - `show open windows`
 - `window disco`
+- `settings`
 - `quero codar`
 - `estou pensando demais`
 
@@ -158,6 +181,7 @@ python -m unittest discover -s tests
 - `data/apps.json`
 - `data/learned_knowledge.json`
 - `generated_projects/`
+- `logs/startup-error.log`
 
 ### Limites atuais
 
@@ -165,6 +189,7 @@ python -m unittest discover -s tests
 - varias partes ainda sao experimentais
 - depende bastante do audio local estar ok
 - Wayland limita captura/previews de janela
+- algumas automacoes dependem de apps ja instalados no sistema
 
 ### Resumo honesto
 
@@ -172,7 +197,7 @@ A Maya e uma assistente local com voz, overlay, memoria em JSON e automacoes de 
 
 ## EN
 
-Maya is my local virtual assistant built in Python.
+Maya is a local virtual assistant built in Python.
 
 It is not a polished product. It is a functional, experimental, highly editable desktop project that listens to voice, responds, stores memory in JSON, and automates a few system tasks.
 
@@ -187,8 +212,12 @@ It is not a polished product. It is a functional, experimental, highly editable 
 - responses in `data/responses.json`
 - lightweight app text/config in `data/app_text.json`
 - app/site launcher
+- natural Spotify commands
+- daily headlines via web feed
 - window showcase
+- quick settings panel
 - dev mode and thoughtful mode
+- optional runtime console in debug mode
 
 ### Stack
 
@@ -219,6 +248,12 @@ maya/
 
 ```bash
 python app.py
+```
+
+or, if you want the automatic setup/update flow:
+
+```bash
+python setup.py
 ```
 
 First run:
@@ -258,12 +293,21 @@ sudo pacman -S portaudio
 Main variables:
 
 - `LANGUAGE`
+- `DEBUG_MODE`
 - `VOSK_MODEL_PATH`
 - `TTS_ENGINE`
 - `MICROPHONE_ENABLED`
 - `WAKE_RESPONSE_TEXT`
+- `WAKE_RESPONSE_OPTIONS`
+- `SPEAK_WAKE_RESPONSE`
+- `SPEAK_WAKE_RESPONSE_ON_CLAP`
+- `SPEAK_WAKE_RESPONSE_ON_HOTKEY`
 - `STARTUP_GREETING_ENABLED`
+- `STARTUP_GREETING_DELAY`
+- `STARTUP_BRIEF_RESPONSE_WINDOW`
 - `DAILY_BRIEF_LOCATION`
+- `WAKE_DURATION`
+- `VOICE_IGNORE_COOLDOWN`
 - `MEMORY_PATH`
 - `RESPONSES_PATH`
 - `APP_TEXT_PATH`
@@ -294,6 +338,8 @@ or
 .\scripts\build_setup_windows.bat
 ```
 
+`setup.py` can download/update the project from GitHub, preserve the local `.venv`, and report setup failures with logs.
+
 ### Autostart
 
 On Linux, Maya can start on login through `~/.config/autostart/maya.desktop`, pointing to `scripts/start_maya.sh`.
@@ -312,8 +358,10 @@ python -m unittest discover -s tests
 - `show me today's headlines`
 - `open spotify on chrome`
 - `play dua lipa on spotify`
+- `play an 80s playlist on spotify`
 - `show open windows`
 - `window disco`
+- `settings`
 - `i want to code`
 - `i'm overthinking`
 
@@ -326,6 +374,7 @@ python -m unittest discover -s tests
 - `data/apps.json`
 - `data/learned_knowledge.json`
 - `generated_projects/`
+- `logs/startup-error.log`
 
 ### Current limits
 
@@ -333,6 +382,7 @@ python -m unittest discover -s tests
 - several parts are still experimental
 - depends heavily on local audio working properly
 - Wayland limits window capture/previews
+- some automations depend on apps already being installed locally
 
 ### Honest summary
 
