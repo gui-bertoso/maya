@@ -1,3 +1,5 @@
+import re
+import subprocess
 from pathlib import Path
 
 
@@ -69,9 +71,51 @@ def get_short_revision(revision=None, length=7):
     return value[:length]
 
 
-def get_version_display(version=None, revision=None):
+def _run_git_describe(project_root):
+    try:
+        completed = subprocess.run(
+            ["git", "describe", "--tags", "--long", "--always", "--abbrev=7"],
+            cwd=project_root,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except Exception:
+        return None
+    return completed.stdout.strip() or None
+
+
+def get_git_describe(project_root=None):
+    root = Path(project_root) if project_root else get_project_root()
+    return _run_git_describe(root)
+
+
+def format_version_from_describe(describe, fallback_version=None):
+    value = (describe or "").strip()
+    base_version = (fallback_version or APP_VERSION).strip()
+    if not value:
+        return f"v{base_version}"
+
+    match = re.fullmatch(r"v?(.+)-(\d+)-g([0-9a-f]{7,})", value)
+    if match:
+        tag_version, commits_since_tag, revision = match.groups()
+        if commits_since_tag == "0":
+            return f"v{tag_version}"
+        return f"v{tag_version}+{commits_since_tag}.g{revision[:7]}"
+
+    short_revision = get_short_revision(value)
+    if short_revision:
+        return f"v{base_version}+g{short_revision}"
+    return f"v{base_version}"
+
+
+def get_version_display(version=None, revision=None, describe=None):
     base_version = (version or APP_VERSION).strip()
+    describe_value = describe if describe is not None else get_git_describe()
+    if describe_value:
+        return format_version_from_describe(describe_value, fallback_version=base_version)
+
     short_revision = get_short_revision(revision if revision is not None else get_revision())
     if short_revision:
-        return f"v{base_version} ({short_revision})"
+        return f"v{base_version}+g{short_revision}"
     return f"v{base_version}"
