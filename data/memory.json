@@ -3,43 +3,43 @@
   "short_term": [
     {
       "role": "user",
+      "content": "delete Downloads"
+    },
+    {
+      "role": "assistant",
+      "content": "ainda estou entendendo melhor isso, Gui, mas estou com voce."
+    },
+    {
+      "role": "user",
+      "content": "hide youself"
+    },
+    {
+      "role": "assistant",
+      "content": "ainda estou aprendendo, Gui, mas estou aqui com voce."
+    },
+    {
+      "role": "user",
+      "content": "hide yourself"
+    },
+    {
+      "role": "assistant",
+      "content": "beleza, vou sair do caminho e ficar em segundo plano."
+    },
+    {
+      "role": "user",
+      "content": "open rider"
+    },
+    {
+      "role": "assistant",
+      "content": "certo, iniciando rider."
+    },
+    {
+      "role": "user",
       "content": "kill yourself"
     },
     {
       "role": "assistant",
-      "content": "certo, vou me fechar."
-    },
-    {
-      "role": "user",
-      "content": "hello"
-    },
-    {
-      "role": "assistant",
-      "content": "ola, Gui. bom falar com voce de novo."
-    },
-    {
-      "role": "user",
-      "content": "ola"
-    },
-    {
-      "role": "assistant",
-      "content": "bom ter voce aqui, Gui."
-    },
-    {
-      "role": "user",
-      "content": "oi"
-    },
-    {
-      "role": "assistant",
-      "content": "ola, Gui. bom falar com voce de novo."
-    },
-    {
-      "role": "user",
-      "content": "open pycharm"
-    },
-    {
-      "role": "assistant",
-      "content": "certo, iniciando PyCharm."
+      "content": "ok, vou encerrar agora."
     }
   ],
   "long_term": {
@@ -49,7 +49,7 @@
   },
   "state": {
     "mood": "friendly",
-    "last_topic": "apps",
+    "last_topic": "conversation",
     "pending_learning": null
   }
 }
