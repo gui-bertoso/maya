@@ -84,8 +84,6 @@ class Speaker:
     def use_edge_tts(self):
         if edge_tts is None:
             return False
-        if not sys.platform.startswith("linux"):
-            return False
 
         normalized = self.language.replace("_", "-")
         if self.engine_preference == "edge":

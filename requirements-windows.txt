@@ -4,6 +4,7 @@ psutil
 pynput
 PySide6
 piper-tts
+edge-tts
 pyinstaller
 pyttsx3
 python-dotenv

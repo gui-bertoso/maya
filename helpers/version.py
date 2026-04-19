@@ -3,7 +3,7 @@ import subprocess
 from pathlib import Path
 
 
-APP_VERSION = "1.1.0"
+APP_VERSION = "1.1.1"
 BUILD_REVISION_FILE = ".maya_build_revision"
 SOURCE_REVISION_FILE = ".maya_source_revision"
 
