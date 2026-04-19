@@ -130,8 +130,21 @@ Arquivos mais faceis de editar manualmente:
 
 - `models/vosk-model-small-pt-0.3`
 - `models/vosk-model-small-en-us-0.15`
-- `models/piper/pt_BR-faber-medium.onnx`
+- `models/piper/pt_BR-cadu-medium.onnx`
 - `models/piper/en_US-lessac-high.onnx`
+
+Os modelos do `Piper` nao entram no Git porque os `.onnx` sao grandes demais para o fluxo normal do GitHub. Baixe localmente com:
+
+```bash
+python scripts/download_piper_models.py
+```
+
+ou apenas um idioma:
+
+```bash
+python scripts/download_piper_models.py --model pt
+python scripts/download_piper_models.py --model en
+```
 
 ### Build Windows
 
@@ -323,8 +336,21 @@ Best files to edit manually:
 
 - `models/vosk-model-small-pt-0.3`
 - `models/vosk-model-small-en-us-0.15`
-- `models/piper/pt_BR-faber-medium.onnx`
+- `models/piper/pt_BR-cadu-medium.onnx`
 - `models/piper/en_US-lessac-high.onnx`
+
+`Piper` models are not committed because the `.onnx` files are too large for the normal GitHub flow. Download them locally with:
+
+```bash
+python scripts/download_piper_models.py
+```
+
+Or fetch only one language:
+
+```bash
+python scripts/download_piper_models.py --model pt
+python scripts/download_piper_models.py --model en
+```
 
 ### Windows build
 

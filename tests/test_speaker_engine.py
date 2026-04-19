@@ -1,6 +1,7 @@
 import sys
 import types
 import unittest
+from unittest.mock import patch
 
 dotenv_stub = types.ModuleType("dotenv")
 dotenv_stub.dotenv_values = lambda *args, **kwargs: {}
@@ -34,6 +35,7 @@ pyttsx3_stub.init = lambda *args, **kwargs: _DummyEngine()
 sys.modules.setdefault("pyttsx3", pyttsx3_stub)
 
 from output.speaker import Speaker
+import output.speaker as speaker_module
 
 
 class SpeakerEngineTests(unittest.TestCase):
@@ -53,6 +55,19 @@ class SpeakerEngineTests(unittest.TestCase):
         speaker = Speaker(engine_preference="piper")
         self.assertTrue(speaker.use_system_tts in (True, False))
         speaker.shutdown()
+
+    def test_edge_preference_works_on_windows_when_dependency_is_available(self):
+        with patch.object(speaker_module, "edge_tts", object()), patch.object(speaker_module.sys, "platform", "win32"):
+            speaker = Speaker(language="en-US", engine_preference="edge")
+            self.assertTrue(speaker.use_edge_tts)
+            self.assertFalse(speaker.use_piper)
+            speaker.shutdown()
+
+    def test_auto_prefers_edge_for_portuguese_on_windows(self):
+        with patch.object(speaker_module, "edge_tts", object()), patch.object(speaker_module.sys, "platform", "win32"):
+            speaker = Speaker(language="pt-BR", engine_preference="auto")
+            self.assertTrue(speaker.use_edge_tts)
+            speaker.shutdown()
 
     def test_muted_speaker_does_not_queue_text(self):
         speaker = Speaker(muted=True)

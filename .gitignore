@@ -10,5 +10,6 @@ build/
 dist/
 data/backups/
 generated_projects/*
+# Piper models are downloaded locally because GitHub rejects the larger ONNX files.
 models/piper/
 models/piper/en_US-lessac-high.onnx

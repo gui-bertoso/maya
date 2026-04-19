@@ -3,6 +3,7 @@ psutil
 pynput
 PySide6
 piper-tts
+edge-tts
 pyttsx3
 python-xlib
 python-dotenv
