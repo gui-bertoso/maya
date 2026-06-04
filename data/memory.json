@@ -3,19 +3,11 @@
   "short_term": [
     {
       "role": "user",
-      "content": "delete Downloads"
+      "content": "open godot"
     },
     {
       "role": "assistant",
-      "content": "ainda estou entendendo melhor isso, Gui, mas estou com voce."
-    },
-    {
-      "role": "user",
-      "content": "hide youself"
-    },
-    {
-      "role": "assistant",
-      "content": "ainda estou aprendendo, Gui, mas estou aqui com voce."
+      "content": "beleza, abrindo godot agora."
     },
     {
       "role": "user",
@@ -23,7 +15,23 @@
     },
     {
       "role": "assistant",
-      "content": "beleza, vou sair do caminho e ficar em segundo plano."
+      "content": "certo, vou para o segundo plano."
+    },
+    {
+      "role": "user",
+      "content": "open rider"
+    },
+    {
+      "role": "assistant",
+      "content": "beleza, abrindo rider agora."
+    },
+    {
+      "role": "user",
+      "content": "hide yourself"
+    },
+    {
+      "role": "assistant",
+      "content": "ok, vou ficar em segundo plano."
     },
     {
       "role": "user",
@@ -32,14 +40,6 @@
     {
       "role": "assistant",
       "content": "certo, iniciando rider."
-    },
-    {
-      "role": "user",
-      "content": "kill yourself"
-    },
-    {
-      "role": "assistant",
-      "content": "ok, vou encerrar agora."
     }
   ],
   "long_term": {
@@ -49,7 +49,7 @@
   },
   "state": {
     "mood": "friendly",
-    "last_topic": "conversation",
+    "last_topic": "apps",
     "pending_learning": null
   }
 }
