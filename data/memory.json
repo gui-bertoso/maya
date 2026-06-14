@@ -3,19 +3,35 @@
   "short_term": [
     {
       "role": "user",
-      "content": "open godot"
+      "content": "obrigado"
     },
     {
       "role": "assistant",
-      "content": "beleza, abrindo godot agora."
+      "content": "ainda nao tenho isso totalmente, Gui, mas estou prestando atencao."
     },
     {
       "role": "user",
-      "content": "hide yourself"
+      "content": "open vscode"
     },
     {
       "role": "assistant",
-      "content": "certo, vou para o segundo plano."
+      "content": "nao consegui iniciar VS Code."
+    },
+    {
+      "role": "user",
+      "content": "open code"
+    },
+    {
+      "role": "assistant",
+      "content": "nao consegui iniciar VS Code."
+    },
+    {
+      "role": "user",
+      "content": "open webstorm"
+    },
+    {
+      "role": "assistant",
+      "content": "eu ainda nao conheco esse app: webstorm."
     },
     {
       "role": "user",
@@ -24,22 +40,6 @@
     {
       "role": "assistant",
       "content": "beleza, abrindo rider agora."
-    },
-    {
-      "role": "user",
-      "content": "hide yourself"
-    },
-    {
-      "role": "assistant",
-      "content": "ok, vou ficar em segundo plano."
-    },
-    {
-      "role": "user",
-      "content": "open rider"
-    },
-    {
-      "role": "assistant",
-      "content": "certo, iniciando rider."
     }
   ],
   "long_term": {
