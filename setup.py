@@ -706,6 +706,12 @@ def run_bootstrap(reporter):
 
 
 def main():
+    # The bootstrap can launch the application executable after installation.
+    # If an incorrectly packaged/old build points that launch back to this
+    # executable, refuse to create another setup window/process.
+    if os.getenv("MAYA_SETUP_COMPLETED") == "1":
+        return
+
     reporter = create_reporter()
 
     def worker():

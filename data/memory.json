@@ -3,43 +3,43 @@
   "short_term": [
     {
       "role": "user",
-      "content": "obrigado"
+      "content": "oi linda"
     },
     {
       "role": "assistant",
-      "content": "ainda nao tenho isso totalmente, Gui, mas estou prestando atencao."
+      "content": "bom ter voce aqui, Gui."
     },
     {
       "role": "user",
-      "content": "open vscode"
+      "content": "abrir spotify"
     },
     {
       "role": "assistant",
-      "content": "nao consegui iniciar VS Code."
+      "content": "beleza, abrindo Spotify agora."
     },
     {
       "role": "user",
-      "content": "open code"
+      "content": "play eminem"
     },
     {
       "role": "assistant",
-      "content": "nao consegui iniciar VS Code."
+      "content": "abrindo Spotify para eminem."
     },
     {
       "role": "user",
-      "content": "open webstorm"
+      "content": "play mockingbird"
     },
     {
       "role": "assistant",
-      "content": "eu ainda nao conheco esse app: webstorm."
+      "content": "iniciando Spotify com mockingbird."
     },
     {
       "role": "user",
-      "content": "open rider"
+      "content": "play mockinbird"
     },
     {
       "role": "assistant",
-      "content": "beleza, abrindo rider agora."
+      "content": "iniciando Spotify com mockinbird."
     }
   ],
   "long_term": {
@@ -49,7 +49,7 @@
   },
   "state": {
     "mood": "friendly",
-    "last_topic": "apps",
+    "last_topic": "spotify",
     "pending_learning": null
   }
 }

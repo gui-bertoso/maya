@@ -554,6 +554,79 @@ class WindowShowcaseBackend:
         except Exception as error:
             return False, f"could not focus the selected window: {error}"
 
+    def get_window_rect(self, window_id):
+        if not self.available or not window_id or self.backend_name != "windows":
+            return None
+        try:
+            target_id = int(str(window_id), 0)
+            return self.win32["gui"].GetWindowRect(target_id)
+        except Exception:
+            return None
+
+    def get_window_control_point(self, window_id, state):
+        if not self.available or not window_id or self.backend_name != "windows":
+            return None
+        try:
+            target_id = int(str(window_id), 0)
+            left, top, right, bottom = self.win32["gui"].GetWindowRect(target_id)
+            user32 = __import__("ctypes").windll.user32
+            button_width = max(30, user32.GetSystemMetrics(30))
+            button_height = max(24, user32.GetSystemMetrics(31))
+            padded_border = max(0, user32.GetSystemMetrics(92))
+            button_y = top + padded_border + (button_height // 2)
+            button_order = {
+                "minimize": 2.5,
+                "maximize": 1.5,
+                "restore": 1.5,
+            }
+            offset = button_order.get(state, 1.5)
+            button_x = right - padded_border - int(button_width * offset)
+            return button_x, button_y
+        except Exception:
+            return None
+
+    def move_window(self, window_id, x, y):
+        if not self.available or not window_id:
+            return False, self.reason or "no window was selected."
+
+        if self.backend_name == "windows":
+            try:
+                win32gui = self.win32["gui"]
+                win32con = self.win32["con"]
+                target_id = int(str(window_id), 0)
+                left, top, right, bottom = win32gui.GetWindowRect(target_id)
+                width = max(120, right - left)
+                height = max(80, bottom - top)
+                win32gui.ShowWindow(target_id, win32con.SW_RESTORE)
+                flags = (
+                    win32con.SWP_NOZORDER
+                    | win32con.SWP_NOACTIVATE
+                    | win32con.SWP_SHOWWINDOW
+                )
+                win32gui.SetWindowPos(target_id, 0, int(x), int(y), width, height, flags)
+                return True, ""
+            except Exception as error:
+                return False, f"could not move the selected window: {error}"
+
+        return False, "moving external windows is currently supported on Windows only."
+
+    def set_window_state(self, window_id, state):
+        if not self.available or not window_id or self.backend_name != "windows":
+            return False, "window state controls are currently supported on Windows only."
+        try:
+            target_id = int(str(window_id), 0)
+            command = {
+                "maximize": self.win32["con"].SW_MAXIMIZE,
+                "minimize": self.win32["con"].SW_MINIMIZE,
+                "restore": self.win32["con"].SW_RESTORE,
+            }.get(state)
+            if command is None:
+                return False, f"unknown window state: {state}"
+            self.win32["gui"].ShowWindow(target_id, command)
+            return True, ""
+        except Exception as error:
+            return False, f"could not change the selected window state: {error}"
+
     def minimize_window(self, window_id):
         if not self.available or not window_id:
             return False
