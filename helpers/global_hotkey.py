@@ -29,6 +29,37 @@ class GlobalHotkeyListener:
         return self._startup_success
 
     def _run_windows_hotkey_listener(self, callback, startup_event):
+        # Prefer pynput's low-level Windows hook. It receives the actual
+        # keyboard events even when Maya is not the foreground window.
+        try:
+            from pynput import keyboard
+
+            hotkey = keyboard.HotKey(
+                keyboard.HotKey.parse("<page_down>+<end>"),
+                callback,
+            )
+
+            listener = keyboard.Listener(
+                on_press=lambda key: hotkey.press(listener.canonical(key)),
+                on_release=lambda key: hotkey.release(listener.canonical(key)),
+            )
+            self._listener = listener
+            listener.start()
+            if not listener.is_alive():
+                raise RuntimeError("keyboard listener stopped during startup")
+
+            self.is_running = True
+            self.hotkey_registered = True
+            self._startup_success = True
+            startup_event.set()
+            listener.join()
+            return
+        except Exception as error:
+            self.last_error = f"pynput hotkey unavailable: {error}"
+            self._listener = None
+
+        # Keep the polling implementation as a fallback for environments
+        # where pynput cannot install its Windows hook.
         try:
             import ctypes
 

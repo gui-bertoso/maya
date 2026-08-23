@@ -403,6 +403,7 @@ class Process:
         normalized = raw_position.strip().lower()
         normalized = normalized.replace("-", " ").replace("_", " ")
         normalized = re.sub(r"[.!?,;:]+$", "", normalized).strip()
+        normalized = re.sub(r"^(?:the|o|a|um|uma)\s+", "", normalized, flags=re.IGNORECASE).strip()
         normalized = re.sub(r"^(?:the\s+)?(?:position\s+)?", "", normalized, flags=re.IGNORECASE).strip()
         normalized = re.sub(r"\s+(?:please|now)$", "", normalized, flags=re.IGNORECASE).strip()
 
@@ -519,6 +520,71 @@ class Process:
                 "monitor_text": "this monitor",
             }
 
+        return None
+
+    def parse_external_window_move_request(self, text_lower):
+        text_lower = re.sub(r"[.!?,;:]+$", "", text_lower.strip()).strip()
+        patterns = [
+            r"(?:move|drag|put|place|send)\s+(?:the\s+)?(?:window\s+)?(.+?)\s+(?:to|into)\s+(.+)$",
+            r"(?:mova|arraste|coloque|jogue)\s+(?:a\s+)?(?:janela\s+)?(.+?)\s+(?:para|pro|pra)\s+(.+)$",
+        ]
+        for pattern in patterns:
+            match = re.search(pattern, text_lower, flags=re.IGNORECASE)
+            if not match:
+                continue
+
+            target = match.group(1).strip()
+            destination = match.group(2).strip()
+            target = re.sub(r"^(?:the|a|o|an|uma|um)\s+", "", target, flags=re.IGNORECASE).strip()
+            if target in {"maya", "yourself", "yourself maya", "a maya", "voce", "você", "the maya"}:
+                return None
+
+            monitor_match = re.fullmatch(
+                r"(?:the|o|a|um|uma)?\s*(?:monitor|display|screen|tela)\s+(\d+)",
+                destination,
+                flags=re.IGNORECASE,
+            )
+            if monitor_match:
+                return {
+                    "target": target,
+                    "position": "current",
+                    "monitor": max(1, int(monitor_match.group(1))),
+                    "monitor_text": f"monitor {max(1, int(monitor_match.group(1)))}",
+                }
+
+            position = self.normalize_move_position(destination)
+            if not position:
+                continue
+            return {
+                "target": target,
+                "position": position,
+                "monitor": "current",
+                "monitor_text": "this monitor",
+            }
+
+        return None
+
+    def parse_external_window_state_request(self, text_lower):
+        text_lower = re.sub(r"[.!?,;:]+$", "", text_lower.strip()).strip()
+        patterns = [
+            (r"(?:maximize|make\s+larger|expand)\s+(?:the\s+)?(?:window\s+)?(.+)$", "maximize"),
+            (r"(?:minimize|make\s+smaller|shrink)\s+(?:the\s+)?(?:window\s+)?(.+)$", "minimize"),
+            (r"(?:maximiza|expanda)\s+(?:a\s+)?(?:janela\s+)?(.+)$", "maximize"),
+            (r"(?:minimiza|encolhe)\s+(?:a\s+)?(?:janela\s+)?(.+)$", "minimize"),
+        ]
+        for pattern, action in patterns:
+            match = re.search(pattern, text_lower, flags=re.IGNORECASE)
+            if not match:
+                continue
+            target = re.sub(
+                r"^(?:the|a|o|an|uma|um)\s+",
+                "",
+                match.group(1).strip(),
+                flags=re.IGNORECASE,
+            ).strip()
+            if target in {"maya", "yourself", "the maya", "voce", "você"}:
+                return None
+            return {"target": target, "action": action}
         return None
 
     @staticmethod
@@ -982,6 +1048,26 @@ class Process:
             if self.parent is not None:
                 self.parent.send_event("app_hide_quick_input", None)
             return self.pick_response("hide_input_window")
+
+        if patterns["move_window"]:
+            if self.parent is not None:
+                self.parent.send_event("app_move_window", patterns["move_window_target"])
+            target = patterns["move_window_target"].get("target", "the selected window")
+            position = patterns["move_window_target"].get("position", "current").replace("_", " ")
+            return self.pick_response(
+                "move_window_success",
+                target=target,
+                position=position,
+            )
+
+        if patterns["window_state"]:
+            if self.parent is not None:
+                self.parent.send_event("app_window_state", patterns["window_state_target"])
+            return self.pick_response(
+                "window_state_success",
+                target=patterns["window_state_target"].get("target", "the selected window"),
+                action=patterns["window_state_target"].get("action", "change"),
+            )
 
         if patterns["move_app"]:
             if self.parent is not None:
@@ -1786,6 +1872,10 @@ class Process:
             "background_app": False,
             "exit_self": False,
             "hide_input_window": False,
+            "move_window": False,
+            "move_window_target": None,
+            "window_state": False,
+            "window_state_target": None,
             "move_app": False,
             "move_app_target": None,
             "scale_app": False,
@@ -2306,6 +2396,16 @@ class Process:
             ]
         ):
             patterns["hide_input_window"] = True
+
+        external_state_target = self.parse_external_window_state_request(text_lower)
+        if external_state_target:
+            patterns["window_state"] = True
+            patterns["window_state_target"] = external_state_target
+
+        external_move_target = self.parse_external_window_move_request(text_lower)
+        if external_move_target:
+            patterns["move_window"] = True
+            patterns["move_window_target"] = external_move_target
 
         move_target = self.parse_window_move_request(text_lower)
         if move_target:

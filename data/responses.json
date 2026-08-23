@@ -326,6 +326,26 @@
     "all right, moving to {position} on {monitor_text}.",
     "sure, i'm going to {position} on {monitor_text}."
   ],
+  "move_window_success": [
+    "okay, moving {target} to {position}.",
+    "all right, i'll move {target} to {position}.",
+    "sure, taking {target} to {position}."
+  ],
+  "move_window_success_pt": [
+    "ok, movendo {target} para {position}.",
+    "certo, vou levar {target} para {position}.",
+    "beleza, arrastando {target} para {position}."
+  ],
+  "window_state_success": [
+    "okay, i'll {action} {target}.",
+    "all right, pressing the {action} control for {target}.",
+    "sure, i'll {action} {target}."
+  ],
+  "window_state_success_pt": [
+    "ok, vou {action} {target}.",
+    "certo, apertando o controle de {action} para {target}.",
+    "beleza, vou {action} {target}."
+  ],
   "move_app_success_pt": [
     "ok, vou para {position} no {monitor_text}.",
     "certo, movendo para {position} no {monitor_text}.",

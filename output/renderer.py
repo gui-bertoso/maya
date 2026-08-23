@@ -757,12 +757,18 @@ class SettingsWindow(QWidget):
         self.inputs = {}
 
         self.setWindowTitle(self.renderer.tr("settings_window_title"))
-        self.resize(680, 760)
+        self.resize(760, 820)
+        self.setMinimumSize(680, 700)
 
         root_layout = QVBoxLayout(self)
-        root_layout.setContentsMargins(20, 20, 20, 20)
-        root_layout.setSpacing(14)
+        root_layout.setContentsMargins(26, 24, 26, 24)
+        root_layout.setSpacing(16)
 
+        header = QFrame()
+        header.setObjectName("settingsHeader")
+        header_layout = QVBoxLayout(header)
+        header_layout.setContentsMargins(22, 20, 22, 20)
+        header_layout.setSpacing(6)
         self.title_label = QLabel(self.renderer.tr("settings_title"))
         self.title_label.setObjectName("settingsTitle")
         self.subtitle_label = QLabel(self.renderer.tr("settings_subtitle"))
@@ -770,15 +776,24 @@ class SettingsWindow(QWidget):
         self.subtitle_label.setWordWrap(True)
         self.version_label = QLabel(self.renderer.tr("settings_version", version=self.renderer.app_version_display))
         self.version_label.setObjectName("settingsVersion")
-        root_layout.addWidget(self.title_label)
-        root_layout.addWidget(self.subtitle_label)
-        root_layout.addWidget(self.version_label)
+        header_layout.addWidget(self.title_label)
+        header_layout.addWidget(self.subtitle_label)
+        header_layout.addWidget(self.version_label)
+        root_layout.addWidget(header)
 
         self.filter_input = QLineEdit()
         self.filter_input.setPlaceholderText(self.renderer.tr("settings_filter_placeholder"))
         self.filter_input.setObjectName("settingsInput")
         self.filter_input.textChanged.connect(self.apply_filter)
-        root_layout.addWidget(self.filter_input)
+        self.category_filter = QComboBox()
+        self.category_filter.setObjectName("settingsCategoryFilter")
+        self.category_filter.setMinimumWidth(190)
+        self.category_filter.currentIndexChanged.connect(lambda _index: self.apply_filter(self.filter_input.text()))
+        search_row = QHBoxLayout()
+        search_row.setSpacing(10)
+        search_row.addWidget(self.filter_input, 1)
+        search_row.addWidget(self.category_filter)
+        root_layout.addLayout(search_row)
 
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
@@ -867,11 +882,18 @@ class SettingsWindow(QWidget):
             )
 
         self.sections_layout.addStretch(1)
+        self.category_filter.clear()
+        self.category_filter.addItem("All categories", "")
+        for section in self.sections:
+            self.category_filter.addItem(section["category"], section["category"])
         scroll_area.setWidget(scroll_content)
         root_layout.addWidget(scroll_area, 1)
 
         actions = QHBoxLayout()
         actions.setSpacing(10)
+        actions_frame = QFrame()
+        actions_frame.setObjectName("settingsActions")
+        actions_frame.setLayout(actions)
         self.status_label = QLabel("")
         self.status_label.setObjectName("settingsStatus")
         actions.addWidget(self.status_label, 1)
@@ -886,34 +908,48 @@ class SettingsWindow(QWidget):
         self.close_button = QPushButton(self.renderer.tr("settings_close"))
         self.close_button.clicked.connect(self.hide)
 
+        for button in (self.refresh_button, self.defaults_button, self.apply_button, self.close_button):
+            button.setCursor(Qt.PointingHandCursor)
+            button.setMinimumHeight(40)
+
         actions.addWidget(self.refresh_button)
         actions.addWidget(self.defaults_button)
         actions.addWidget(self.apply_button)
         actions.addWidget(self.close_button)
-        root_layout.addLayout(actions)
+        root_layout.addWidget(actions_frame)
 
         self.setStyleSheet(
             """
             QWidget {
-                background: #0c1217;
-                color: #eef4fa;
+                background: #091018;
+                color: #edf6ff;
                 font-size: 14px;
             }
+            QFrame#settingsHeader {
+                background: qlineargradient(
+                    x1: 0, y1: 0, x2: 1, y2: 1,
+                    stop: 0 #142b3a,
+                    stop: 1 #10202c
+                );
+                border: 1px solid rgba(129, 210, 255, 95);
+                border-radius: 20px;
+            }
             QFrame#settingsSection {
-                background: rgba(17, 26, 34, 228);
-                border: 1px solid rgba(110, 171, 207, 70);
-                border-radius: 18px;
+                background: #101b26;
+                border: 1px solid rgba(129, 180, 216, 72);
+                border-radius: 16px;
             }
             QLabel#settingsTitle {
-                font-size: 28px;
+                font-size: 30px;
                 font-weight: 700;
-                color: #f7fbff;
+                color: #f5fbff;
             }
             QLabel#settingsSubtitle {
-                color: rgba(227, 237, 246, 170);
+                color: rgba(225, 239, 250, 190);
+                font-size: 13px;
             }
             QLabel#settingsVersion {
-                color: #78c6a3;
+                color: #82e1b2;
                 font-size: 12px;
                 font-weight: 700;
                 letter-spacing: 0.5px;
@@ -921,26 +957,50 @@ class SettingsWindow(QWidget):
             QLabel#settingsSectionTitle {
                 font-size: 16px;
                 font-weight: 700;
-                color: #8ee0ff;
+                color: #8cddff;
+                padding-bottom: 4px;
             }
             QLabel#settingsLabel {
                 font-weight: 600;
                 padding-top: 6px;
+                color: #dcebf5;
             }
             QLabel#settingsHelp {
-                color: rgba(214, 227, 239, 145);
+                color: rgba(205, 224, 239, 155);
                 font-size: 12px;
             }
             QLabel#settingsStatus {
-                color: #9edab1;
+                color: #8de0b1;
+                padding-left: 4px;
+            }
+            QFrame#settingsActions {
+                background: rgba(14, 26, 37, 210);
+                border: 1px solid rgba(129, 180, 216, 55);
+                border-radius: 15px;
+                padding: 6px;
             }
             QLineEdit, QComboBox {
-                min-height: 38px;
-                border-radius: 12px;
-                border: 1px solid rgba(124, 176, 212, 80);
-                background: rgba(6, 11, 16, 225);
+                min-height: 40px;
+                border-radius: 11px;
+                border: 1px solid rgba(129, 180, 216, 92);
+                background: #0a141e;
                 padding: 0 12px;
-                selection-background-color: rgba(94, 175, 219, 120);
+                selection-background-color: rgba(74, 178, 235, 145);
+            }
+            QLineEdit:focus, QComboBox:focus {
+                border: 1px solid #65cfff;
+                background: #0d1b28;
+            }
+            QComboBox::drop-down {
+                width: 34px;
+                border: none;
+                border-left: 1px solid rgba(129, 180, 216, 55);
+            }
+            QComboBox QAbstractItemView {
+                background: #10202d;
+                color: #edf6ff;
+                border: 1px solid #65cfff;
+                selection-background-color: #1c5d7c;
             }
             QPushButton#settingsColorButton {
                 min-width: 88px;
@@ -949,17 +1009,47 @@ class SettingsWindow(QWidget):
                 background: transparent;
             }
             QPushButton {
-                min-height: 38px;
-                border-radius: 12px;
-                border: 1px solid rgba(124, 176, 212, 80);
-                background: rgba(21, 33, 43, 240);
+                min-height: 40px;
+                border-radius: 11px;
+                border: 1px solid rgba(129, 180, 216, 95);
+                background: #162938;
                 padding: 0 16px;
+                color: #e9f5fc;
+            }
+            QPushButton:hover {
+                background: #1d3a4e;
+                border-color: #65cfff;
+            }
+            QPushButton:pressed {
+                background: #102331;
             }
             QPushButton#primaryButton {
-                background: #78c6a3;
+                background: #78d9aa;
                 color: #092114;
-                border-color: #78c6a3;
+                border-color: #78d9aa;
                 font-weight: 700;
+            }
+            QPushButton#primaryButton:hover {
+                background: #91ebbd;
+                border-color: #91ebbd;
+            }
+            QScrollBar:vertical {
+                background: transparent;
+                width: 10px;
+                margin: 4px 0 4px 4px;
+            }
+            QScrollBar::handle:vertical {
+                background: rgba(115, 190, 229, 135);
+                border-radius: 5px;
+                min-height: 32px;
+            }
+            QScrollBar::handle:vertical:hover {
+                background: rgba(115, 216, 255, 190);
+            }
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical,
+            QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+                background: transparent;
+                height: 0;
             }
             """
         )
@@ -1026,6 +1116,7 @@ class SettingsWindow(QWidget):
 
     def apply_filter(self, text):
         normalized = (text or "").strip().lower()
+        selected_category = self.category_filter.currentData() or ""
         visible_sections = set()
 
         for row in self.field_rows:
@@ -1038,7 +1129,8 @@ class SettingsWindow(QWidget):
                     localize_env_field(field, self.renderer.language)["help_text"],
                 ]
             ).lower()
-            visible = not normalized or normalized in haystack
+            category_matches = not selected_category or localized["category"] == selected_category
+            visible = category_matches and (not normalized or normalized in haystack)
             row["label"].setVisible(visible)
             row["control"].setVisible(visible)
             row["layout"].itemAt(0).widget().setVisible(visible)
@@ -1048,7 +1140,10 @@ class SettingsWindow(QWidget):
                 visible_sections.add(row["section"])
 
         for section in self.sections:
-            section["widget"].setVisible(section["widget"] in visible_sections or not normalized)
+            section["widget"].setVisible(
+                section["widget"] in visible_sections
+                or (not normalized and not selected_category)
+            )
 
     def apply_changes(self):
         values = {
@@ -1131,6 +1226,8 @@ class Renderer:
         self.showcase_preview_cache = {}
         self.showcase_preview_refresh_interval = 1.15
         self.showcase_last_preview_refresh_at = 0.0
+        self.external_window_drag = None
+        self.external_window_action = None
         self.showcase_scale_pulse = 0.0
         self.showcase_minimized_window_ids = []
         self.showcase_restore_on_hide = False
@@ -1387,6 +1484,9 @@ class Renderer:
             self.root.show()
         else:
             self._apply_overlay_geometry(x, y)
+        # The overlay has now landed on the target monitor. Keep the
+        # interactive input window attached to the same effective monitor.
+        self.position_quick_input()
 
     def _set_target_position(self, x, y, monitor_index):
         monitor_changed = monitor_index != self.current_draw_monitor_index
@@ -1946,7 +2046,11 @@ class Renderer:
     def position_quick_input(self):
         if not hasattr(self, "root") or self.root is None or not hasattr(self, "quick_input_window"):
             return
-        screen, _safe_index = self._get_screen(self.current_monitor_index)
+        # During a monitor transition, current_monitor_index already points
+        # to the destination while the overlay is still on its source
+        # monitor. Use the monitor currently occupied by the overlay instead.
+        monitor_index = getattr(self, "current_draw_monitor_index", self.current_monitor_index)
+        screen, _safe_index = self._get_screen(monitor_index)
         x = screen["x"] + (screen["width"] - self.quick_input_width) // 2
         y = screen["y"] + screen["height"] - self.quick_input_height - self.window_margin
         self.quick_input_window.setGeometry(x, y, self.quick_input_width, self.quick_input_height)
@@ -1961,6 +2065,270 @@ class Renderer:
         x = screen["x"] + margin
         y = screen["y"] + margin
         self.dev_editor_window.setGeometry(x, y, width, height)
+
+    def move_external_window(self, payload):
+        payload = payload or {}
+        target_query = str(payload.get("target") or "active").strip().lower()
+        windows, reason = self.window_catalog.list_windows(limit=40)
+        if not windows:
+            self.set_response_text(reason or self.tr("window_move_failed"))
+            return
+
+        selected = None
+        if target_query in {"active", "current", "foreground", "janela ativa", "janela atual"}:
+            selected = next((item for item in windows if item.is_active), None)
+        else:
+            for item in windows:
+                haystack = f"{item.app_name} {item.title}".lower()
+                if target_query in haystack:
+                    selected = item
+                    break
+        if selected is None:
+            self.set_response_text(self.tr("window_move_target_missing", target=target_query))
+            return
+
+        monitor_value = payload.get("monitor", "current")
+        monitor_index = self._resolve_monitor_index(monitor_value)
+        screen, _safe_index = self._get_screen(monitor_index)
+        position = payload.get("position", "current")
+        if position == "current":
+            x = screen["x"] + self.window_margin
+            y = screen["y"] + self.window_margin
+        else:
+            x, y = self._window_target_location(position, screen, selected.window_id)
+
+        rect = self.window_catalog.get_window_rect(selected.window_id)
+        if not rect:
+            self.set_response_text(self.tr("window_move_failed"))
+            return
+
+        left, top, right, bottom = rect
+        return_monitor = self.current_draw_monitor_index
+        window_width = right - left
+        title_bar_center_x = left + (window_width / 2.0)
+        title_bar_center_y = top + min(30.0, max(18.0, (bottom - top) * 0.10))
+        approach_x = title_bar_center_x - (self.window_size_x / 2.0)
+        approach_y = title_bar_center_y - (self.window_size_y / 2.0)
+        self.external_window_drag = {
+            "window_id": selected.window_id,
+            "start_x": float(left),
+            "start_y": float(top),
+            "target_x": float(x),
+            "target_y": float(y),
+            "return_x": float(self.current_draw_x),
+            "return_y": float(self.current_draw_y),
+            "return_monitor": return_monitor,
+            "approach_x": approach_x,
+            "approach_y": approach_y,
+            "target_monitor": monitor_index,
+            "phase": "approach",
+            "elapsed": 0.0,
+            "approach_duration": 0.95,
+            "drag_duration": 1.25,
+            "return_duration": 0.85,
+        }
+        self._animate_overlay_to(approach_x, approach_y, monitor_index)
+
+    def _animate_overlay_to(self, x, y, monitor_index):
+        self.current_monitor_index = monitor_index
+        self.target_monitor_index = monitor_index
+        if monitor_index != self.current_draw_monitor_index:
+            self._begin_monitor_transition(x, y, monitor_index)
+        else:
+            self._set_target_position(x, y, monitor_index)
+
+    def _tick_external_window_drag(self, dt):
+        drag = self.external_window_drag
+        if not drag:
+            return
+
+        drag["elapsed"] += dt
+        if drag["phase"] == "approach":
+            ready = (
+                self.monitor_transition_phase is None
+                and abs(self.current_draw_x - drag["approach_x"]) < 3.0
+                and abs(self.current_draw_y - drag["approach_y"]) < 3.0
+            )
+            if ready or drag["elapsed"] >= drag["approach_duration"] + 1.2:
+                drag["phase"] = "drag"
+                drag["elapsed"] = 0.0
+            return
+
+        if drag["phase"] == "drag":
+            progress = min(1.0, drag["elapsed"] / drag["drag_duration"])
+            eased = progress * progress * (3.0 - (2.0 * progress))
+            x = drag["start_x"] + ((drag["target_x"] - drag["start_x"]) * eased)
+            y = drag["start_y"] + ((drag["target_y"] - drag["start_y"]) * eased)
+            success, _reason = self.window_catalog.move_window(drag["window_id"], x, y)
+            if success:
+                rect = self.window_catalog.get_window_rect(drag["window_id"])
+                if rect:
+                    left, top, right, bottom = rect
+                    title_bar_center_x = left + ((right - left) / 2.0)
+                    title_bar_center_y = top + min(
+                        30.0,
+                        max(18.0, (bottom - top) * 0.10),
+                    )
+                    follow_monitor = self._monitor_index_for_point(
+                        title_bar_center_x,
+                        title_bar_center_y,
+                        drag["target_monitor"],
+                    )
+                    self._snap_to_position(
+                        title_bar_center_x - (self.window_size_x / 2.0),
+                        title_bar_center_y - (self.window_size_y / 2.0),
+                        follow_monitor,
+                    )
+                    self.position_quick_input()
+            if not success or progress >= 1.0:
+                drag["phase"] = "return"
+                drag["elapsed"] = 0.0
+                self._animate_overlay_to(
+                    drag["return_x"],
+                    drag["return_y"],
+                    drag["return_monitor"],
+                )
+            return
+
+        if drag["phase"] == "return":
+            ready = (
+                self.monitor_transition_phase is None
+                and abs(self.current_draw_x - drag["return_x"]) < 3.0
+                and abs(self.current_draw_y - drag["return_y"]) < 3.0
+            )
+            if ready or drag["elapsed"] >= drag["return_duration"] + 1.2:
+                self.external_window_drag = None
+
+    def change_external_window_state(self, payload):
+        payload = payload or {}
+        target_query = str(payload.get("target") or "active").strip().lower()
+        windows, reason = self.window_catalog.list_windows(limit=40)
+        if not windows:
+            self.set_response_text(reason or self.tr("window_state_failed"))
+            return
+
+        selected = None
+        if target_query in {"active", "current", "foreground", "janela ativa", "janela atual"}:
+            selected = next((item for item in windows if item.is_active), None)
+        else:
+            for item in windows:
+                if target_query in f"{item.app_name} {item.title}".lower():
+                    selected = item
+                    break
+        if selected is None:
+            self.set_response_text(self.tr("window_move_target_missing", target=target_query))
+            return
+
+        rect = self.window_catalog.get_window_rect(selected.window_id)
+        if not rect:
+            self.set_response_text(self.tr("window_state_failed"))
+            return
+        control_point = self.window_catalog.get_window_control_point(
+            selected.window_id,
+            payload.get("action", "maximize"),
+        )
+        if not control_point:
+            self.set_response_text(self.tr("window_state_failed"))
+            return
+        title_bar_center_x, title_bar_center_y = control_point
+        self.external_window_action = {
+            "window_id": selected.window_id,
+            "action": payload.get("action", "restore"),
+            "return_x": float(self.current_draw_x),
+            "return_y": float(self.current_draw_y),
+            "return_monitor": self.current_draw_monitor_index,
+            "phase": "approach",
+            "elapsed": 0.0,
+            "approach_x": title_bar_center_x - (self.window_size_x / 2.0),
+            "approach_y": title_bar_center_y - (self.window_size_y / 2.0),
+        }
+        monitor_index = self._monitor_index_for_point(
+            title_bar_center_x,
+            title_bar_center_y,
+            self.current_draw_monitor_index,
+        )
+        self._animate_overlay_to(
+            self.external_window_action["approach_x"],
+            self.external_window_action["approach_y"],
+            monitor_index,
+        )
+
+    def _tick_external_window_action(self, dt):
+        action = self.external_window_action
+        if not action:
+            return
+        action["elapsed"] += dt
+        if action["phase"] == "approach":
+            ready = (
+                self.monitor_transition_phase is None
+                and abs(self.current_draw_x - action["approach_x"]) < 3.0
+                and abs(self.current_draw_y - action["approach_y"]) < 3.0
+            )
+            if ready or action["elapsed"] >= 2.2:
+                action["phase"] = "press"
+                action["elapsed"] = 0.0
+            return
+
+        if action["phase"] == "press":
+            if action["elapsed"] >= 0.28:
+                self.window_catalog.set_window_state(
+                    action["window_id"],
+                    action["action"],
+                )
+                action["phase"] = "return"
+                action["elapsed"] = 0.0
+                self._animate_overlay_to(
+                    action["return_x"],
+                    action["return_y"],
+                    action["return_monitor"],
+                )
+            return
+
+        if action["phase"] == "return":
+            ready = (
+                self.monitor_transition_phase is None
+                and abs(self.current_draw_x - action["return_x"]) < 3.0
+                and abs(self.current_draw_y - action["return_y"]) < 3.0
+            )
+            if ready or action["elapsed"] >= 2.0:
+                self.external_window_action = None
+
+    def _monitor_index_for_point(self, x, y, fallback=0):
+        for index, screen in enumerate(self.screens):
+            if (
+                screen["x"] <= x < screen["x"] + screen["width"]
+                and screen["y"] <= y < screen["y"] + screen["height"]
+            ):
+                return index
+        return fallback
+
+    def _window_target_location(self, position, screen, window_id):
+        try:
+            import win32gui
+            left, top, right, bottom = win32gui.GetWindowRect(int(str(window_id), 0))
+            width = max(120, right - left)
+            height = max(80, bottom - top)
+        except Exception:
+            width, height = 900, 650
+
+        margin = max(24, self.window_margin)
+        x_min = screen["x"] + margin
+        y_min = screen["y"] + margin
+        x_max = screen["x"] + screen["width"] - width - margin
+        y_max = screen["y"] + screen["height"] - height - margin
+        x_center = screen["x"] + (screen["width"] - width) // 2
+        y_center = screen["y"] + (screen["height"] - height) // 2
+        return {
+            "top_left": (x_min, y_min),
+            "top": (x_center, y_min),
+            "top_right": (x_max, y_min),
+            "left": (x_min, y_center),
+            "center": (x_center, y_center),
+            "right": (x_max, y_center),
+            "bottom_left": (x_min, y_max),
+            "bottom": (x_center, y_max),
+            "bottom_right": (x_max, y_max),
+        }.get(position, (x_center, y_center))
 
     def show_dev_editor(self):
         self.position_dev_editor()
@@ -2175,6 +2543,10 @@ class Renderer:
                     value.get("position", "current"),
                     self._resolve_monitor_index(monitor_value),
                 )
+            elif event == "app_move_window":
+                self.move_external_window(value)
+            elif event == "app_window_state":
+                self.change_external_window_state(value)
             elif event == "app_scale":
                 self.set_scale(
                     value.get("mode", "set"),
@@ -2186,6 +2558,8 @@ class Renderer:
     def update(self):
         self.handle_events()
         self._tick_motion(1 / 60)
+        self._tick_external_window_drag(1 / 60)
+        self._tick_external_window_action(1 / 60)
         self._tick_dev_workspace_animation()
         self._tick_showcase(1 / 60)
         self.ring.update(1 / 60)

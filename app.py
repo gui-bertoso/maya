@@ -177,7 +177,7 @@ class App:
         normalized = unicodedata.normalize("NFKD", (text or "").strip().lower())
         normalized = "".join(char for char in normalized if not unicodedata.combining(char))
         normalized = normalized.replace("-", " ").replace("_", " ")
-        normalized = re.sub(r"[^a-z0-9\\s']+", " ", normalized)
+        normalized = re.sub(r"[^a-z0-9\s']+", " ", normalized)
         return " ".join(normalized.split())
 
     def _is_settings_command(self, text):

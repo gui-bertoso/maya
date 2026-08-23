@@ -1,6 +1,6 @@
 # Maya
 
-[PT-BR](#pt-br) | [EN](#en)
+[PT-BR](#pt-br) | [EN](#en) | [RESUMO (PT-BR)](RESUMO.md) | [SUMMARY (EN)](SUMMARY.md)
 
 ## PT-BR
 

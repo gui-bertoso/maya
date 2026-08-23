@@ -1,10 +1,15 @@
 import re
 import shutil
 import subprocess
+import sys
+import threading
+import time
 import urllib.parse
 
 
 class SpotifyAssistant:
+    WINDOWS_SEARCH_TIMEOUT = 12.0
+
     @staticmethod
     def _clean_request_tail(text):
         cleaned = (text or "").strip()
@@ -135,6 +140,8 @@ class SpotifyAssistant:
         if app_key and hasattr(app_launcher, "launch_with_target"):
             success, _ = app_launcher.launch_with_target(app_key, uri)
             if success:
+                if sys.platform.startswith("win"):
+                    self._schedule_windows_playback(query, app_launcher, app_key)
                 return True
 
         if self._launch_flatpak(uri):
@@ -145,3 +152,111 @@ class SpotifyAssistant:
             return success
 
         return False
+
+    @staticmethod
+    def _find_windows_spotify_window():
+        """Return the visible Spotify HWND, if the desktop client is running."""
+        if not sys.platform.startswith("win"):
+            return None
+
+        try:
+            import psutil
+            import win32gui
+            import win32process
+        except ImportError:
+            return None
+
+        found = []
+
+        def callback(hwnd, _extra):
+            if not win32gui.IsWindowVisible(hwnd):
+                return True
+            try:
+                _, pid = win32process.GetWindowThreadProcessId(hwnd)
+                process_name = psutil.Process(pid).name().lower()
+                if process_name in {"spotify.exe", "spotifywebhelper.exe"}:
+                    title = win32gui.GetWindowText(hwnd).strip().lower()
+                    if process_name == "spotify.exe" or "spotify" in title:
+                        found.append(hwnd)
+            except (OSError, psutil.Error):
+                pass
+            return True
+
+        try:
+            win32gui.EnumWindows(callback, None)
+        except Exception:
+            return None
+        return found[0] if found else None
+
+    @staticmethod
+    def _set_windows_clipboard(text):
+        import win32clipboard
+
+        win32clipboard.OpenClipboard()
+        try:
+            win32clipboard.EmptyClipboard()
+            win32clipboard.SetClipboardData(win32clipboard.CF_UNICODETEXT, str(text))
+        finally:
+            win32clipboard.CloseClipboard()
+
+    @staticmethod
+    def _press_windows_key(key, modifiers=()):
+        import win32api
+        import win32con
+
+        virtual_keys = {
+            "ctrl": win32con.VK_CONTROL,
+            "enter": win32con.VK_RETURN,
+            "tab": win32con.VK_TAB,
+            "down": win32con.VK_DOWN,
+        }
+        key_code = virtual_keys[key] if key in virtual_keys else ord(key.upper())
+        modifier_codes = [virtual_keys[item] for item in modifiers]
+        for modifier in modifier_codes:
+            win32api.keybd_event(modifier, 0, 0, 0)
+        win32api.keybd_event(key_code, 0, 0, 0)
+        win32api.keybd_event(key_code, 0, win32con.KEYEVENTF_KEYUP, 0)
+        for modifier in reversed(modifier_codes):
+            win32api.keybd_event(modifier, 0, win32con.KEYEVENTF_KEYUP, 0)
+
+    def _play_search_on_windows(self, query, app_launcher, app_key):
+        """Use Spotify's desktop search UI to play the first matching result."""
+        deadline = time.time() + self.WINDOWS_SEARCH_TIMEOUT
+        window_id = None
+        while time.time() < deadline:
+            window_id = self._find_windows_spotify_window()
+            if window_id:
+                break
+            time.sleep(0.35)
+
+        if not window_id:
+            return False
+
+        try:
+            import win32gui
+
+            win32gui.ShowWindow(window_id, 9)  # SW_RESTORE
+            win32gui.SetForegroundWindow(window_id)
+            time.sleep(0.25)
+            self._set_windows_clipboard(query)
+            self._press_windows_key("l", modifiers=("ctrl",))
+            self._press_windows_key("v", modifiers=("ctrl",))
+            self._press_windows_key("enter")
+            time.sleep(1.35)
+
+            # The search field keeps focus after loading. Move to the first
+            # result and confirm it, which starts the requested track/playlist.
+            self._press_windows_key("tab")
+            self._press_windows_key("enter")
+            return True
+        except Exception:
+            return False
+
+    def _schedule_windows_playback(self, query, app_launcher, app_key):
+        worker = threading.Thread(
+            target=self._play_search_on_windows,
+            args=(query, app_launcher, app_key),
+            name="maya-spotify-playback",
+            daemon=True,
+        )
+        worker.start()

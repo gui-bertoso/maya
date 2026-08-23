@@ -3,6 +3,7 @@ import asyncio
 import threading
 import queue
 import subprocess
+import shutil
 import sys
 import tempfile
 import wave
@@ -30,7 +31,7 @@ class Speaker:
     DEFAULT_GENDER = "female"
     PT_PIPER_PITCH = 1.16
     EDGE_VOICE_MAP = {
-        "pt": "pt-BR-FranciscaNeural",
+        "pt": "pt-BR-ThalitaMultilingualNeural",
         "en": "en-US-AvaNeural",
     }
     PIPER_MODEL_MAP = {
@@ -88,7 +89,10 @@ class Speaker:
         normalized = self.language.replace("_", "-")
         if self.engine_preference == "edge":
             return True
-        if self.engine_preference == "auto" and normalized.startswith("pt"):
+        if self.engine_preference == "auto" and (
+            normalized.startswith("pt")
+            or sys.platform.startswith("win")
+        ):
             return True
         return False
 
@@ -291,9 +295,22 @@ class Speaker:
         self.active_process.wait()
         self.active_process = None
 
-    def _get_edge_voice_name(self):
+    @staticmethod
+    def _looks_like_portuguese(text):
+        normalized = (text or "").strip().lower()
+        if any(character in normalized for character in "ãõáàâéêíóôúç"):
+            return True
+        tokens = set(normalized.replace(",", " ").replace(".", " ").split())
+        markers = {
+            "a", "ao", "aos", "as", "bem", "beleza", "certo", "configuracao",
+            "configurações", "da", "das", "de", "do", "dos", "janela", "maya",
+            "na", "não", "no", "para", "que", "sim", "vou", "você",
+        }
+        return len(tokens & markers) >= 2
+
+    def _get_edge_voice_name(self, text=None):
         normalized = self.language.replace("_", "-")
-        if normalized.startswith("pt"):
+        if normalized.startswith("pt") or self._looks_like_portuguese(text):
             return self.EDGE_VOICE_MAP["pt"]
         return self.EDGE_VOICE_MAP["en"]
 
@@ -307,23 +324,58 @@ class Speaker:
 
         try:
             asyncio.run(
-                edge_tts.Communicate(text, voice=self._get_edge_voice_name()).save(str(output_path))
+                edge_tts.Communicate(text, voice=self._get_edge_voice_name(text)).save(str(output_path))
             )
-            self.active_process = subprocess.Popen(
-                [
-                    "ffplay",
+            ffplay = shutil.which("ffplay")
+            if ffplay:
+                command = [
+                    ffplay,
                     "-nodisp",
                     "-autoexit",
                     "-loglevel",
                     "error",
                     str(output_path),
-                ],
+                ]
+            elif sys.platform.startswith("win"):
+                escaped_path = str(output_path).replace("'", "''")
+                powershell_script = (
+                    "Add-Type -AssemblyName PresentationCore; "
+                    "$p = New-Object System.Windows.Media.MediaPlayer; "
+                    f"$p.Open([Uri]::new('{escaped_path}')); "
+                    "$deadline = [DateTime]::UtcNow.AddSeconds(10); "
+                    "while (!$p.NaturalDuration.HasTimeSpan -and [DateTime]::UtcNow -lt $deadline) "
+                    "{ Start-Sleep -Milliseconds 50 }; "
+                    "$p.Play(); "
+                    "$ms = 500; "
+                    "if ($p.NaturalDuration.HasTimeSpan) "
+                    "{ $ms = [int]$p.NaturalDuration.TimeSpan.TotalMilliseconds + 150 }; "
+                    "Start-Sleep -Milliseconds $ms; "
+                    "$p.Close();"
+                )
+                command = [
+                    "powershell.exe",
+                    "-NoProfile",
+                    "-NonInteractive",
+                    "-ExecutionPolicy",
+                    "Bypass",
+                    "-Command",
+                    powershell_script,
+                ]
+            else:
+                return False
+
+            self.active_process = subprocess.Popen(
+                command,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )
             self.active_process.wait()
             self.active_process = None
             return True
+        except Exception as error:
+            print(f"edge tts unavailable, falling back: {error!r}")
+            self.active_process = None
+            return False
         finally:
             try:
                 output_path.unlink(missing_ok=True)
