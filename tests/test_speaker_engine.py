@@ -75,6 +75,14 @@ class SpeakerEngineTests(unittest.TestCase):
         self.assertTrue(speaker.queue.empty())
         speaker.shutdown()
 
+    def test_prepared_system_engine_is_consumed_once(self):
+        speaker = Speaker(engine_preference="system")
+        prepared = _DummyEngine()
+        speaker._prepared_engine = prepared
+        self.assertIs(speaker._take_prepared_engine(), prepared)
+        self.assertIsNone(speaker._prepared_engine)
+        speaker.shutdown()
+
 
 if __name__ == "__main__":
     unittest.main()
