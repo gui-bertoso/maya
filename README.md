@@ -1,78 +1,24 @@
 # Maya
 
-[PT-BR](#pt-br) | [EN](#en) | [RESUMO (PT-BR)](RESUMO.md) | [SUMMARY (EN)](SUMMARY.md)
+Assistente pessoal local-first para Windows, feita em Python. A Maya escuta comandos em português, automatiza o desktop, acompanha sua rotina e responde por uma interface flutuante ou por voz.
 
-## PT-BR
+> Projeto funcional e experimental. O foco atual é baixa latência, privacidade local e evolução incremental com testes.
 
-A Maya e uma assistente virtual local feita em Python.
+## Destaques
 
-Nao e um produto pronto. E um projeto funcional, experimental e bem editavel, que roda no desktop, escuta voz, responde, guarda memoria em JSON e automatiza algumas coisas no sistema.
+- reconhecimento offline com Vosk e wake words `Maya` / `Maia`;
+- supressão adaptativa de ruído e encerramento rápido de fala;
+- pipeline assíncrono com filas limitadas e semáforos;
+- TTS do Windows pré-aquecido, com Piper e Edge opcionais;
+- rotinas A/B, recálculo por atraso, lembretes, XP e streak;
+- overlay PySide6, quick input, notificações e configurações;
+- memória, vocabulário e respostas persistidos localmente;
+- automações para aplicativos, web, Spotify e ambientes de trabalho;
+- instalador gráfico e inicialização automática.
 
-### O que ela faz
+## Início rápido no Windows
 
-- overlay flutuante com `PySide6`
-- wake por palma dupla e atalho
-- reconhecimento de voz offline com `Vosk`
-- fala com `Piper` ou TTS do sistema
-- memoria persistente em JSON
-- configuracao por `.env`
-- respostas em `data/responses.json`
-- textos/config leve em `data/app_text.json`
-- launcher de apps/sites
-- comandos naturais para Spotify
-- manchetes do dia via feed web
-- window showcase
-- painel de configuracao rapido
-- modo dev e modo reflexivo
-- console de runtime opcional no modo debug
-
-### Stack
-
-- Python
-- PySide6
-- Vosk
-- Piper TTS
-- pyttsx3
-- sounddevice
-- python-dotenv
-
-### Estrutura
-
-```text
-maya/
-|- app.py
-|- core/
-|- helpers/
-|- input/
-|- output/
-|- data/
-|- models/
-|- scripts/
-|- tests/
-```
-
-### Como rodar
-
-```bash
-python app.py
-```
-
-ou, para usar o fluxo de setup/update automatico:
-
-```bash
-python setup.py
-```
-
-Primeira vez:
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python app.py
-```
-
-Windows:
+Requisitos: Python 3.11, Git e um microfone funcional.
 
 ```powershell
 py -3.11 -m venv .venv
@@ -80,344 +26,77 @@ py -3.11 -m venv .venv
 .\.venv\Scripts\python.exe app.py
 ```
 
-### Dependencias do sistema
-
-Pra audio funcionar direito, voce precisa do PortAudio.
-
-```bash
-# Debian/Ubuntu
-sudo apt install portaudio19-dev
-
-# Fedora
-sudo dnf install portaudio-devel
-
-# Arch
-sudo pacman -S portaudio
-```
-
-### Config
-
-As variaveis principais sao:
-
-- `LANGUAGE`
-- `DEBUG_MODE`
-- `VOSK_MODEL_PATH`
-- `TTS_ENGINE`
-- `MICROPHONE_ENABLED`
-- `WAKE_RESPONSE_TEXT`
-- `WAKE_RESPONSE_OPTIONS`
-- `SPEAK_WAKE_RESPONSE`
-- `SPEAK_WAKE_RESPONSE_ON_CLAP`
-- `SPEAK_WAKE_RESPONSE_ON_HOTKEY`
-- `STARTUP_GREETING_ENABLED`
-- `STARTUP_GREETING_DELAY`
-- `STARTUP_BRIEF_RESPONSE_WINDOW`
-- `DAILY_BRIEF_LOCATION`
-- `WAKE_DURATION`
-- `VOICE_IGNORE_COOLDOWN`
-- `MEMORY_PATH`
-- `RESPONSES_PATH`
-- `APP_TEXT_PATH`
-
-Arquivos mais faceis de editar manualmente:
-
-- `data/responses.json`
-- `data/app_text.json`
-- `.env`
-- `data/apps.json`
-
-### Modelos locais
-
-- `models/vosk-model-small-pt-0.3`
-- `models/vosk-model-small-en-us-0.15`
-- `models/piper/pt_BR-cadu-medium.onnx`
-- `models/piper/en_US-lessac-high.onnx`
-
-Os modelos do `Piper` nao entram no Git porque os `.onnx` sao grandes demais para o fluxo normal do GitHub. Baixe localmente com:
-
-```bash
-python scripts/download_piper_models.py
-```
-
-ou apenas um idioma:
-
-```bash
-python scripts/download_piper_models.py --model pt
-python scripts/download_piper_models.py --model en
-```
-
-### Build Windows
+Com `uv`:
 
 ```powershell
-.\scripts\build_windows.bat
+uv run --python 3.11 --with-requirements requirements-windows.txt python app.py
 ```
 
-ou
+Para baixar vozes neurais opcionais:
 
 ```powershell
-.\scripts\build_setup_windows.bat
+.\.venv\Scripts\python.exe scripts\download_piper_models.py --model pt
 ```
 
-O `setup.py` baixa/atualiza o projeto a partir do GitHub, preserva a `.venv` local e gera logs de setup quando algo falha.
+## Comandos de rotina
 
-### Autostart
+| Comando | Função |
+|---|---|
+| `!today` | Mostra o plano de hoje |
+| `!done <atividade>` | Conclui uma atividade e concede XP |
+| `!skip <atividade>` | Ignora uma atividade |
+| `!routine a` / `b` | Alterna entre treino às 06:00 ou 14:00 |
+| `!status` | Exibe progresso, XP e streak |
+| `!week` | Resume a semana |
+| `!awake HH:MM` | Recalcula o dia após acordar atrasado |
 
-No Linux, a Maya pode subir no login via `~/.config/autostart/maya.desktop`, apontando para `scripts/start_maya.sh`.
-
-### Testes
-
-```bash
-python -m unittest discover -s tests
-```
-
-### Exemplos de uso
-
-- `oi`
-- `que horas sao`
-- `qual a data de hoje`
-- `me mostra as noticias de hoje`
-- `abrir spotify no chrome`
-- `tocar dua lipa no spotify`
-- `tocar playlist anos 80 no spotify`
-- `show open windows`
-- `window disco`
-- `settings`
-- `quero codar`
-- `estou pensando demais`
-
-### Dados salvos
-
-- `data/memory.json`
-- `data/vocabulary.json`
-- `data/responses.json`
-- `data/app_text.json`
-- `data/apps.json`
-- `data/learned_knowledge.json`
-- `generated_projects/`
-- `logs/startup-error.log`
-
-### Limites atuais
-
-- ainda tem bastante heuristica simples
-- varias partes ainda sao experimentais
-- depende bastante do audio local estar ok
-- Wayland limita captura/previews de janela
-- algumas automacoes dependem de apps ja instalados no sistema
-
-### Resumo honesto
-
-A Maya e uma assistente local com voz, overlay, memoria em JSON e automacoes de desktop. Ainda nao esta pronta, mas ja esta funcional o bastante pra usar e ir lapidando.
-
-## EN
-
-Maya is a local virtual assistant built in Python.
-
-It is not a polished product. It is a functional, experimental, highly editable desktop project that listens to voice, responds, stores memory in JSON, and automates a few system tasks.
-
-### What it does
-
-- floating overlay with `PySide6`
-- wake by double clap and hotkey
-- offline speech recognition with `Vosk`
-- speech output through `Piper` or system TTS
-- persistent JSON memory
-- `.env`-based configuration
-- responses in `data/responses.json`
-- lightweight app text/config in `data/app_text.json`
-- app/site launcher
-- natural Spotify commands
-- daily headlines via web feed
-- window showcase
-- quick settings panel
-- dev mode and thoughtful mode
-- optional runtime console in debug mode
-
-### Stack
-
-- Python
-- PySide6
-- Vosk
-- Piper TTS
-- pyttsx3
-- sounddevice
-- python-dotenv
-
-### Structure
+## Estrutura
 
 ```text
 maya/
-|- app.py
-|- core/
-|- helpers/
-|- input/
-|- output/
-|- data/
-|- models/
-|- scripts/
-|- tests/
+├── app.py          # composição e ciclo de vida
+├── core/           # processamento, memória, rotina e concorrência
+├── input/          # microfone, Vosk, ruído e palmas
+├── output/         # interface e síntese de voz
+├── helpers/        # integrações e utilitários
+├── data/           # conteúdo e estado local em JSON
+├── models/         # modelos locais de voz
+├── scripts/        # execução, downloads e builds
+├── tests/          # testes automatizados
+└── docs/           # documentação por assunto
 ```
 
-### Run
+## Documentação
 
-```bash
-python app.py
-```
+- [Visão geral em português](docs/overview.pt-BR.md)
+- [Overview in English](docs/overview.en.md)
+- [Arquitetura](docs/architecture.md)
+- [Pipeline de voz](docs/voice-pipeline.md)
+- [Rotinas pessoais](docs/routines.md)
+- [Desenvolvimento e testes](docs/development.md)
+- [Roadmap](docs/roadmap.md)
 
-or, if you want the automatic setup/update flow:
+Mapa visual: [Maya — Arquitetura, Fluxos e Roadmap](https://miro.com/app/board/uXjVHr5wgpk=/)
 
-```bash
-python setup.py
-```
-
-First run:
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python app.py
-```
-
-Windows:
+## Testes
 
 ```powershell
-py -3.11 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements-windows.txt
-.\.venv\Scripts\python.exe app.py
+uv run --python 3.11 --with-requirements requirements-windows.txt python -m unittest discover -s tests -v
 ```
 
-### System dependencies
-
-For audio to work properly, you need PortAudio installed.
-
-```bash
-# Debian/Ubuntu
-sudo apt install portaudio19-dev
-
-# Fedora
-sudo dnf install portaudio-devel
-
-# Arch
-sudo pacman -S portaudio
-```
-
-### Config
-
-Main variables:
-
-- `LANGUAGE`
-- `DEBUG_MODE`
-- `VOSK_MODEL_PATH`
-- `TTS_ENGINE`
-- `MICROPHONE_ENABLED`
-- `WAKE_RESPONSE_TEXT`
-- `WAKE_RESPONSE_OPTIONS`
-- `SPEAK_WAKE_RESPONSE`
-- `SPEAK_WAKE_RESPONSE_ON_CLAP`
-- `SPEAK_WAKE_RESPONSE_ON_HOTKEY`
-- `STARTUP_GREETING_ENABLED`
-- `STARTUP_GREETING_DELAY`
-- `STARTUP_BRIEF_RESPONSE_WINDOW`
-- `DAILY_BRIEF_LOCATION`
-- `WAKE_DURATION`
-- `VOICE_IGNORE_COOLDOWN`
-- `MEMORY_PATH`
-- `RESPONSES_PATH`
-- `APP_TEXT_PATH`
-
-Best files to edit manually:
-
-- `data/responses.json`
-- `data/app_text.json`
-- `.env`
-- `data/apps.json`
-
-### Local models
-
-- `models/vosk-model-small-pt-0.3`
-- `models/vosk-model-small-en-us-0.15`
-- `models/piper/pt_BR-cadu-medium.onnx`
-- `models/piper/en_US-lessac-high.onnx`
-
-`Piper` models are not committed because the `.onnx` files are too large for the normal GitHub flow. Download them locally with:
-
-```bash
-python scripts/download_piper_models.py
-```
-
-Or fetch only one language:
-
-```bash
-python scripts/download_piper_models.py --model pt
-python scripts/download_piper_models.py --model en
-```
-
-### Windows build
+## Build
 
 ```powershell
-.\scripts\build_windows.bat
+.\scripts\build_windows.ps1
+.\scripts\build_setup_windows.ps1
 ```
 
-or
+Artefatos como `setup.exe`, `build/`, `dist/`, logs e caches não pertencem ao Git. Gere-os localmente ou publique-os em uma release.
 
-```powershell
-.\scripts\build_setup_windows.bat
-```
+## Privacidade
 
-`setup.py` can download/update the project from GitHub, preserve the local `.venv`, and report setup failures with logs.
+O reconhecimento Vosk e os dados pessoais funcionam localmente. Áudio não é gravado por padrão. Motores e integrações online são opcionais e devem ser ativados conscientemente.
 
-### Autostart
+## Estado atual
 
-On Linux, Maya can start on login through `~/.config/autostart/maya.desktop`, pointing to `scripts/start_maya.sh`.
-
-### Tests
-
-```bash
-python -m unittest discover -s tests
-```
-
-### Usage examples
-
-- `hi`
-- `what time is it`
-- `what is today's date`
-- `show me today's headlines`
-- `open spotify on chrome`
-- `play dua lipa on spotify`
-- `play an 80s playlist on spotify`
-- `show open windows`
-- `window disco`
-- `settings`
-- `i want to code`
-- `i'm overthinking`
-
-### Saved data
-
-- `data/memory.json`
-- `data/vocabulary.json`
-- `data/responses.json`
-- `data/app_text.json`
-- `data/apps.json`
-- `data/learned_knowledge.json`
-- `generated_projects/`
-- `logs/startup-error.log`
-
-### Current limits
-
-- still uses a lot of simple heuristics
-- several parts are still experimental
-- depends heavily on local audio working properly
-- Wayland limits window capture/previews
-- some automations depend on apps already being installed locally
-
-### Honest summary
-
-Maya is a local assistant with voice, overlay, JSON memory, and desktop automation. It is not finished, but it is already functional enough to use and keep refining.
-# Rotina pessoal
-
-A Maya inclui duas rotinas diarias persistentes: `!routine a` usa treino as 06:00 e
-`!routine b` usa treino as 14:00. Consulte `!today`, marque atividades com
-`!done rust` ou `!skip english`, veja `!status` e `!week`, e informe atrasos com
-`!awake 09:20` ou `acordei as 09:20`. A agenda e recalculada sem mover treino e
-escola, os dados ficam em `data/routine.json`, e a interface avisa no inicio de
-cada atividade.
+A base já é utilizável, mas ainda precisa de telemetria real de latência, diagnóstico de áudio, barge-in robusto, assinatura do instalador e testes em máquina limpa. Consulte o [roadmap](docs/roadmap.md).

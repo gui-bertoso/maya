@@ -3,12 +3,14 @@
 __pycache__
 *.py[cod]
 *.log
+*.exe
 .idea
 **/__pycache__/
 .pytest_cache/
 build/
 dist/
 data/backups/
+logs/
 generated_projects/*
 # Piper models are downloaded locally because GitHub rejects the larger ONNX files.
 models/piper/
