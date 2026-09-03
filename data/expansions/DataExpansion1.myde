@@ -1,4 +1,6 @@
 {
+  "format": "maya-data-expansion",
+  "format_version": 1,
   "name": "foco-e-rotina",
   "version": 1,
   "commands": {
