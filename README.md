@@ -78,6 +78,7 @@ maya/
 - [Desenvolvimento e testes](docs/development.md)
 - [Códigos de erro](docs/error-codes.md)
 - [Comandos e exemplos](docs/commands.md)
+- [Containers DataExpansion](docs/data-expansions.md)
 - [Roadmap](docs/roadmap.md)
 
 Mapa visual: [Maya — Arquitetura, Fluxos e Roadmap](https://miro.com/app/board/uXjVHr5wgpk=/)

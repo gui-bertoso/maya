@@ -1,0 +1,12 @@
+{
+  "name": "conversa-natural",
+  "version": 1,
+  "commands": {
+    "asks_status": ["e ai maya tudo certo", "como estamos hoje", "ta viva ai"],
+    "thanks": ["agradecido", "salvou demais"]
+  },
+  "responses": {
+    "thanks_pt": ["missao cumprida. pelo menos desta vez.", "disponha, chefe do caos."],
+    "thanks": ["mission accomplished. at least this time.", "anytime, chief of chaos."]
+  }
+}

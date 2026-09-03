@@ -84,6 +84,7 @@ def ensure_runtime_layout():
         "data/responses.json",
         "data/routine.json",
         "data/vocabulary.json",
+        "data/expansions",
     ):
         _copy_if_missing(
             get_resource_path(relative_path),

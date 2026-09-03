@@ -1,0 +1,12 @@
+{
+  "name": "controle-do-sistema",
+  "version": 1,
+  "commands": {
+    "asks_capabilities": ["abre seu arsenal", "quais sao seus truques", "mostra o menu de poderes"],
+    "background_app": ["vai pra bandeja", "fica de canto"]
+  },
+  "responses": {
+    "background_app_pt": ["indo pra bandeja. chama quando o caos voltar."],
+    "asks_capabilities_pt": ["meu arsenal inclui rotina, voz, apps, janelas, musica, memoria e buscas."]
+  }
+}
