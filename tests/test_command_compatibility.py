@@ -49,6 +49,14 @@ class CommandCompatibilityTests(unittest.TestCase):
                 self.assertTrue(detected["move_window"])
                 self.assertEqual(detected["move_window_target"]["monitor"], "other")
 
+    def test_move_your_self_moves_maya_instead_of_an_external_window(self):
+        for phrase in ("move your self to another window", "move yourself to another window"):
+            with self.subTest(phrase=phrase):
+                detected = self.process.detect_patterns(phrase)
+                self.assertTrue(detected["move_app"])
+                self.assertEqual(detected["move_app_target"]["monitor"], "other")
+                self.assertFalse(detected["move_window"])
+
 
 if __name__ == "__main__":
     unittest.main()
