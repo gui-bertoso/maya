@@ -831,19 +831,20 @@ class SettingsWindow(QWidget):
         self.renderer = renderer
         self.inputs = {}
 
+        self.setObjectName("settingsWindow")
         self.setWindowTitle(self.renderer.tr("settings_window_title"))
-        self.resize(760, 820)
-        self.setMinimumSize(680, 700)
+        self.resize(860, 760)
+        self.setMinimumSize(740, 640)
 
         root_layout = QVBoxLayout(self)
-        root_layout.setContentsMargins(26, 24, 26, 24)
-        root_layout.setSpacing(16)
+        root_layout.setContentsMargins(22, 20, 22, 18)
+        root_layout.setSpacing(14)
 
         header = QFrame()
         header.setObjectName("settingsHeader")
         header_layout = QVBoxLayout(header)
-        header_layout.setContentsMargins(22, 20, 22, 20)
-        header_layout.setSpacing(6)
+        header_layout.setContentsMargins(22, 17, 22, 17)
+        header_layout.setSpacing(4)
         self.title_label = QLabel(self.renderer.tr("settings_title"))
         self.title_label.setObjectName("settingsTitle")
         self.subtitle_label = QLabel(self.renderer.tr("settings_subtitle"))
@@ -875,6 +876,7 @@ class SettingsWindow(QWidget):
         scroll_area.setFrameShape(QFrame.NoFrame)
 
         scroll_content = QWidget()
+        scroll_content.setObjectName("settingsScrollContent")
         self.sections_layout = QVBoxLayout(scroll_content)
         self.sections_layout.setContentsMargins(0, 0, 0, 0)
         self.sections_layout.setSpacing(14)
@@ -890,8 +892,8 @@ class SettingsWindow(QWidget):
                 section = QFrame()
                 section.setObjectName("settingsSection")
                 section_layout = QVBoxLayout(section)
-                section_layout.setContentsMargins(18, 18, 18, 18)
-                section_layout.setSpacing(10)
+                section_layout.setContentsMargins(18, 14, 18, 16)
+                section_layout.setSpacing(8)
 
                 section_title = QLabel(localized["category"])
                 section_title.setObjectName("settingsSectionTitle")
@@ -900,8 +902,8 @@ class SettingsWindow(QWidget):
                 current_form = QFormLayout()
                 current_form.setLabelAlignment(Qt.AlignLeft | Qt.AlignTop)
                 current_form.setFormAlignment(Qt.AlignTop)
-                current_form.setHorizontalSpacing(20)
-                current_form.setVerticalSpacing(12)
+                current_form.setHorizontalSpacing(22)
+                current_form.setVerticalSpacing(10)
                 section_layout.addLayout(current_form)
                 self.sections_layout.addWidget(section)
                 self.sections.append(
@@ -958,7 +960,7 @@ class SettingsWindow(QWidget):
 
         self.sections_layout.addStretch(1)
         self.category_filter.clear()
-        self.category_filter.addItem("All categories", "")
+        self.category_filter.addItem("Todas as categorias" if is_portuguese(self.renderer.language) else "All categories", "")
         for section in self.sections:
             self.category_filter.addItem(section["category"], section["category"])
         scroll_area.setWidget(scroll_content)
@@ -995,36 +997,44 @@ class SettingsWindow(QWidget):
 
         self.setStyleSheet(
             """
-            QWidget {
-                background: #091018;
+            QWidget#settingsWindow {
+                background: #0b0d14;
                 color: #edf6ff;
                 font-size: 14px;
+            }
+            QWidget#settingsScrollContent, QScrollArea, QScrollArea > QWidget > QWidget {
+                background: transparent;
+            }
+            QLabel {
+                background: transparent;
+                border: none;
             }
             QFrame#settingsHeader {
                 background: qlineargradient(
                     x1: 0, y1: 0, x2: 1, y2: 1,
-                    stop: 0 #142b3a,
-                    stop: 1 #10202c
+                    stop: 0 #19152b,
+                    stop: 0.55 #14182a,
+                    stop: 1 #10242a
                 );
-                border: 1px solid rgba(129, 210, 255, 95);
-                border-radius: 20px;
+                border: 1px solid rgba(148, 123, 255, 110);
+                border-radius: 18px;
             }
             QFrame#settingsSection {
-                background: #101b26;
-                border: 1px solid rgba(129, 180, 216, 72);
-                border-radius: 16px;
+                background: #121722;
+                border: 1px solid #252d3d;
+                border-radius: 14px;
             }
             QLabel#settingsTitle {
-                font-size: 30px;
+                font-size: 26px;
                 font-weight: 700;
-                color: #f5fbff;
+                color: #ffffff;
             }
             QLabel#settingsSubtitle {
                 color: rgba(225, 239, 250, 190);
                 font-size: 13px;
             }
             QLabel#settingsVersion {
-                color: #82e1b2;
+                color: #8fe3bd;
                 font-size: 12px;
                 font-weight: 700;
                 letter-spacing: 0.5px;
@@ -1032,16 +1042,16 @@ class SettingsWindow(QWidget):
             QLabel#settingsSectionTitle {
                 font-size: 16px;
                 font-weight: 700;
-                color: #8cddff;
-                padding-bottom: 4px;
+                color: #a996ff;
+                padding: 0 0 5px 2px;
             }
             QLabel#settingsLabel {
                 font-weight: 600;
-                padding-top: 6px;
-                color: #dcebf5;
+                padding: 7px 0 0 2px;
+                color: #e6e9f2;
             }
             QLabel#settingsHelp {
-                color: rgba(205, 224, 239, 155);
+                color: #8791a5;
                 font-size: 12px;
             }
             QLabel#settingsStatus {
@@ -1049,64 +1059,61 @@ class SettingsWindow(QWidget):
                 padding-left: 4px;
             }
             QFrame#settingsActions {
-                background: rgba(14, 26, 37, 210);
-                border: 1px solid rgba(129, 180, 216, 55);
-                border-radius: 15px;
+                background: #111620;
+                border: 1px solid #252d3d;
+                border-radius: 14px;
                 padding: 6px;
             }
             QLineEdit, QComboBox {
-                min-height: 40px;
-                border-radius: 11px;
-                border: 1px solid rgba(129, 180, 216, 92);
-                background: #0a141e;
+                min-height: 38px;
+                border-radius: 10px;
+                border: 1px solid #313b50;
+                background: #0d111a;
                 padding: 0 12px;
                 selection-background-color: rgba(74, 178, 235, 145);
             }
             QLineEdit:focus, QComboBox:focus {
-                border: 1px solid #65cfff;
-                background: #0d1b28;
+                border: 1px solid #9278ff;
+                background: #121624;
             }
             QComboBox::drop-down {
                 width: 34px;
                 border: none;
-                border-left: 1px solid rgba(129, 180, 216, 55);
+                border-left: 1px solid #313b50;
             }
             QComboBox QAbstractItemView {
-                background: #10202d;
+                background: #151a27;
                 color: #edf6ff;
-                border: 1px solid #65cfff;
-                selection-background-color: #1c5d7c;
+                border: 1px solid #9278ff;
+                selection-background-color: #5845a5;
             }
             QPushButton#settingsColorButton {
                 min-width: 88px;
             }
-            QScrollArea {
-                background: transparent;
-            }
             QPushButton {
                 min-height: 40px;
-                border-radius: 11px;
-                border: 1px solid rgba(129, 180, 216, 95);
-                background: #162938;
+                border-radius: 10px;
+                border: 1px solid #354057;
+                background: #1a2130;
                 padding: 0 16px;
                 color: #e9f5fc;
             }
             QPushButton:hover {
-                background: #1d3a4e;
-                border-color: #65cfff;
+                background: #252d40;
+                border-color: #9278ff;
             }
             QPushButton:pressed {
-                background: #102331;
+                background: #121724;
             }
             QPushButton#primaryButton {
-                background: #78d9aa;
-                color: #092114;
-                border-color: #78d9aa;
+                background: #8f72ff;
+                color: #ffffff;
+                border-color: #9c84ff;
                 font-weight: 700;
             }
             QPushButton#primaryButton:hover {
-                background: #91ebbd;
-                border-color: #91ebbd;
+                background: #a58fff;
+                border-color: #b4a2ff;
             }
             QScrollBar:vertical {
                 background: transparent;
@@ -1114,12 +1121,12 @@ class SettingsWindow(QWidget):
                 margin: 4px 0 4px 4px;
             }
             QScrollBar::handle:vertical {
-                background: rgba(115, 190, 229, 135);
+                background: #4c5670;
                 border-radius: 5px;
                 min-height: 32px;
             }
             QScrollBar::handle:vertical:hover {
-                background: rgba(115, 216, 255, 190);
+                background: #9278ff;
             }
             QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical,
             QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
@@ -1196,12 +1203,13 @@ class SettingsWindow(QWidget):
 
         for row in self.field_rows:
             field = row["field"]
+            localized = localize_env_field(field, self.renderer.language)
             haystack = " ".join(
                 [
                     field.key,
-                    localize_env_field(field, self.renderer.language)["category"],
-                    localize_env_field(field, self.renderer.language)["label"],
-                    localize_env_field(field, self.renderer.language)["help_text"],
+                    localized["category"],
+                    localized["label"],
+                    localized["help_text"],
                 ]
             ).lower()
             category_matches = not selected_category or localized["category"] == selected_category
