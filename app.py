@@ -69,6 +69,7 @@ if hasattr(threading, "excepthook"):
 
 from output.renderer import Renderer
 from core.process import Process
+from core.input_pipeline import AsyncInputPipeline
 from core.memory import Memory
 from input.voice import Voice
 from core import vocabulary_manager
@@ -160,10 +161,15 @@ class App:
         self.awaiting_startup_brief_response = False
         self.pending_context_action = None
         self._last_routine_check_minute = None
+        self.input_pipeline = AsyncInputPipeline(
+            workers=2,
+            capacity=6,
+            on_error=self._handle_async_input_error,
+        )
 
         self.renderer = Renderer(
             self.events,
-            submit_input_callback=self.handle_input,
+            submit_input_callback=self.submit_input_async,
             periodic_callback=self.update_app_state,
             keep_awake_callback=self.keep_awake,
             settings_apply_callback=self.apply_user_settings,
@@ -199,7 +205,10 @@ class App:
             self.send_event("app_show_quick_input", None)
 
         self._schedule_startup_greeting()
-        self.renderer.run()
+        try:
+            self.renderer.run()
+        finally:
+            self.input_pipeline.shutdown()
 
     @staticmethod
     def _normalize_command(text):
@@ -748,7 +757,20 @@ class App:
             return None
 
         self.send_event("voice_final", text)
-        return self.handle_input(text, input_source="voice")
+        self.submit_input_async(text, input_source="voice")
+        return None
+
+    def _handle_async_input_error(self, error):
+        print("async input error:", repr(error))
+        self.send_event("voice_status", "error")
+
+    def submit_input_async(self, text, input_source="text"):
+        accepted = self.input_pipeline.submit(self.handle_input, text, input_source=input_source)
+        if not accepted:
+            if self.DEBUG_MODE:
+                print("input pipeline busy, dropped:", repr(text))
+            self.send_event("voice_status", "busy")
+        return accepted
 
     def handle_partial_voice(self, text):
         now = time.time()
