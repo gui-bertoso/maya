@@ -12,7 +12,7 @@ class GlobalHotkeyListener:
         self._listener = None
         self._startup_success = False
 
-    def start_pgdown_end(self, callback):
+    def start_end_pgdown(self, callback):
         if self.thread and self.thread.is_alive():
             return True
 
@@ -20,7 +20,7 @@ class GlobalHotkeyListener:
         self._startup_success = False
         startup_event = threading.Event()
         self.thread = threading.Thread(
-            target=self._run_pgdown_end_listener,
+            target=self._run_end_pgdown_listener,
             args=(callback, startup_event),
             daemon=True,
         )
@@ -35,7 +35,7 @@ class GlobalHotkeyListener:
             from pynput import keyboard
 
             hotkey = keyboard.HotKey(
-                keyboard.HotKey.parse("<page_down>+<end>"),
+                keyboard.HotKey.parse("<end>+<page_down>"),
                 callback,
             )
 
@@ -93,7 +93,7 @@ class GlobalHotkeyListener:
             self.is_running = False
             self._startup_success = False
 
-    def _run_pgdown_end_listener(self, callback, startup_event):
+    def _run_end_pgdown_listener(self, callback, startup_event):
         if sys.platform.startswith("win"):
             self._run_windows_hotkey_listener(callback, startup_event)
             return
@@ -108,7 +108,7 @@ class GlobalHotkeyListener:
 
         try:
             hotkey = keyboard.HotKey(
-                keyboard.HotKey.parse("<page_down>+<end>"),
+                keyboard.HotKey.parse("<end>+<page_down>"),
                 callback,
             )
 
