@@ -21,8 +21,9 @@ except (ImportError, OSError) as error:
 
 
 class Voice:
-    def __init__(self, model_path="models/vosk-model-small-en-us-0.15", sample_rate=16000, block_size=4000,
-                 noise_suppression=True, noise_gate=180, noise_multiplier=2.2, speech_hangover=6):
+    def __init__(self, model_path="models/vosk-model-small-en-us-0.15", sample_rate=16000, block_size=2000,
+                 noise_suppression=True, noise_gate=180, noise_multiplier=2.2, speech_hangover=4,
+                 fast_endpoint=True, endpoint_silence_ms=375):
         self.model_path = model_path
         self.sample_rate = sample_rate
         self.block_size = max(1600, int(block_size))
@@ -30,12 +31,18 @@ class Voice:
         self.noise_gate = max(20.0, float(noise_gate))
         self.noise_multiplier = max(1.1, float(noise_multiplier))
         self.speech_hangover = max(0, int(speech_hangover))
+        self.fast_endpoint = bool(fast_endpoint)
+        self.endpoint_silence_ms = max(200, int(endpoint_silence_ms))
+        block_duration_ms = (self.block_size / self.sample_rate) * 1000.0
+        self.endpoint_silence_blocks = max(2, int(math.ceil(self.endpoint_silence_ms / block_duration_ms)))
         self.noise_floor = 60.0
         self._speech_blocks_remaining = 0
         self.last_rms = 0.0
+        self.last_block_has_speech = False
 
         self.thread = None
-        self.audio_queue = queue.Queue()
+        # Bound the backlog so an overloaded recognizer never answers old audio.
+        self.audio_queue = queue.Queue(maxsize=16)
 
         self.model = None
         self.recognizer = None
@@ -114,7 +121,20 @@ class Voice:
         raw = bytes(indata)
         if self.noise_suppression:
             raw = self._suppress_noise(raw)
-        self.audio_queue.put(raw)
+        else:
+            samples = np.frombuffer(raw, dtype=np.int16).astype(np.float32)
+            rms = math.sqrt(float(np.mean(samples * samples))) if samples.size else 0.0
+            self.last_rms = rms
+            self.last_block_has_speech = rms >= self.noise_gate
+        packet = (raw, self.last_block_has_speech)
+        try:
+            self.audio_queue.put_nowait(packet)
+        except queue.Full:
+            try:
+                self.audio_queue.get_nowait()
+            except queue.Empty:
+                pass
+            self.audio_queue.put_nowait(packet)
 
     def _suppress_noise(self, raw_audio):
         samples = np.frombuffer(raw_audio, dtype=np.int16)
@@ -126,8 +146,9 @@ class Voice:
         rms = math.sqrt(float(np.mean(centered * centered)))
         self.last_rms = rms
         threshold = max(self.noise_gate, self.noise_floor * self.noise_multiplier)
+        self.last_block_has_speech = rms >= threshold
 
-        if rms >= threshold:
+        if self.last_block_has_speech:
             self._speech_blocks_remaining = self.speech_hangover
             return np.clip(centered, -32768, 32767).astype(np.int16).tobytes()
 
@@ -138,6 +159,13 @@ class Voice:
 
         # Keep feeding silence so Vosk can close the current phrase cleanly.
         return np.zeros(samples.shape, dtype=np.int16).tobytes()
+
+    def _should_fast_finalize(self, partial_text, silent_blocks):
+        return bool(
+            self.fast_endpoint
+            and partial_text
+            and silent_blocks >= self.endpoint_silence_blocks
+        )
 
     def _listen_loop(self, on_final_text=None, on_partial_text=None, on_status_change=None):
         self.load_voice(on_status_change)
@@ -158,8 +186,16 @@ class Voice:
                 if self.DEBUG_MODE:
                     print("voice listening...")
 
+                silent_blocks = 0
+                latest_partial = ""
                 while self.is_listening:
-                    data = self.audio_queue.get()
+                    packet = self.audio_queue.get()
+                    if isinstance(packet, tuple):
+                        data, block_has_speech = packet
+                    else:
+                        data, block_has_speech = packet, True
+
+                    silent_blocks = 0 if block_has_speech else silent_blocks + 1
 
                     if self.recognizer.AcceptWaveform(data):
                         result = json.loads(self.recognizer.Result())
@@ -174,17 +210,31 @@ class Voice:
 
                             if on_final_text:
                                 on_final_text(text)
+                        latest_partial = ""
+                        silent_blocks = 0
 
                     else:
                         partial = json.loads(self.recognizer.PartialResult())
                         partial_text = partial.get("partial", "").strip()
 
                         if partial_text:
+                            latest_partial = partial_text
                             if on_status_change:
                                 on_status_change("hearing")
 
                             if on_partial_text:
                                 on_partial_text(partial_text)
+
+                        if self._should_fast_finalize(latest_partial, silent_blocks):
+                            if self.DEBUG_MODE:
+                                print("fast final:", latest_partial)
+                            if on_status_change:
+                                on_status_change("ready")
+                            if on_final_text:
+                                on_final_text(latest_partial)
+                            self.recognizer.Reset()
+                            latest_partial = ""
+                            silent_blocks = 0
 
         except Exception as error:
             self.last_error = str(error)
