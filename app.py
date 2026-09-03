@@ -233,13 +233,15 @@ class App:
 
     def _create_voice(self):
         return Voice(
-            model_path=get_env("VOSK_MODEL_PATH", "models/vosk-model-small-en-us-0.15"),
+            model_path=get_env("VOSK_MODEL_PATH", "models/vosk-model-small-pt-0.3"),
             sample_rate=get_env("VOICE_SAMPLE_RATE", 16000, int),
-            block_size=get_env("VOICE_BLOCK_SIZE", 4000, int),
+            block_size=get_env("VOICE_BLOCK_SIZE", 2000, int),
             noise_suppression=get_env("VOICE_NOISE_SUPPRESSION", "true").lower() == "true",
             noise_gate=get_env("VOICE_NOISE_GATE", 180, int),
             noise_multiplier=get_env("VOICE_NOISE_MULTIPLIER", 2.2, float),
-            speech_hangover=get_env("VOICE_SPEECH_HANGOVER", 6, int),
+            speech_hangover=get_env("VOICE_SPEECH_HANGOVER", 4, int),
+            fast_endpoint=get_env("VOICE_FAST_ENDPOINT", "true").lower() == "true",
+            endpoint_silence_ms=get_env("VOICE_ENDPOINT_SILENCE_MS", 375, int),
         )
 
     @staticmethod
