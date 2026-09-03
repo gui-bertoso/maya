@@ -55,6 +55,7 @@ class Speaker:
         self._piper_voice = None
         self._piper_disabled = False
         self._piper_error = None
+        self._prepared_engine = None
 
         self.thread = threading.Thread(target=self._run, daemon=True)
         self.thread.start()
@@ -107,6 +108,22 @@ class Speaker:
             self._apply_preferred_voice(engine)
 
         return engine
+
+    def _prepare_system_engine(self):
+        if self._prepared_engine is not None or not self.use_system_tts:
+            return self._prepared_engine
+        try:
+            self._prepared_engine = self._create_engine()
+        except Exception as error:
+            self._prepared_engine = None
+            if self.engine_preference == "system":
+                print(f"system tts prewarm unavailable: {error!r}")
+        return self._prepared_engine
+
+    def _take_prepared_engine(self):
+        engine = self._prepared_engine
+        self._prepared_engine = None
+        return engine or self._create_engine()
 
     def _get_piper_model_path(self):
         normalized = self.language.replace("_", "-")
@@ -442,6 +459,12 @@ class Speaker:
 
     def _run(self):
         try:
+            # Prime Windows SAPI before the first request. A fresh replacement is
+            # prepared after every utterance, hiding startup cost without keeping
+            # one pyttsx3 engine alive long enough to hit its Windows hang issue.
+            if not self.use_edge_tts and not self.use_piper:
+                self._prepare_system_engine()
+
             while self.is_running:
                 text = self.queue.get()
 
@@ -475,7 +498,7 @@ class Speaker:
                             try:
                                 # Recreate the engine per utterance to avoid pyttsx3
                                 # getting stuck after the first spoken response on Windows.
-                                engine = self._create_engine()
+                                engine = self._take_prepared_engine()
                                 engine.say(text)
                                 engine.runAndWait()
                             finally:
@@ -484,13 +507,20 @@ class Speaker:
                                         engine.stop()
                                 except Exception:
                                     pass
+                            if self.is_running and not self.use_edge_tts and not self.use_piper:
+                                self._prepare_system_engine()
                 except Exception as e:
                     print("tts error:", repr(e))
 
                 self.is_speaking = False
 
         finally:
-            pass
+            try:
+                if self._prepared_engine is not None:
+                    self._prepared_engine.stop()
+            except Exception:
+                pass
+            self._prepared_engine = None
 
     def speak(self, text):
         if self.muted or not text or not text.strip():
