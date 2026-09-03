@@ -11,6 +11,19 @@ from pathlib import Path
 
 from helpers.config import get_resource_path
 
+
+def _hidden_subprocess_kwargs():
+    if not sys.platform.startswith("win"):
+        return {}
+
+    startup_info = subprocess.STARTUPINFO()
+    startup_info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+    startup_info.wShowWindow = subprocess.SW_HIDE
+    return {
+        "creationflags": subprocess.CREATE_NO_WINDOW,
+        "startupinfo": startup_info,
+    }
+
 try:
     import sounddevice as sd
 except Exception:
@@ -214,7 +227,13 @@ class Speaker:
                 f"rubberband=pitch={pitch_scale}:formant=preserved",
                 str(target_path),
             ]
-            subprocess.run(command, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            subprocess.run(
+                command,
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                **_hidden_subprocess_kwargs(),
+            )
 
             with wave.open(str(target_path), "rb") as wav_file:
                 frames = wav_file.readframes(wav_file.getnframes())
@@ -308,6 +327,7 @@ class Speaker:
             command,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
+            **_hidden_subprocess_kwargs(),
         )
         self.active_process.wait()
         self.active_process = None
@@ -385,6 +405,7 @@ class Speaker:
                 command,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
+                **_hidden_subprocess_kwargs(),
             )
             self.active_process.wait()
             self.active_process = None

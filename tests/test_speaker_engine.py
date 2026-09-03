@@ -1,6 +1,7 @@
 import sys
 import types
 import unittest
+import subprocess
 from unittest.mock import patch
 
 dotenv_stub = types.ModuleType("dotenv")
@@ -34,11 +35,17 @@ class _DummyEngine:
 pyttsx3_stub.init = lambda *args, **kwargs: _DummyEngine()
 sys.modules.setdefault("pyttsx3", pyttsx3_stub)
 
-from output.speaker import Speaker
+from output.speaker import Speaker, _hidden_subprocess_kwargs
 import output.speaker as speaker_module
 
 
 class SpeakerEngineTests(unittest.TestCase):
+    def test_windows_voice_helpers_never_open_a_console(self):
+        with patch("output.speaker.sys.platform", "win32"):
+            options = _hidden_subprocess_kwargs()
+
+        self.assertEqual(options["creationflags"], subprocess.CREATE_NO_WINDOW)
+        self.assertTrue(options["startupinfo"].dwFlags & subprocess.STARTF_USESHOWWINDOW)
     def test_system_preference_disables_piper(self):
         speaker = Speaker(engine_preference="system")
         self.assertFalse(speaker.use_piper)
