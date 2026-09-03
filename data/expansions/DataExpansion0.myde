@@ -1,4 +1,6 @@
 {
+  "format": "maya-data-expansion",
+  "format_version": 1,
   "name": "conversa-natural",
   "version": 1,
   "commands": {

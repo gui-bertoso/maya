@@ -6,7 +6,9 @@ from pathlib import Path
 from helpers.config import get_resource_path, get_runtime_path
 
 
-CONTAINER_PATTERN = re.compile(r"^DataExpansion(\d+)\.json$", re.IGNORECASE)
+CONTAINER_PATTERN = re.compile(r"^DataExpansion(\d+)\.(myde|json)$", re.IGNORECASE)
+FORMAT_NAME = "maya-data-expansion"
+FORMAT_VERSION = 1
 
 
 class DataExpansionLoader:
@@ -26,7 +28,7 @@ class DataExpansionLoader:
         if not self.directory.exists():
             return []
         numbered = []
-        for path in self.directory.glob("DataExpansion*.json"):
+        for path in self.directory.glob("DataExpansion*.*"):
             match = CONTAINER_PATTERN.match(path.name)
             if match:
                 numbered.append((int(match.group(1)), path.name.lower(), path))
@@ -66,6 +68,11 @@ class DataExpansionLoader:
                     payload = json.load(file)
                 if not isinstance(payload, dict):
                     raise ValueError("container root must be an object")
+                if path.suffix.lower() == ".myde":
+                    if payload.get("format") != FORMAT_NAME:
+                        raise ValueError(f"format must be {FORMAT_NAME!r}")
+                    if payload.get("format_version") != FORMAT_VERSION:
+                        raise ValueError(f"unsupported format_version: {payload.get('format_version')!r}")
                 self._merge(commands, payload.get("commands", {}))
                 self._merge(responses, payload.get("responses", {}))
                 loaded_files.append(path.name)
