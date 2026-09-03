@@ -18,6 +18,8 @@ Assistente pessoal local-first para Windows, feita em Python. A Maya escuta coma
 
 ## Início rápido no Windows
 
+Pressione **End + Page Down** para mostrar a Maya de qualquer lugar. Se ela já estiver aberta, iniciar o programa novamente apenas traz a janela existente para frente.
+
 Requisitos: Python 3.11, Git e um microfone funcional.
 
 ```powershell

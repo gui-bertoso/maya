@@ -83,24 +83,17 @@ from helpers.global_hotkey import GlobalHotkeyListener
 from helpers.runtime_console import RuntimeConsole, should_enable_runtime_console
 from helpers.web_assistant import WebAssistant
 from helpers.spotify_assistant import SpotifyAssistant
+from helpers.single_instance import SingleInstance
 
 
 RUNTIME_CONSOLE = RuntimeConsole()
 RUNTIME_CONSOLE.sync(should_enable_runtime_console())
 
-_SINGLE_INSTANCE_MUTEX = None
+_SINGLE_INSTANCE = SingleInstance()
 
 
 def ensure_single_instance():
-    global _SINGLE_INSTANCE_MUTEX
-    if not sys.platform.startswith("win"):
-        return True
-    try:
-        import ctypes
-        _SINGLE_INSTANCE_MUTEX = ctypes.windll.kernel32.CreateMutexW(None, False, "Local\\MayaPersonalAssistant")
-        return ctypes.windll.kernel32.GetLastError() != 183
-    except Exception:
-        return True
+    return _SINGLE_INSTANCE.acquire()
 
 
 class App:
@@ -181,7 +174,7 @@ class App:
                 on_double_clap=self.handle_double_clap,
                 on_clap=self.handle_single_clap
             )
-        hotkey_started = self.hotkey_listener.start_pgdown_end(self.handle_hotkey_wake)
+        hotkey_started = self.hotkey_listener.start_end_pgdown(self.handle_hotkey_wake)
 
         wake_word_started = False
         if self.microphone_enabled and self.wake_word_enabled:
@@ -193,7 +186,7 @@ class App:
             self.voice_active = bool(wake_word_started)
 
         if not hotkey_started:
-            reason = getattr(self.hotkey_listener, "last_error", None) or "could not register PgDown + End"
+            reason = getattr(self.hotkey_listener, "last_error", None) or "could not register End + Page Down"
             print(f"global hotkey unavailable: {reason}")
 
         if not clap_started and self.clap_detector.last_error:
@@ -890,3 +883,5 @@ class App:
 if __name__ == "__main__":
     if ensure_single_instance():
         App()
+    else:
+        _SINGLE_INSTANCE.show_existing_window()
