@@ -8,7 +8,7 @@ from core import vocabulary_manager
 from core.knowledge_base import KnowledgeBase
 from core.memory import Memory
 from core.routine_manager import RoutineManager
-from helpers.config import get_env, get_path
+from helpers.config import get_env, get_path, get_resource_path
 
 RESPONSES_PATH = get_path("RESPONSES_PATH", "data/responses.json")
 
@@ -44,6 +44,7 @@ class Process:
         self.UI_MODE = get_env("UI_MODE", "maya")
         self.LANGUAGE = get_env("LANGUAGE", "en")
         self.responses = self.load_responses()
+        self.command_aliases = self.load_command_aliases()
 
     @staticmethod
     def _choose(options):
@@ -51,7 +52,30 @@ class Process:
 
     def load_responses(self):
         with open(RESPONSES_PATH, "r", encoding="utf-8") as file:
+            responses = json.load(file)
+        expansions_path = get_resource_path("data/response_expansions.json")
+        if expansions_path.exists():
+            with open(expansions_path, "r", encoding="utf-8") as file:
+                expansions = json.load(file)
+            for key, options in expansions.items():
+                responses.setdefault(key, []).extend(options)
+        return responses
+
+    @staticmethod
+    def load_command_aliases():
+        aliases_path = get_resource_path("data/command_aliases.json")
+        if not aliases_path.exists():
+            return {}
+        with open(aliases_path, "r", encoding="utf-8") as file:
             return json.load(file)
+
+    def apply_command_aliases(self, text, patterns):
+        normalized = self.normalize_text(text)
+        for flag, aliases in self.command_aliases.items():
+            if flag not in patterns or patterns[flag]:
+                continue
+            if any(self.contains_phrase(normalized, alias) for alias in aliases):
+                patterns[flag] = True
 
     def pick_response(self, key, **values):
         response_key = key
@@ -2612,6 +2636,8 @@ class Process:
             or bool(re.match(r"^(what|why|how|when|where|who)\b", text_lower))
             or self.is_knowledge_request(text_lower)
         )
+
+        self.apply_command_aliases(text_lower, patterns)
 
         if (
             not any([
