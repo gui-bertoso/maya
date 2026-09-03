@@ -468,6 +468,7 @@ class Process:
 
     def parse_window_move_request(self, text_lower):
         text_lower = re.sub(r"[.!?,;:]+$", "", text_lower.strip()).strip()
+        text_lower = re.sub(r"\byour\s+self\b", "yourself", text_lower, flags=re.IGNORECASE)
 
         patterns = [
             r"(?:move|go|put|place|send)\s+(?:maya|yourself|the window)?\s*(?:to\s+)?(.+?)\s+(?:on|to)\s+(?:monitor|display|screen)\s+(\d+)$",
@@ -508,7 +509,7 @@ class Process:
             }
 
         relative_monitor_patterns = [
-            r"(?:move|go|send)\s+(?:maya|yourself|the window)?\s*(?:to\s+)?(?:the\s+)?(?:(other|next|another)\s+(?:monitor|display|screen))$",
+            r"(?:move|go|send)\s+(?:maya|yourself|the window)?\s*(?:to\s+)?(?:the\s+)?(?:(other|next|another)\s+(?:monitor|display|screen|window))$",
             r"(?:move|go|send)\s+(?:maya|yourself|the window)?\s*(?:to\s+)?(.+?)\s+(?:on|to)\s+(?:the\s+)?(?:(other|next|another)\s+(?:monitor|display|screen))$",
             r"(?:vai|va|move)\s+(?:a maya|a janela|você)?\s*(?:para\s+)?(?:o\s+)?(?:(outro|próximo|proximo)\s+(?:monitor|display|tela))$",
             r"(?:vai|va|move)\s+(?:a maya|a janela|você)?\s*(?:para\s+)?(.+?)\s+(?:no|na)\s+(?:o\s+)?(?:(outro|próximo|proximo)\s+(?:monitor|display|tela))$",
@@ -555,6 +556,7 @@ class Process:
 
     def parse_external_window_move_request(self, text_lower):
         text_lower = re.sub(r"[.!?,;:]+$", "", text_lower.strip()).strip()
+        text_lower = re.sub(r"\byour\s+self\b", "yourself", text_lower, flags=re.IGNORECASE)
         patterns = [
             r"(?:move|drag|put|place|send)\s+(?:the\s+)?(?:window\s+)?(.+?)\s+(?:to|into)\s+(.+)$",
             r"(?:mova|arraste|coloque|jogue)\s+(?:a\s+)?(?:janela\s+)?(.+?)\s+(?:para|pro|pra)\s+(.+)$",
