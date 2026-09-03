@@ -76,6 +76,19 @@ class PortugueseCommandTests(unittest.TestCase):
         self.assertTrue(close_patterns["close_app"])
         self.assertEqual(close_patterns["app_alias"], "spotify")
 
+    def test_move_application_to_another_monitor_aliases_are_preserved(self):
+        process = Process()
+
+        english = process.detect_patterns("move Discord to another window")
+        portuguese = process.detect_patterns("mova o Spotify para outra tela")
+
+        self.assertTrue(english["move_window"])
+        self.assertEqual(english["move_window_target"]["target"], "discord")
+        self.assertEqual(english["move_window_target"]["monitor"], "other")
+        self.assertTrue(portuguese["move_window"])
+        self.assertEqual(portuguese["move_window_target"]["target"], "spotify")
+        self.assertEqual(portuguese["move_window_target"]["monitor"], "other")
+
     def test_portuguese_extractors_handle_name_preference_and_fact(self):
         self.assertEqual(Process.extract_name("meu nome e pat"), "pat")
         self.assertEqual(Process.extract_preference("eu gosto de cafe"), "cafe")

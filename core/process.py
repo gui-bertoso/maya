@@ -554,6 +554,20 @@ class Process:
                     "monitor_text": f"monitor {max(1, int(monitor_match.group(1)))}",
                 }
 
+            relative_monitor_match = re.fullmatch(
+                r"(?:(?:the|o|a)s+)?(?:other|another|next|outro|outra|proximo|proxima|próximo|próxima)"
+                r"(?:\s+(?:monitor|display|screen|window|tela|janela))?",
+                destination,
+                flags=re.IGNORECASE,
+            )
+            if relative_monitor_match:
+                return {
+                    "target": target,
+                    "position": "current",
+                    "monitor": "other",
+                    "monitor_text": "the other monitor",
+                }
+
             position = self.normalize_move_position(destination)
             if not position:
                 continue
