@@ -8,7 +8,8 @@ from core import vocabulary_manager
 from core.knowledge_base import KnowledgeBase
 from core.memory import Memory
 from core.routine_manager import RoutineManager
-from helpers.config import get_env, get_path, get_resource_path
+from helpers.config import get_env, get_path
+from helpers.data_expansions import DataExpansionLoader, load_legacy_expansions
 
 RESPONSES_PATH = get_path("RESPONSES_PATH", "data/responses.json")
 
@@ -43,8 +44,11 @@ class Process:
         self.DEBUG_MODE = get_env("DEBUG_MODE", "false").lower() == "true"
         self.UI_MODE = get_env("UI_MODE", "maya")
         self.LANGUAGE = get_env("LANGUAGE", "en")
-        self.responses = self.load_responses()
-        self.command_aliases = self.load_command_aliases()
+        self._base_responses = self.load_responses()
+        self.expansion_loader = DataExpansionLoader()
+        self.command_aliases = {}
+        self.responses = {}
+        self.refresh_data_expansions(force=True)
 
     @staticmethod
     def _choose(options):
@@ -52,22 +56,23 @@ class Process:
 
     def load_responses(self):
         with open(RESPONSES_PATH, "r", encoding="utf-8") as file:
-            responses = json.load(file)
-        expansions_path = get_resource_path("data/response_expansions.json")
-        if expansions_path.exists():
-            with open(expansions_path, "r", encoding="utf-8") as file:
-                expansions = json.load(file)
-            for key, options in expansions.items():
-                responses.setdefault(key, []).extend(options)
-        return responses
-
-    @staticmethod
-    def load_command_aliases():
-        aliases_path = get_resource_path("data/command_aliases.json")
-        if not aliases_path.exists():
-            return {}
-        with open(aliases_path, "r", encoding="utf-8") as file:
             return json.load(file)
+
+    def refresh_data_expansions(self, force=False):
+        changed = self.expansion_loader.refresh(force=force)
+        if not changed and self.responses:
+            return False
+
+        legacy_commands, legacy_responses = load_legacy_expansions()
+        commands = {}
+        responses = {key: list(values) for key, values in self._base_responses.items()}
+        DataExpansionLoader._merge(commands, legacy_commands)
+        DataExpansionLoader._merge(commands, self.expansion_loader.command_aliases)
+        DataExpansionLoader._merge(responses, legacy_responses)
+        DataExpansionLoader._merge(responses, self.expansion_loader.responses)
+        self.command_aliases = commands
+        self.responses = responses
+        return True
 
     def apply_command_aliases(self, text, patterns):
         normalized = self.normalize_text(text)
@@ -1875,6 +1880,7 @@ class Process:
         return result
 
     def detect_patterns(self, text_lower):
+        self.refresh_data_expansions()
         text_lower = self.normalize_text(text_lower)
         extracted_name = self.extract_name(text_lower)
         preference_value = self.extract_preference(text_lower)
