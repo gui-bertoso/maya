@@ -1610,6 +1610,7 @@ class Renderer:
         # The overlay has now landed on the target monitor. Keep the
         # interactive input window attached to the same effective monitor.
         self.position_quick_input()
+        self.position_dev_editor()
 
     def _set_target_position(self, x, y, monitor_index):
         monitor_changed = monitor_index != self.current_draw_monitor_index
@@ -2567,6 +2568,9 @@ class Renderer:
 
     def move_overlay(self, position_name, monitor_index):
         self.refresh_screens()
+        # bring_to_front resets stale animation state, so it must happen
+        # before a new cross-monitor transition is created.
+        self.bring_to_front()
         if not position_name or position_name == "current":
             position_name = self.current_position_name
         previous_monitor_index = self.current_monitor_index
@@ -2577,7 +2581,6 @@ class Renderer:
             self._set_target_position(x, y, self.current_monitor_index)
         self.position_quick_input()
         self.position_dev_editor()
-        self.bring_to_front()
 
     def set_scale(self, scale_mode, scale_value):
         if scale_mode == "increase":
