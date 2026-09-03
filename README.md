@@ -76,6 +76,7 @@ maya/
 - [Pipeline de voz](docs/voice-pipeline.md)
 - [Rotinas pessoais](docs/routines.md)
 - [Desenvolvimento e testes](docs/development.md)
+- [Códigos de erro](docs/error-codes.md)
 - [Roadmap](docs/roadmap.md)
 
 Mapa visual: [Maya — Arquitetura, Fluxos e Roadmap](https://miro.com/app/board/uXjVHr5wgpk=/)

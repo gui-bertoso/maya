@@ -71,7 +71,9 @@ def ensure_runtime_layout():
         recovered = nested_env.read_bytes() if nested_env.is_file() else b""
         shutil.rmtree(runtime_env)
         if recovered:
-            runtime_env.write_bytes(recovered)
+            temporary_env = runtime_env.with_suffix(".tmp")
+            temporary_env.write_bytes(recovered)
+            temporary_env.replace(runtime_env)
 
     for relative_path in (
         ".env",

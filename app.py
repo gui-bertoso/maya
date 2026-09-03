@@ -11,6 +11,16 @@ import traceback
 from pathlib import Path
 
 
+_SINGLE_INSTANCE = None
+if __name__ == "__main__":
+    from helpers.single_instance import SingleInstance
+
+    _SINGLE_INSTANCE = SingleInstance()
+    if not _SINGLE_INSTANCE.acquire():
+        _SINGLE_INSTANCE.show_existing_window()
+        raise SystemExit(0)
+
+
 def _configure_qt_platform():
     if not sys.platform.startswith("linux"):
         return
@@ -47,9 +57,12 @@ def _runtime_log_path():
 
 def _log_unhandled_exception(exc_type, exc_value, exc_traceback):
     try:
+        from helpers.errors import classify_exception
+
         log_path = _runtime_log_path()
+        known_error = classify_exception(exc_value, "startup")
         with open(log_path, "a", encoding="utf-8") as log_file:
-            log_file.write(f"\n[{datetime.datetime.now().isoformat()}] Unhandled exception\n")
+            log_file.write(f"\n[{datetime.datetime.now().isoformat()}] [{known_error.code}] {known_error.title}\n")
             traceback.print_exception(exc_type, exc_value, exc_traceback, file=log_file)
     except Exception:
         pass
@@ -83,17 +96,17 @@ from helpers.global_hotkey import GlobalHotkeyListener
 from helpers.runtime_console import RuntimeConsole, should_enable_runtime_console
 from helpers.web_assistant import WebAssistant
 from helpers.spotify_assistant import SpotifyAssistant
-from helpers.single_instance import SingleInstance
+from helpers.errors import format_error
 
 
 RUNTIME_CONSOLE = RuntimeConsole()
 RUNTIME_CONSOLE.sync(should_enable_runtime_console())
 
-_SINGLE_INSTANCE = SingleInstance()
-
-
 def ensure_single_instance():
-    return _SINGLE_INSTANCE.acquire()
+    """Compatibility helper for callers that import app.py."""
+    from helpers.single_instance import SingleInstance
+
+    return SingleInstance().acquire()
 
 
 class App:
@@ -187,10 +200,10 @@ class App:
 
         if not hotkey_started:
             reason = getattr(self.hotkey_listener, "last_error", None) or "could not register End + Page Down"
-            print(f"global hotkey unavailable: {reason}")
+            print(format_error("hotkey", reason))
 
         if not clap_started and self.clap_detector.last_error:
-            print(f"microphone wake unavailable: {self.clap_detector.last_error}")
+            print(format_error("microphone_device", self.clap_detector.last_error))
 
         if not hotkey_started and not clap_started and not wake_word_started:
             print("no wake method is currently available, opening Maya on screen")
@@ -754,7 +767,7 @@ class App:
         return None
 
     def _handle_async_input_error(self, error):
-        print("async input error:", repr(error))
+        print(format_error("input_pipeline", repr(error)))
         self.send_event("voice_status", "error")
 
     def submit_input_async(self, text, input_source="text"):
@@ -881,7 +894,4 @@ class App:
 
 
 if __name__ == "__main__":
-    if ensure_single_instance():
-        App()
-    else:
-        _SINGLE_INSTANCE.show_existing_window()
+    App()
