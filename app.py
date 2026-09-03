@@ -87,6 +87,20 @@ from helpers.spotify_assistant import SpotifyAssistant
 RUNTIME_CONSOLE = RuntimeConsole()
 RUNTIME_CONSOLE.sync(should_enable_runtime_console())
 
+_SINGLE_INSTANCE_MUTEX = None
+
+
+def ensure_single_instance():
+    global _SINGLE_INSTANCE_MUTEX
+    if not sys.platform.startswith("win"):
+        return True
+    try:
+        import ctypes
+        _SINGLE_INSTANCE_MUTEX = ctypes.windll.kernel32.CreateMutexW(None, False, "Local\\MayaPersonalAssistant")
+        return ctypes.windll.kernel32.GetLastError() != 183
+    except Exception:
+        return True
+
 
 class App:
     def __init__(self):
@@ -119,6 +133,9 @@ class App:
         self.speak_wake_response = get_env("SPEAK_WAKE_RESPONSE", "true").lower() == "true"
         self.speak_wake_response_on_clap = get_env("SPEAK_WAKE_RESPONSE_ON_CLAP", "true").lower() == "true"
         self.speak_wake_response_on_hotkey = get_env("SPEAK_WAKE_RESPONSE_ON_HOTKEY", "true").lower() == "true"
+        self.wake_word_enabled = get_env("WAKE_WORD_ENABLED", "true").lower() == "true"
+        self.speak_wake_response_on_word = get_env("SPEAK_WAKE_RESPONSE_ON_WORD", "true").lower() == "true"
+        self.wake_words = self._parse_wake_words(get_env("WAKE_WORDS", "maya|maia"))
         self.microphone_enabled = get_env("MICROPHONE_ENABLED", "true").lower() == "true"
         self.speech_muted = get_env("SPEECH_MUTED", "false").lower() == "true"
 
@@ -133,6 +150,8 @@ class App:
         self.maya_awake_until = 0.0
         self.last_wake_response_at = 0.0
         self.last_ignored_voice_at = 0.0
+        self.last_partial_wake_at = 0.0
+        self.suppress_wake_final_until = 0.0
         self.ignored_voice_cooldown = get_env("VOICE_IGNORE_COOLDOWN", 1.2, float)
         self.startup_greeting_enabled = get_env("STARTUP_GREETING_ENABLED", "true").lower() == "true"
         self.startup_greeting_delay = get_env("STARTUP_GREETING_DELAY", 8.0, float)
@@ -140,6 +159,7 @@ class App:
         self.daily_brief_location = get_env("DAILY_BRIEF_LOCATION", "")
         self.awaiting_startup_brief_response = False
         self.pending_context_action = None
+        self._last_routine_check_minute = None
 
         self.renderer = Renderer(
             self.events,
@@ -157,6 +177,15 @@ class App:
             )
         hotkey_started = self.hotkey_listener.start_pgdown_end(self.handle_hotkey_wake)
 
+        wake_word_started = False
+        if self.microphone_enabled and self.wake_word_enabled:
+            wake_word_started = self.voice.start_background(
+                on_final_text=self.handle_voice_input,
+                on_partial_text=self.handle_partial_voice,
+                on_status_change=self.handle_voice_status,
+            )
+            self.voice_active = bool(wake_word_started)
+
         if not hotkey_started:
             reason = getattr(self.hotkey_listener, "last_error", None) or "could not register PgDown + End"
             print(f"global hotkey unavailable: {reason}")
@@ -164,7 +193,7 @@ class App:
         if not clap_started and self.clap_detector.last_error:
             print(f"microphone wake unavailable: {self.clap_detector.last_error}")
 
-        if not hotkey_started and not clap_started:
+        if not hotkey_started and not clap_started and not wake_word_started:
             print("no wake method is currently available, opening Maya on screen")
             self.send_event("app_foreground", None)
             self.send_event("app_show_quick_input", None)
@@ -206,7 +235,26 @@ class App:
         return Voice(
             model_path=get_env("VOSK_MODEL_PATH", "models/vosk-model-small-en-us-0.15"),
             sample_rate=get_env("VOICE_SAMPLE_RATE", 16000, int),
+            block_size=get_env("VOICE_BLOCK_SIZE", 4000, int),
+            noise_suppression=get_env("VOICE_NOISE_SUPPRESSION", "true").lower() == "true",
+            noise_gate=get_env("VOICE_NOISE_GATE", 180, int),
+            noise_multiplier=get_env("VOICE_NOISE_MULTIPLIER", 2.2, float),
+            speech_hangover=get_env("VOICE_SPEECH_HANGOVER", 6, int),
         )
+
+    @staticmethod
+    def _parse_wake_words(raw_value):
+        values = [App._normalize_command(item) for item in str(raw_value or "").split("|")]
+        return tuple(item for item in values if item)
+
+    def _extract_wake_word_command(self, text):
+        normalized = self._normalize_command(text)
+        for wake_word in self.wake_words:
+            if normalized == wake_word:
+                return ""
+            if normalized.startswith(wake_word + " "):
+                return normalized[len(wake_word):].strip()
+        return None
 
     def _is_portuguese(self):
         return str(self.LANGUAGE).lower().startswith("pt")
@@ -258,6 +306,9 @@ class App:
         self.speak_wake_response = get_env("SPEAK_WAKE_RESPONSE", "true").lower() == "true"
         self.speak_wake_response_on_clap = get_env("SPEAK_WAKE_RESPONSE_ON_CLAP", "true").lower() == "true"
         self.speak_wake_response_on_hotkey = get_env("SPEAK_WAKE_RESPONSE_ON_HOTKEY", "true").lower() == "true"
+        self.wake_word_enabled = get_env("WAKE_WORD_ENABLED", "true").lower() == "true"
+        self.speak_wake_response_on_word = get_env("SPEAK_WAKE_RESPONSE_ON_WORD", "true").lower() == "true"
+        self.wake_words = self._parse_wake_words(get_env("WAKE_WORDS", "maya|maia"))
         self.microphone_enabled = get_env("MICROPHONE_ENABLED", "true").lower() == "true"
         self.speech_muted = get_env("SPEECH_MUTED", "false").lower() == "true"
         self.wake_duration = get_env("WAKE_DURATION", 6.0, float)
@@ -282,7 +333,7 @@ class App:
         if hasattr(self, "voice") and self.voice is not None:
             self.voice.stop()
         self.voice = self._create_voice()
-        if voice_was_active and self.microphone_enabled:
+        if (voice_was_active or self.wake_word_enabled) and self.microphone_enabled:
             started = self.voice.start_background(
                 on_final_text=self.handle_voice_input,
                 on_partial_text=self.handle_partial_voice,
@@ -540,6 +591,7 @@ class App:
         should_speak_for_source = self.speak_wake_response and (
             (trigger_source == "clap" and self.speak_wake_response_on_clap)
             or (trigger_source == "hotkey" and self.speak_wake_response_on_hotkey)
+            or (trigger_source == "wake_word" and self.speak_wake_response_on_word)
         )
         should_speak_wake_response = should_speak_for_source and (now - self.last_wake_response_at) >= self.wake_response_cooldown
         if should_speak_wake_response:
@@ -568,8 +620,9 @@ class App:
             self.send_event("app_sleep_ui", None)
             return
 
-        self.voice.stop()
-        self.voice_active = False
+        if not self.wake_word_enabled:
+            self.voice.stop()
+            self.voice_active = False
         self.send_event("voice_status", "idle")
         self.send_event("voice_partial", "")
         self.send_event("app_sleep_ui", None)
@@ -579,6 +632,16 @@ class App:
     def update_app_state(self, dt):
         if self.voice_active and time.time() > self.maya_awake_until:
             self.sleep_maya()
+
+        current_minute = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        if current_minute != self._last_routine_check_minute:
+            self._last_routine_check_minute = current_minute
+            for reminder in self.process.routine_manager.due_reminders():
+                self.send_event("response_text", reminder)
+                self.send_event("app_foreground", None)
+                self.send_event("voice_status", "speaking")
+                self.speaker.stop()
+                self.speaker.speak(reminder)
 
     def keep_awake(self):
         self.maya_awake_until = time.time() + self.wake_duration
@@ -651,6 +714,23 @@ class App:
 
     def handle_voice_input(self, text):
         now = time.time()
+        wake_command = self._extract_wake_word_command(text) if self.wake_word_enabled else None
+        if now < self.suppress_wake_final_until and wake_command is not None:
+            if not wake_command:
+                return None
+            text = wake_command
+        if now >= self.maya_awake_until and self.wake_word_enabled:
+            trailing_command = self._extract_wake_word_command(text)
+            if trailing_command is None:
+                if self.DEBUG_MODE:
+                    print("wake word ignored:", repr(text))
+                return None
+            self.wake_maya(trigger_source="wake_word")
+            self.send_event("app_show_quick_input", None)
+            if not trailing_command:
+                return None
+            text = trailing_command
+
         self.maya_awake_until = now + self.wake_duration
         if now - self.last_ignored_voice_at < self.ignored_voice_cooldown:
             if self.DEBUG_MODE:
@@ -669,6 +749,20 @@ class App:
         return self.handle_input(text, input_source="voice")
 
     def handle_partial_voice(self, text):
+        now = time.time()
+        if (
+            self.wake_word_enabled
+            and now >= self.maya_awake_until
+            and now - self.last_partial_wake_at >= self.wake_response_cooldown
+            and self._extract_wake_word_command(text) is not None
+        ):
+            self.last_partial_wake_at = now
+            self.suppress_wake_final_until = now + 3.0
+            self.wake_maya(trigger_source="wake_word")
+            self.send_event("app_show_quick_input", None)
+            return
+        if self.wake_word_enabled and now >= self.maya_awake_until:
+            return
         self.maya_awake_until = time.time() + self.wake_duration
         if self.current_response_source == "voice":
             self.speaker.stop()
@@ -770,4 +864,5 @@ class App:
 
 
 if __name__ == "__main__":
-    App()
+    if ensure_single_instance():
+        App()

@@ -1,6 +1,8 @@
 import json
 import queue
 import threading
+import math
+import numpy as np
 from helpers.config import get_env
 
 try:
@@ -19,9 +21,18 @@ except (ImportError, OSError) as error:
 
 
 class Voice:
-    def __init__(self, model_path="models/vosk-model-small-en-us-0.15", sample_rate=16000):
+    def __init__(self, model_path="models/vosk-model-small-en-us-0.15", sample_rate=16000, block_size=4000,
+                 noise_suppression=True, noise_gate=180, noise_multiplier=2.2, speech_hangover=6):
         self.model_path = model_path
         self.sample_rate = sample_rate
+        self.block_size = max(1600, int(block_size))
+        self.noise_suppression = bool(noise_suppression)
+        self.noise_gate = max(20.0, float(noise_gate))
+        self.noise_multiplier = max(1.1, float(noise_multiplier))
+        self.speech_hangover = max(0, int(speech_hangover))
+        self.noise_floor = 60.0
+        self._speech_blocks_remaining = 0
+        self.last_rms = 0.0
 
         self.thread = None
         self.audio_queue = queue.Queue()
@@ -100,7 +111,33 @@ class Voice:
             if self.DEBUG_MODE:
                 print("audio status:", status)
 
-        self.audio_queue.put(bytes(indata))
+        raw = bytes(indata)
+        if self.noise_suppression:
+            raw = self._suppress_noise(raw)
+        self.audio_queue.put(raw)
+
+    def _suppress_noise(self, raw_audio):
+        samples = np.frombuffer(raw_audio, dtype=np.int16)
+        if samples.size == 0:
+            return raw_audio
+
+        centered = samples.astype(np.float32)
+        centered -= float(np.mean(centered))
+        rms = math.sqrt(float(np.mean(centered * centered)))
+        self.last_rms = rms
+        threshold = max(self.noise_gate, self.noise_floor * self.noise_multiplier)
+
+        if rms >= threshold:
+            self._speech_blocks_remaining = self.speech_hangover
+            return np.clip(centered, -32768, 32767).astype(np.int16).tobytes()
+
+        self.noise_floor = (self.noise_floor * 0.97) + (rms * 0.03)
+        if self._speech_blocks_remaining > 0:
+            self._speech_blocks_remaining -= 1
+            return np.clip(centered, -32768, 32767).astype(np.int16).tobytes()
+
+        # Keep feeding silence so Vosk can close the current phrase cleanly.
+        return np.zeros(samples.shape, dtype=np.int16).tobytes()
 
     def _listen_loop(self, on_final_text=None, on_partial_text=None, on_status_change=None):
         self.load_voice(on_status_change)
@@ -113,7 +150,7 @@ class Voice:
         try:
             with sd.RawInputStream(
                 samplerate=self.sample_rate,
-                blocksize=8000,
+                blocksize=self.block_size,
                 dtype="int16",
                 channels=1,
                 callback=self.audio_callback

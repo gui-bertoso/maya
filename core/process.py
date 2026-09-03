@@ -7,6 +7,7 @@ import unicodedata
 from core import vocabulary_manager
 from core.knowledge_base import KnowledgeBase
 from core.memory import Memory
+from core.routine_manager import RoutineManager
 from helpers.config import get_env, get_path
 
 RESPONSES_PATH = get_path("RESPONSES_PATH", "data/responses.json")
@@ -37,6 +38,7 @@ class Process:
         self.web_assistant = None
         self.spotify_assistant = None
         self.knowledge_base = KnowledgeBase()
+        self.routine_manager = RoutineManager()
 
         self.DEBUG_MODE = get_env("DEBUG_MODE", "false").lower() == "true"
         self.UI_MODE = get_env("UI_MODE", "maya")
@@ -1565,6 +1567,16 @@ class Process:
 
         if self.parent is not None:
             self.parent.send_event("input_text", my_input)
+
+        routine_response = self.routine_manager.handle_command(my_input)
+        if routine_response is not None:
+            if self.memory:
+                self.memory.add_message("user", my_input)
+                self.memory.add_message("assistant", routine_response)
+                self.memory.set_last_topic("routine")
+            if self.parent is not None:
+                self.parent.send_event("response_text", routine_response)
+            return routine_response
 
         if my_input == "print":
             print(vocabulary_manager.get_text())
