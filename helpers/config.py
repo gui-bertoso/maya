@@ -65,6 +65,14 @@ def ensure_runtime_layout():
     if not is_frozen():
         return
 
+    runtime_env = get_runtime_path(".env")
+    if runtime_env.is_dir():
+        nested_env = runtime_env / ".env"
+        recovered = nested_env.read_bytes() if nested_env.is_file() else b""
+        shutil.rmtree(runtime_env)
+        if recovered:
+            runtime_env.write_bytes(recovered)
+
     for relative_path in (
         ".env",
         "data/app_text.json",
@@ -72,6 +80,7 @@ def ensure_runtime_layout():
         "data/learned_knowledge.json",
         "data/memory.json",
         "data/responses.json",
+        "data/routine.json",
         "data/vocabulary.json",
     ):
         _copy_if_missing(
@@ -103,11 +112,14 @@ ENV_FIELDS = (
     EnvField("LANGUAGE", "en", str, "General", "Language", "Assistant language code.", ("en", "pt-BR")),
     EnvField("WAKE_DURATION", "6.0", float, "Wake", "Wake Duration", "How long Maya stays awake after interaction."),
     EnvField("WAKE_RESPONSE_COOLDOWN", "2.5", float, "Wake", "Wake Response Cooldown", "Minimum delay between spoken wake responses."),
-    EnvField("WAKE_RESPONSE_TEXT", "yes?", str, "Wake", "Wake Response Text", "Fallback spoken answer when Maya wakes."),
+    EnvField("WAKE_RESPONSE_TEXT", "oi, tô ouvindo.", str, "Wake", "Wake Response Text", "Fallback spoken answer when Maya wakes."),
     EnvField("WAKE_RESPONSE_OPTIONS", "", str, "Wake", "Wake Response Options", "Pipe-separated wake phrases, for example: yes?|what's up?"),
     EnvField("SPEAK_WAKE_RESPONSE", "true", str, "Wake", "Speak Wake Response", "Whether Maya speaks when it wakes up.", ("true", "false")),
     EnvField("SPEAK_WAKE_RESPONSE_ON_CLAP", "true", str, "Wake", "Speak On Clap", "Whether Maya speaks after double clap.", ("true", "false")),
     EnvField("SPEAK_WAKE_RESPONSE_ON_HOTKEY", "true", str, "Wake", "Speak On Hotkey", "Whether Maya speaks after hotkey wake.", ("true", "false")),
+    EnvField("WAKE_WORD_ENABLED", "true", str, "Wake", "Wake Word", "Keep listening locally for Maya or Maia.", ("true", "false")),
+    EnvField("WAKE_WORDS", "maya|maia", str, "Wake", "Wake Words", "Pipe-separated names that wake Maya."),
+    EnvField("SPEAK_WAKE_RESPONSE_ON_WORD", "true", str, "Wake", "Speak On Wake Word", "Whether Maya answers after hearing her name.", ("true", "false")),
     EnvField("STARTUP_GREETING_ENABLED", "true", str, "Wake", "Startup Greeting", "Whether Maya greets you after login/startup.", ("true", "false")),
     EnvField("STARTUP_GREETING_DELAY", "8.0", float, "Wake", "Startup Greeting Delay", "Delay in seconds before the startup greeting."),
     EnvField("STARTUP_BRIEF_RESPONSE_WINDOW", "20.0", float, "Wake", "Startup Brief Response Window", "How long Maya stays awake waiting for your answer to the startup brief."),
@@ -115,7 +127,12 @@ ENV_FIELDS = (
     EnvField("VOICE_IGNORE_COOLDOWN", "1.2", float, "Voice", "Voice Ignore Cooldown", "Cooldown for low-signal voice input suppression."),
     EnvField("MICROPHONE_ENABLED", "true", str, "Voice", "Microphone Enabled", "Enable microphone-driven voice recognition and clap wake.", ("true", "false")),
     EnvField("VOICE_SAMPLE_RATE", "16000", int, "Voice", "Voice Sample Rate", "Recognizer microphone sample rate."),
-    EnvField("VOSK_MODEL_PATH", "models/vosk-model-small-en-us-0.15", str, "Voice", "Vosk Model Path", "Relative path to the Vosk speech model."),
+    EnvField("VOICE_BLOCK_SIZE", "4000", int, "Voice", "Voice Block Size", "Smaller blocks reduce wake word latency."),
+    EnvField("VOICE_NOISE_SUPPRESSION", "true", str, "Voice", "Noise Suppression", "Adaptive input noise gate before speech recognition.", ("true", "false")),
+    EnvField("VOICE_NOISE_GATE", "180", int, "Voice", "Noise Gate", "Minimum microphone RMS treated as speech."),
+    EnvField("VOICE_NOISE_MULTIPLIER", "2.2", float, "Voice", "Noise Multiplier", "Speech must be this many times louder than ambient noise."),
+    EnvField("VOICE_SPEECH_HANGOVER", "6", int, "Voice", "Speech Hangover", "How many blocks remain open across short pauses."),
+    EnvField("VOSK_MODEL_PATH", "models/vosk-model-small-pt-0.3", str, "Voice", "Vosk Model Path", "Relative path to the Vosk speech model."),
     EnvField("CLAP_THRESHOLD", "150", int, "Audio", "Clap Threshold", "Minimum RMS to count as a clap."),
     EnvField("CLAP_COOLDOWN", "0.18", float, "Audio", "Clap Cooldown", "Minimum delay between clap detections."),
     EnvField("CLAP_WINDOW", "0.75", float, "Audio", "Double Clap Window", "Maximum delay between claps for wake."),
@@ -131,7 +148,7 @@ ENV_FIELDS = (
     EnvField("INITIAL_MONITOR", "2", int, "Overlay", "Initial Monitor", "1-based monitor number for the overlay."),
     EnvField("INITIAL_SCALE", "0.5", float, "Overlay", "Initial Scale", "Initial overlay scale factor."),
     EnvField("QUICK_INPUT_WIDTH", "420", int, "Overlay", "Quick Input Width", "Quick input popup width."),
-    EnvField("QUICK_INPUT_HEIGHT", "92", int, "Overlay", "Quick Input Height", "Quick input popup height."),
+    EnvField("QUICK_INPUT_HEIGHT", "210", int, "Overlay", "Quick Input Height", "Quick input command center height."),
     EnvField("UI_RING_RADIUS", "72", int, "Overlay", "Ring Radius", "Base radius of the Maya ring."),
     EnvField("UI_RING_THICKNESS", "18", int, "Overlay", "Ring Thickness", "Base stroke thickness of the Maya ring."),
     EnvField("UI_COLOR_IDLE", "#d8dee6", str, "Overlay", "Idle Ring Color", "Ring accent color while Maya is idle. Pick it from the color selector."),
@@ -147,6 +164,7 @@ ENV_FIELDS = (
     EnvField("APP_TEXT_PATH", "data/app_text.json", str, "Files", "App Text Path", "Path to the app text/config JSON file."),
     EnvField("APPS_PATH", "data/apps.json", str, "Files", "Apps Catalog Path", "Path to the allowed apps catalog JSON file."),
     EnvField("KNOWLEDGE_PATH", "data/learned_knowledge.json", str, "Files", "Knowledge Path", "Path to the learned knowledge JSON file."),
+    EnvField("ROUTINE_PATH", "data/routine.json", str, "Files", "Routine Path", "Path to personal routine progress and settings."),
     EnvField("DEV_PROJECTS_PATH", "generated_projects", str, "Files", "Dev Projects Path", "Base folder where Maya creates generated development projects."),
 )
 

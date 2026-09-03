@@ -98,52 +98,52 @@ class SetupWindow(Reporter):
             except Exception:
                 pass
 
-        self.root.title("Maya Setup")
-        self.root.geometry("980x560")
+        self.root.title("Maya • Installer")
+        self.root.geometry("960x600")
         self.root.minsize(820, 440)
-        self.root.configure(bg="#f5efe4")
+        self.root.configure(bg="#090b16")
         self.root.protocol("WM_DELETE_WINDOW", self._on_close)
         self.root.grid_columnconfigure(0, weight=1)
         self.root.grid_rowconfigure(2, weight=1)
 
         self.title_label = tk.Label(
             self.root,
-            text="Maya Setup",
-            font=("Segoe UI", 22, "bold"),
-            bg="#f5efe4",
-            fg="#1f2933",
+            text="MAYA  ✦  INSTALLER",
+            font=("Segoe UI Semibold", 22, "bold"),
+            bg="#090b16",
+            fg="#f1efff",
             anchor="w",
         )
         self.title_label.grid(row=0, column=0, sticky="ew", padx=22, pady=(18, 6))
 
-        self.status_var = tk.StringVar(value="Preparing setup...")
+        self.status_var = tk.StringVar(value="Preparando uma Maya mais bonita e menos largada...")
         self.status_label = tk.Label(
             self.root,
             textvariable=self.status_var,
             font=("Segoe UI", 11),
-            bg="#f5efe4",
-            fg="#3d4852",
+            bg="#090b16",
+            fg="#9da7c7",
             anchor="w",
         )
         self.status_label.grid(row=1, column=0, sticky="ew", padx=22, pady=(0, 10))
 
-        body = tk.Frame(self.root, bg="#f5efe4")
+        body = tk.Frame(self.root, bg="#090b16")
         body.grid(row=2, column=0, sticky="nsew", padx=22, pady=(0, 12))
         body.grid_columnconfigure(0, weight=3)
         body.grid_columnconfigure(1, weight=2)
         body.grid_rowconfigure(0, weight=1)
 
-        log_panel = tk.Frame(body, bg="#f5efe4")
+        log_panel = tk.Frame(body, bg="#090b16")
         log_panel.grid(row=0, column=0, sticky="nsew", padx=(0, 12))
         log_panel.grid_columnconfigure(0, weight=1)
         log_panel.grid_rowconfigure(1, weight=1)
 
         self.log_title = tk.Label(
             log_panel,
-            text="Setup Log",
+            text="PROGRESSO DA INSTALAÇÃO",
             font=("Segoe UI", 11, "bold"),
-            bg="#f5efe4",
-            fg="#1f2933",
+            bg="#090b16",
+            fg="#c9c3ff",
             anchor="w",
         )
         self.log_title.grid(row=0, column=0, sticky="ew", pady=(0, 6))
@@ -152,9 +152,9 @@ class SetupWindow(Reporter):
             log_panel,
             wrap="word",
             font=("Consolas", 10),
-            bg="#fffdf8",
-            fg="#1f2933",
-            insertbackground="#1f2933",
+            bg="#101426",
+            fg="#cbd5f5",
+            insertbackground="#ffffff",
             relief="flat",
             padx=14,
             pady=12,
@@ -165,17 +165,17 @@ class SetupWindow(Reporter):
         log_scrollbar.grid(row=1, column=1, sticky="ns")
         self.log_text.configure(yscrollcommand=log_scrollbar.set, state="disabled")
 
-        changes_panel = tk.Frame(body, bg="#f5efe4")
+        changes_panel = tk.Frame(body, bg="#090b16")
         changes_panel.grid(row=0, column=1, sticky="nsew")
         changes_panel.grid_columnconfigure(0, weight=1)
         changes_panel.grid_rowconfigure(1, weight=1)
 
         self.changes_title = tk.Label(
             changes_panel,
-            text="What's New",
+            text="NOVIDADES DESTA VERSÃO",
             font=("Segoe UI", 11, "bold"),
-            bg="#f5efe4",
-            fg="#1f2933",
+            bg="#090b16",
+            fg="#c9c3ff",
             anchor="w",
         )
         self.changes_title.grid(row=0, column=0, sticky="ew", pady=(0, 6))
@@ -184,9 +184,9 @@ class SetupWindow(Reporter):
             changes_panel,
             wrap="word",
             font=("Consolas", 10),
-            bg="#fffdf8",
-            fg="#1f2933",
-            insertbackground="#1f2933",
+            bg="#101426",
+            fg="#cbd5f5",
+            insertbackground="#ffffff",
             relief="flat",
             padx=14,
             pady=12,
@@ -196,9 +196,14 @@ class SetupWindow(Reporter):
         changes_scrollbar = ttk.Scrollbar(changes_panel, orient="vertical", command=self.changes_text.yview)
         changes_scrollbar.grid(row=1, column=1, sticky="ns")
         self.changes_text.configure(yscrollcommand=changes_scrollbar.set, state="disabled")
-        self._set_changes("Checking for updates...")
+        self._set_changes("Glow up da Maya", [
+            "Novo command center com atalhos e status ao vivo.",
+            "Rotinas A e B, XP, streak e resumo semanal.",
+            "Lembretes e agenda que se adapta quando voce acorda atrasado.",
+            "Interface refinada e totalmente integrada ao Windows.",
+        ])
 
-        footer = tk.Frame(self.root, bg="#f5efe4")
+        footer = tk.Frame(self.root, bg="#090b16")
         footer.grid(row=3, column=0, sticky="ew", padx=22, pady=(0, 18))
         footer.grid_columnconfigure(0, weight=1)
 
@@ -208,13 +213,13 @@ class SetupWindow(Reporter):
 
         self.close_button = tk.Button(
             footer,
-            text="Hide",
+            text="Minimizar",
             command=self._on_close,
             font=("Segoe UI", 10, "bold"),
-            bg="#d8c3a5",
-            fg="#1f2933",
-            activebackground="#c5ae8b",
-            activeforeground="#111827",
+            bg="#7c5cff",
+            fg="#ffffff",
+            activebackground="#9278ff",
+            activeforeground="#ffffff",
             relief="flat",
             padx=18,
             pady=8,
@@ -273,7 +278,7 @@ class SetupWindow(Reporter):
             self.status_var.set(message)
             self._append(f"ERROR: {message}")
             self.progress.stop()
-            self.close_button.configure(text="Close")
+            self.close_button.configure(text="Fechar")
             self._allow_close = True
             return
 
@@ -295,7 +300,7 @@ class SetupWindow(Reporter):
         if kind == "close_error":
             self.status_var.set(message)
             self.progress.stop()
-            self.close_button.configure(text="Close")
+            self.close_button.configure(text="Fechar")
             self._allow_close = True
 
     def _append(self, message):
@@ -347,6 +352,53 @@ def repo_dir():
     if getattr(sys, "frozen", False):
         return root / "repo"
     return root
+
+
+def bundled_app_payload():
+    bundle_root = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent))
+    candidate = bundle_root / "payload" / f"{APP_NAME}.exe"
+    return candidate if candidate.exists() else None
+
+
+def local_install_dir():
+    return Path(os.getenv("LOCALAPPDATA") or (Path.home() / "AppData" / "Local")) / "Programs" / APP_NAME
+
+
+def create_windows_shortcuts(executable, reporter=None):
+    escaped_target = str(executable).replace("'", "''")
+    command = (
+        "$s=New-Object -ComObject WScript.Shell;"
+        "$d=[Environment]::GetFolderPath('Desktop');"
+        "$m=Join-Path ([Environment]::GetFolderPath('Programs')) 'Maya';"
+        "New-Item -ItemType Directory -Force -Path $m|Out-Null;"
+        f"$a=$s.CreateShortcut((Join-Path $d 'Maya.lnk'));$a.TargetPath='{escaped_target}';$a.IconLocation='{escaped_target},0';$a.Save();"
+        f"$b=$s.CreateShortcut((Join-Path $m 'Maya.lnk'));$b.TargetPath='{escaped_target}';$b.IconLocation='{escaped_target},0';$b.Save()"
+    )
+    run(["powershell", "-NoProfile", "-NonInteractive", "-Command", command], reporter=reporter)
+
+
+def install_bundled_app(payload, reporter=None):
+    install_dir = local_install_dir()
+    target = install_dir / f"{APP_NAME}.exe"
+    install_dir.mkdir(parents=True, exist_ok=True)
+    if reporter:
+        reporter.info("Instalando Maya 1.2.0...")
+    if is_windows():
+        subprocess.run(
+            ["taskkill", "/IM", f"{APP_NAME}.exe", "/F"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+            **windows_subprocess_kwargs(),
+        )
+    if target.exists():
+        shutil.copy2(target, install_dir / "Maya.previous.exe")
+    shutil.copy2(payload, target)
+    (install_dir / "version.txt").write_text("1.2.0\n", encoding="utf-8")
+    create_windows_shortcuts(target, reporter=reporter)
+    if reporter:
+        reporter.info("Atalhos criados. Iniciando a Maya...")
+    subprocess.Popen([str(target)], cwd=install_dir, **windows_subprocess_kwargs())
 
 
 def dist_executable(project_dir):
@@ -690,6 +742,17 @@ def run_bootstrap(reporter):
 
     if not (is_windows() or is_linux()):
         raise SystemExit("This setup currently supports Windows and Linux.")
+
+    payload = bundled_app_payload() if is_windows() else None
+    if payload is not None:
+        reporter.release_notes("Maya 1.2.0", [
+            "Novo command center e interface renovada.",
+            "Rotinas pessoais, XP, streak e lembretes.",
+            "Instalacao local com atalhos do Windows.",
+        ])
+        install_bundled_app(payload, reporter=reporter)
+        reporter.close_success()
+        return
 
     project_dir = repo_dir()
     reporter.info(f"Using project directory: {project_dir}")

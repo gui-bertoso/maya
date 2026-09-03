@@ -534,15 +534,62 @@ class QuickInputWidget(QWidget):
 
         container = QFrame(self)
         container.setObjectName("quickInputCard")
-        layout = QHBoxLayout(container)
-        layout.setContentsMargins(18, 14, 18, 14)
+        layout = QVBoxLayout(container)
+        layout.setContentsMargins(20, 16, 20, 16)
+        layout.setSpacing(11)
+
+        header = QHBoxLayout()
+        self.brand_label = QLabel("MAYA")
+        self.brand_label.setObjectName("quickInputBrand")
+        self.status_label = QLabel(self.renderer.tr("quick_input_status_ready"))
+        self.status_label.setObjectName("quickInputStatus")
+        header.addWidget(self.brand_label)
+        header.addStretch(1)
+        header.addWidget(self.status_label)
+        layout.addLayout(header)
+
+        self.response_label = QLabel(self.renderer.response_text or self.renderer.tr("quick_input_welcome"))
+        self.response_label.setObjectName("quickInputResponse")
+        self.response_label.setWordWrap(True)
+        self.response_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.response_label.setMaximumHeight(54)
+        layout.addWidget(self.response_label)
+
+        input_shell = QFrame()
+        input_shell.setObjectName("quickInputField")
+        input_layout = QHBoxLayout(input_shell)
+        input_layout.setContentsMargins(13, 7, 8, 7)
 
         self.entry = QLineEdit()
+        self.entry.setObjectName("quickInputEntry")
         self.entry.setPlaceholderText(self.renderer.tr("quick_input_placeholder"))
         self.entry.returnPressed.connect(self.submit_text)
         self.entry.textEdited.connect(lambda _text: self.renderer.handle_quick_input_keypress())
         self.entry.installEventFilter(self)
-        layout.addWidget(self.entry)
+        input_layout.addWidget(self.entry, 1)
+        self.send_button = QPushButton("➜")
+        self.send_button.setObjectName("quickInputSend")
+        self.send_button.setToolTip(self.renderer.tr("quick_input_send"))
+        self.send_button.clicked.connect(self.submit_text)
+        input_layout.addWidget(self.send_button)
+        layout.addWidget(input_shell)
+
+        shortcuts = QHBoxLayout()
+        shortcuts.setSpacing(7)
+        self.shortcut_buttons = []
+        for label_key, command in (("quick_input_today", "!today"), ("quick_input_status", "!status"), ("quick_input_week", "!week")):
+            button = QPushButton(self.renderer.tr(label_key))
+            button.setObjectName("quickInputChip")
+            button.clicked.connect(lambda _checked=False, value=command: self.submit_command(value))
+            shortcuts.addWidget(button)
+            self.shortcut_buttons.append((button, label_key))
+        shortcuts.addStretch(1)
+        self.settings_button = QPushButton("⚙")
+        self.settings_button.setObjectName("quickInputSettings")
+        self.settings_button.setToolTip(self.renderer.tr("quick_input_settings"))
+        self.settings_button.clicked.connect(lambda _checked=False: self.renderer.show_settings())
+        shortcuts.addWidget(self.settings_button)
+        layout.addLayout(shortcuts)
 
         root_layout = QHBoxLayout(self)
         root_layout.setContentsMargins(0, 0, 0, 0)
@@ -551,26 +598,51 @@ class QuickInputWidget(QWidget):
         self.setStyleSheet(
             """
             QFrame#quickInputCard {
-                background: rgba(7, 11, 18, 235);
-                border: 1px solid rgba(120, 190, 255, 90);
-                border-radius: 22px;
+                background: rgba(10, 12, 24, 246);
+                border: 1px solid rgba(145, 126, 255, 120);
+                border-radius: 26px;
             }
-            QLineEdit {
+            QLabel#quickInputBrand { color: rgb(236, 233, 255); font-size: 13px; font-weight: 800; letter-spacing: 3px; }
+            QLabel#quickInputStatus { background: rgba(94, 234, 212, 30); border: 1px solid rgba(94, 234, 212, 80); border-radius: 9px; color: rgb(153, 246, 228); font-size: 10px; font-weight: 700; padding: 3px 9px; }
+            QLabel#quickInputResponse { color: rgba(230, 235, 255, 205); font-size: 12px; padding: 0 2px; }
+            QFrame#quickInputField { background: rgba(255, 255, 255, 12); border: 1px solid rgba(166, 180, 255, 55); border-radius: 15px; }
+            QLineEdit#quickInputEntry {
                 background: transparent;
                 border: none;
                 color: rgb(239, 247, 255);
-                font-size: 16px;
-                selection-background-color: rgba(116, 184, 255, 120);
+                font-size: 15px;
+                selection-background-color: rgba(139, 116, 255, 150);
             }
             QLineEdit::placeholder {
                 color: rgba(220, 235, 255, 120);
             }
+            QPushButton#quickInputSend { background: rgb(124, 92, 255); border: none; border-radius: 11px; color: white; font-size: 17px; font-weight: 700; min-width: 34px; min-height: 30px; }
+            QPushButton#quickInputSend:hover { background: rgb(145, 119, 255); }
+            QPushButton#quickInputChip, QPushButton#quickInputSettings { background: rgba(255, 255, 255, 9); border: 1px solid rgba(190, 199, 255, 38); border-radius: 10px; color: rgba(226, 230, 255, 190); font-size: 11px; padding: 5px 10px; }
+            QPushButton#quickInputChip:hover, QPushButton#quickInputSettings:hover { background: rgba(124, 92, 255, 45); border-color: rgba(155, 134, 255, 100); color: white; }
             """
         )
         self.hide()
 
     def retranslate_ui(self):
         self.entry.setPlaceholderText(self.renderer.tr("quick_input_placeholder"))
+        self.send_button.setToolTip(self.renderer.tr("quick_input_send"))
+        self.settings_button.setToolTip(self.renderer.tr("quick_input_settings"))
+        for button, label_key in self.shortcut_buttons:
+            button.setText(self.renderer.tr(label_key))
+
+    def submit_command(self, command):
+        self.entry.setText(command)
+        self.submit_text(keep_open=True)
+
+    def set_response(self, text):
+        if text:
+            compact = " ".join(str(text).split())
+            self.response_label.setText(compact[:220] + ("…" if len(compact) > 220 else ""))
+
+    def set_status(self, status):
+        keys = {"hearing": "quick_input_status_listening", "speaking": "quick_input_status_speaking", "error": "quick_input_status_error"}
+        self.status_label.setText(self.renderer.tr(keys.get(status, "quick_input_status_ready")))
 
     def eventFilter(self, _obj, event):
         if event.type() == event.Type.KeyPress and event.key() == Qt.Key_Escape:
@@ -578,7 +650,7 @@ class QuickInputWidget(QWidget):
             return True
         return False
 
-    def submit_text(self):
+    def submit_text(self, keep_open=False):
         submitted_text = self.entry.text().strip()
         if submitted_text:
             if submitted_text == "exit":
@@ -586,7 +658,8 @@ class QuickInputWidget(QWidget):
                 return
             self.renderer.submit_input_callback(submitted_text)
         self.entry.clear()
-        self.renderer.hide_quick_input()
+        if not keep_open:
+            self.renderer.hide_quick_input()
 
 
 class DevEditorWidget(QWidget):
@@ -1186,7 +1259,7 @@ class Renderer:
         self.settings_window_title = self.tr("settings_window_caption", caption=self.window_caption)
         self.window_margin = get_env("WINDOW_MARGIN", 32, int)
         self.quick_input_width = get_env("QUICK_INPUT_WIDTH", 420, int)
-        self.quick_input_height = get_env("QUICK_INPUT_HEIGHT", 92, int)
+        self.quick_input_height = max(210, get_env("QUICK_INPUT_HEIGHT", 210, int))
         self.scale_factor = 1.0
         self.initial_position = get_env("INITIAL_POSITION", "top_right")
         self.initial_monitor = max(1, get_env("INITIAL_MONITOR", 2, int))
@@ -1272,6 +1345,16 @@ class Renderer:
     def tr(self, key, **kwargs):
         english = {
             "quick_input_placeholder": "Talk to Maya...",
+            "quick_input_welcome": "Ready when you are. Ask anything or use a shortcut.",
+            "quick_input_send": "Send",
+            "quick_input_today": "Today",
+            "quick_input_status": "Status",
+            "quick_input_week": "Week",
+            "quick_input_settings": "Settings",
+            "quick_input_status_ready": "READY",
+            "quick_input_status_listening": "LISTENING",
+            "quick_input_status_speaking": "SPEAKING",
+            "quick_input_status_error": "OFFLINE",
             "dev_editor_title": "maya dev editor",
             "dev_editor_window_title": "{caption} dev editor",
             "dev_editor_new": "New",
@@ -2386,7 +2469,7 @@ class Renderer:
         self.settings_window_title = self.tr("settings_window_caption", caption=self.window_caption)
         self.window_margin = get_env("WINDOW_MARGIN", 32, int)
         self.quick_input_width = get_env("QUICK_INPUT_WIDTH", 420, int)
-        self.quick_input_height = get_env("QUICK_INPUT_HEIGHT", 92, int)
+        self.quick_input_height = max(210, get_env("QUICK_INPUT_HEIGHT", 210, int))
         self.initial_position = get_env("INITIAL_POSITION", "top_right")
         self.initial_monitor = max(1, get_env("INITIAL_MONITOR", 2, int))
         self.initial_scale = get_env("INITIAL_SCALE", 0.5, float)
@@ -2413,6 +2496,8 @@ class Renderer:
 
     def set_voice_status(self, status):
         self.voice_status = status
+        if hasattr(self, "quick_input_window"):
+            self.quick_input_window.set_status(status)
         if status == "loading":
             self.ring.set_state("idle")
         elif status == "ready":
@@ -2432,6 +2517,8 @@ class Renderer:
 
     def set_response_text(self, text):
         self.response_text = text
+        if hasattr(self, "quick_input_window"):
+            self.quick_input_window.set_response(text)
         self.ring.set_state("speaking", duration=0.6)
 
     def trigger_wake(self):

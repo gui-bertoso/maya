@@ -15,7 +15,8 @@ def build_datas():
     for relative_path in ("data", "models", ".env"):
         source_path = PROJECT_DIR / relative_path
         if source_path.exists():
-            datas.append((str(source_path), relative_path))
+            destination = "." if relative_path == ".env" else relative_path
+            datas.append((str(source_path), destination))
 
     return datas
 
@@ -75,4 +76,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon=[str(PROJECT_DIR / "icon.ico")],
 )

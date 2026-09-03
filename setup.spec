@@ -5,7 +5,7 @@ a = Analysis(
     ['setup.py'],
     pathex=[],
     binaries=[],
-    datas=[('icon.ico', '.')],
+    datas=[('icon.ico', '.'), ('dist/Maya.exe', 'payload')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

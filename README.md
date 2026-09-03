@@ -413,3 +413,11 @@ python -m unittest discover -s tests
 ### Honest summary
 
 Maya is a local assistant with voice, overlay, JSON memory, and desktop automation. It is not finished, but it is already functional enough to use and keep refining.
+# Rotina pessoal
+
+A Maya inclui duas rotinas diarias persistentes: `!routine a` usa treino as 06:00 e
+`!routine b` usa treino as 14:00. Consulte `!today`, marque atividades com
+`!done rust` ou `!skip english`, veja `!status` e `!week`, e informe atrasos com
+`!awake 09:20` ou `acordei as 09:20`. A agenda e recalculada sem mover treino e
+escola, os dados ficam em `data/routine.json`, e a interface avisa no inicio de
+cada atividade.
