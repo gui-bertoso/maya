@@ -5,7 +5,7 @@ import threading
 import time
 
 from PySide6.QtCore import QPointF, QRect, QRectF, Qt, QTimer
-from PySide6.QtGui import QColor, QFont, QPainter, QPainterPath, QPen, QPixmap, QRegion
+from PySide6.QtGui import QAction, QColor, QFont, QIcon, QPainter, QPainterPath, QPen, QPixmap, QRegion
 from PySide6.QtWidgets import (
     QApplication,
     QColorDialog,
@@ -16,14 +16,16 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QLineEdit,
+    QMenu,
     QPlainTextEdit,
     QPushButton,
     QScrollArea,
+    QSystemTrayIcon,
     QVBoxLayout,
     QWidget,
 )
 
-from helpers.config import get_env, get_env_defaults, get_env_fields, get_env_values
+from helpers.config import get_env, get_env_defaults, get_env_fields, get_env_values, get_resource_path
 from helpers.dev_workspace import DevWorkspaceOrchestrator
 from helpers.i18n import is_portuguese, localize_env_field, ui_text
 from helpers.thoughtful_workspace import ThoughtfulWorkspaceOrchestrator
@@ -1331,6 +1333,7 @@ class Renderer:
         self.window_showcase_window.setWindowTitle(self.showcase_window_title)
         self.quick_input_window.setWindowTitle(self.quick_input_window_title)
         self.settings_window.setWindowTitle(self.settings_window_title)
+        self._create_tray_icon()
         _apply_windows_overlay_style(self.root, interactive=False)
         _apply_windows_overlay_style(self.quick_input_window, interactive=True)
         _apply_windows_overlay_style(self.window_showcase_window, interactive=True)
@@ -1338,6 +1341,35 @@ class Renderer:
         self.set_scale("set", self.initial_scale)
         self.move_overlay(self.initial_position, self.initial_monitor - 1)
         self.hide_overlay()
+
+    def _create_tray_icon(self):
+        self.tray_icon = QSystemTrayIcon(QIcon(str(get_resource_path("icon.ico"))), self.app)
+        self.tray_icon.setToolTip("Maya — clique para chamar")
+
+        tray_menu = QMenu()
+        call_action = QAction("Chamar Maya", tray_menu)
+        settings_action = QAction("Configurações", tray_menu)
+        quit_action = QAction("Sair", tray_menu)
+        call_action.triggered.connect(self._call_from_tray)
+        settings_action.triggered.connect(self.show_settings)
+        quit_action.triggered.connect(self.app.quit)
+        tray_menu.addAction(call_action)
+        tray_menu.addAction(settings_action)
+        tray_menu.addSeparator()
+        tray_menu.addAction(quit_action)
+        self.tray_icon.setContextMenu(tray_menu)
+        self.tray_icon.activated.connect(self._tray_activated)
+        self.tray_icon.show()
+
+    def _call_from_tray(self):
+        self.bring_to_front()
+        self.show_quick_input()
+        if self.keep_awake_callback:
+            self.keep_awake_callback()
+
+    def _tray_activated(self, reason):
+        if reason in (QSystemTrayIcon.Trigger, QSystemTrayIcon.DoubleClick):
+            self._call_from_tray()
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.update)
