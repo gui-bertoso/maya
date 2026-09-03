@@ -555,7 +555,7 @@ class Process:
                 }
 
             relative_monitor_match = re.fullmatch(
-                r"(?:(?:the|o|a)s+)?(?:other|another|next|outro|outra|proximo|proxima|próximo|próxima)"
+                r"(?:(?:the|o|a)\s+)?(?:other|another|next|outro|outra|proximo|proxima|próximo|próxima)"
                 r"(?:\s+(?:monitor|display|screen|window|tela|janela))?",
                 destination,
                 flags=re.IGNORECASE,
