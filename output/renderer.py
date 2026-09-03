@@ -1342,6 +1342,9 @@ class Renderer:
         self.move_overlay(self.initial_position, self.initial_monitor - 1)
         self.hide_overlay()
 
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update)
+
     def _create_tray_icon(self):
         self.tray_icon = QSystemTrayIcon(QIcon(str(get_resource_path("icon.ico"))), self.app)
         self.tray_icon.setToolTip("Maya — clique para chamar")
@@ -1370,9 +1373,6 @@ class Renderer:
     def _tray_activated(self, reason):
         if reason in (QSystemTrayIcon.Trigger, QSystemTrayIcon.DoubleClick):
             self._call_from_tray()
-
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.update)
 
     def tr(self, key, **kwargs):
         english = {
