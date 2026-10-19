@@ -1,0 +1,30 @@
+.env
+.venv/
+__pycache__
+*.py[cod]
+*.log
+*.exe
+.idea
+**/__pycache__/
+.pytest_cache/
+build/
+dist/
+data/backups/
+logs/
+generated_projects/*
+# Piper models are downloaded locally because GitHub rejects the larger ONNX files.
+models/piper/
+models/piper/en_US-lessac-high.onnx
+
+models/kokoro/
+
+# Local downloaded speech models and private runtime state.
+models/
+data/memory.json
+data/learned_knowledge.json
+data/vocabulary.json
+data/routine.json
+.env.*
+!.env.example
+*.wav
+*.mp3

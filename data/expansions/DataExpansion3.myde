@@ -1,0 +1,14 @@
+{
+  "format": "maya-data-expansion",
+  "format_version": 1,
+  "name": "personalidade",
+  "version": 1,
+  "commands": {
+    "asks_joke": ["solta uma pedrada", "manda humor de qualidade duvidosa", "quero uma piada ruim"],
+    "asks_story": ["inventa uma historia", "conta um causo"]
+  },
+  "responses": {
+    "asks_joke_pt": ["o codigo estava funcionando. ai alguem disse: so mais uma melhoria."],
+    "asks_story_pt": ["uma vez uma assistente ganhou containers de dados. no quarto arquivo ela ja queria cobrar aluguel."]
+  }
+}

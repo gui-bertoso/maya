@@ -1,0 +1,222 @@
+from helpers.config import get_env
+
+
+PT_BR_UI = {
+    "quick_input_placeholder": "digite um comando",
+    "quick_input_welcome": "Pronta quando voce estiver. Pergunte algo ou use um atalho.",
+    "quick_input_send": "Enviar",
+    "quick_input_close": "Fechar",
+    "quick_input_today": "Hoje",
+    "quick_input_status": "Status",
+    "quick_input_week": "Semana",
+    "quick_input_settings": "Configuracoes",
+    "quick_input_status_ready": "PRONTA",
+    "quick_input_status_listening": "OUVINDO",
+    "quick_input_status_speaking": "FALANDO",
+    "quick_input_status_error": "OFFLINE",
+    "dev_editor_title": "editor dev da maya",
+    "dev_editor_window_title": "{caption} editor dev",
+    "dev_editor_new": "Novo",
+    "dev_editor_open": "Abrir",
+    "dev_editor_save": "Salvar",
+    "dev_editor_save_as": "Salvar como",
+    "dev_editor_placeholder": "// editor dev da maya\n",
+    "dev_editor_ready": "Pronto.",
+    "dev_editor_default_status": "Arquivo temporario criado.",
+    "dev_editor_open_dialog_title": "Abrir arquivo no editor da Maya",
+    "dev_editor_save_dialog_title": "Salvar arquivo pelo editor da Maya",
+    "dev_editor_opened": "Arquivo {name} aberto.",
+    "dev_editor_open_failed": "Nao foi possivel abrir o arquivo: {error}",
+    "dev_editor_saved": "Arquivo {name} salvo.",
+    "dev_editor_save_failed": "Nao foi possivel salvar o arquivo: {error}",
+    "dev_editor_template_message": "a maya esta pronta no modo dev",
+    "settings_window_title": "Configuracoes da Maya",
+    "settings_title": "Configuracoes da Maya",
+    "settings_subtitle": "Edite os valores do `.env` aqui e aplique as mudancas na hora.",
+    "settings_filter_placeholder": "Filtrar configuracoes por nome, categoria ou descricao",
+    "settings_reload": "Recarregar",
+    "settings_defaults": "Restaurar padrao",
+    "settings_apply": "Aplicar",
+    "settings_close": "Fechar",
+    "settings_pick_color": "Escolher cor",
+    "settings_version": "Versao: {version}",
+    "settings_loaded_defaults": "Valores padrao carregados no formulario.",
+    "settings_apply_callback_missing": "Callback para aplicar configuracoes nao foi definido.",
+    "showcase_title": "janelas",
+    "showcase_empty": "Nenhuma janela aberta disponivel para o showcase.",
+    "showcase_focus_failed": "Nao consegui focar essa janela.",
+    "showcase_active": "ATIVA",
+    "showcase_status": "esquerda/direita ou roda do mouse para girar. enter para focar. esc para fechar.",
+    "overlay_window_title": "{caption} overlay",
+    "showcase_window_title": "{caption} showcase",
+    "quick_input_window_title": "{caption} entrada rapida",
+    "settings_window_caption": "{caption} configuracoes",
+    "category_General": "Geral",
+    "category_Wake": "Despertar",
+    "category_Voice": "Voz",
+    "category_Audio": "Audio",
+    "category_Speech": "Fala",
+    "category_Overlay": "Interface",
+    "category_Files": "Arquivos",
+    "field_LANGUAGE_label": "Idioma",
+    "field_LANGUAGE_help": "Codigo de idioma da assistente.",
+    "field_DEBUG_MODE_label": "Modo Debug",
+    "field_DEBUG_MODE_help": "Ativa logs detalhados.",
+    "field_UI_MODE_label": "Modo de UI",
+    "field_UI_MODE_help": "Nome da variante atual da interface.",
+    "field_WAKE_DURATION_label": "Duracao do Despertar",
+    "field_WAKE_DURATION_help": "Por quanto tempo a Maya fica acordada apos interagir.",
+    "field_WAKE_RESPONSE_COOLDOWN_label": "Cooldown da Resposta de Despertar",
+    "field_WAKE_RESPONSE_COOLDOWN_help": "Intervalo minimo entre respostas faladas ao despertar.",
+    "field_WAKE_RESPONSE_TEXT_label": "Texto de Despertar",
+    "field_WAKE_RESPONSE_TEXT_help": "Resposta falada padrao quando a Maya desperta.",
+    "field_WAKE_RESPONSE_OPTIONS_label": "Opcoes de Resposta de Despertar",
+    "field_WAKE_RESPONSE_OPTIONS_help": "Frases separadas por | para despertar, por exemplo: oi?|fala comigo?",
+    "field_SPEAK_WAKE_RESPONSE_label": "Falar ao Despertar",
+    "field_SPEAK_WAKE_RESPONSE_help": "Define se a Maya fala alguma resposta quando desperta.",
+    "field_SPEAK_WAKE_RESPONSE_ON_CLAP_label": "Responder com Palmas",
+    "field_SPEAK_WAKE_RESPONSE_ON_CLAP_help": "Define se a Maya fala apos despertar com palmas.",
+    "field_SPEAK_WAKE_RESPONSE_ON_HOTKEY_label": "Responder com Atalho",
+    "field_SPEAK_WAKE_RESPONSE_ON_HOTKEY_help": "Define se a Maya fala apos despertar com atalho.",
+    "field_WAKE_WORD_ENABLED_label": "Ativar Palavra de Despertar",
+    "field_WAKE_WORD_ENABLED_help": "Mantem o reconhecimento local ouvindo apenas por Maya ou Maia.",
+    "field_WAKE_WORDS_label": "Palavras de Despertar",
+    "field_WAKE_WORDS_help": "Nomes separados por | que acordam a Maya.",
+    "field_SPEAK_WAKE_RESPONSE_ON_WORD_label": "Responder ao Ouvir o Nome",
+    "field_SPEAK_WAKE_RESPONSE_ON_WORD_help": "Define se a Maya responde em voz alta quando ouve o proprio nome.",
+    "field_STARTUP_GREETING_ENABLED_label": "Saudacao Inicial",
+    "field_STARTUP_GREETING_ENABLED_help": "Define se a Maya cumprimenta voce ao iniciar.",
+    "field_STARTUP_GREETING_DELAY_label": "Atraso da Saudacao Inicial",
+    "field_STARTUP_GREETING_DELAY_help": "Atraso em segundos antes da saudacao inicial.",
+    "field_STARTUP_BRIEF_RESPONSE_WINDOW_label": "Janela de Resposta do Resumo Inicial",
+    "field_STARTUP_BRIEF_RESPONSE_WINDOW_help": "Por quanto tempo a Maya espera sua resposta ao resumo inicial.",
+    "field_DAILY_BRIEF_LOCATION_label": "Local do Resumo Diario",
+    "field_DAILY_BRIEF_LOCATION_help": "Local opcional para incluir clima no resumo inicial.",
+    "field_VOICE_IGNORE_COOLDOWN_label": "Cooldown de Ignorar Voz",
+    "field_VOICE_IGNORE_COOLDOWN_help": "Intervalo para ignorar entradas de voz de baixo sinal.",
+    "field_MICROPHONE_ENABLED_label": "Microfone Ativado",
+    "field_MICROPHONE_ENABLED_help": "Ativa reconhecimento de voz pelo microfone e despertar por palmas.",
+    "field_VOICE_SAMPLE_RATE_label": "Taxa de Amostragem da Voz",
+    "field_VOICE_SAMPLE_RATE_help": "Taxa de amostragem do microfone usada pelo reconhecedor.",
+    "field_VOICE_FAST_ENDPOINT_label": "Resposta de Voz Rapida",
+    "field_VOICE_FAST_ENDPOINT_help": "Responde assim que uma frase reconhecida termina, sem esperar o timeout completo.",
+    "field_VOICE_ENDPOINT_SILENCE_MS_label": "Espera no Fim da Fala",
+    "field_VOICE_ENDPOINT_SILENCE_MS_help": "Silencio em milissegundos antes da Maya considerar que voce terminou.",
+    "field_VOSK_MODEL_PATH_label": "Caminho do Modelo Vosk",
+    "field_VOSK_MODEL_PATH_help": "Caminho relativo para o modelo de fala Vosk.",
+    "field_CLAP_THRESHOLD_label": "Limite de Palmas",
+    "field_CLAP_THRESHOLD_help": "RMS minimo para contar como palma.",
+    "field_CLAP_COOLDOWN_label": "Cooldown de Palmas",
+    "field_CLAP_COOLDOWN_help": "Intervalo minimo entre deteccoes de palma.",
+    "field_CLAP_WINDOW_label": "Janela de Duas Palmas",
+    "field_CLAP_WINDOW_help": "Atraso maximo entre palmas para despertar.",
+    "field_TTS_RATE_label": "Velocidade da Fala",
+    "field_TTS_RATE_help": "Velocidade da voz sintetizada.",
+    "field_TTS_VOLUME_label": "Volume da Fala",
+    "field_TTS_VOLUME_help": "Volume da fala de 0.0 a 1.0.",
+    "field_SPEECH_MUTED_label": "Fala Silenciada",
+    "field_SPEECH_MUTED_help": "Silencia a voz da Maya mantendo as respostas visiveis.",
+    "field_TTS_ENGINE_label": "Motor de TTS",
+    "field_TTS_ENGINE_help": "Kokoro usa vozes neurais locais. Auto prioriza Edge em pt-BR e depois Piper.",
+    "field_TTS_VOICE_ID_label": "ID da Voz TTS",
+    "field_TTS_VOICE_ID_help": "Voz do motor selecionado. Kokoro: pf_dora em português, af_heart em inglês. Vazio usa a voz padrão.",
+    "field_WINDOW_WIDTH_label": "Largura da Janela",
+    "field_WINDOW_WIDTH_help": "Largura base da overlay.",
+    "field_WINDOW_HEIGHT_label": "Altura da Janela",
+    "field_WINDOW_HEIGHT_help": "Altura base da overlay.",
+    "field_WINDOW_MARGIN_label": "Margem da Janela",
+    "field_WINDOW_MARGIN_help": "Distancia das bordas da tela.",
+    "field_INITIAL_POSITION_label": "Posicao Inicial",
+    "field_INITIAL_POSITION_help": "Posicao ancora inicial da overlay.",
+    "field_INITIAL_MONITOR_label": "Monitor Inicial",
+    "field_INITIAL_MONITOR_help": "Numero do monitor para iniciar a overlay.",
+    "field_INITIAL_SCALE_label": "Escala Inicial",
+    "field_INITIAL_SCALE_help": "Fator de escala inicial da overlay.",
+    "field_QUICK_INPUT_WIDTH_label": "Largura da Entrada Rapida",
+    "field_QUICK_INPUT_WIDTH_help": "Largura da janela de entrada rapida.",
+    "field_QUICK_INPUT_HEIGHT_label": "Altura da Entrada Rapida",
+    "field_QUICK_INPUT_HEIGHT_help": "Altura da janela de entrada rapida.",
+    "field_UI_RING_RADIUS_label": "Raio do Anel",
+    "field_UI_RING_RADIUS_help": "Raio base do anel da Maya.",
+    "field_UI_RING_THICKNESS_label": "Espessura do Anel",
+    "field_UI_RING_THICKNESS_help": "Espessura base do anel da Maya.",
+    "field_UI_COLOR_IDLE_label": "Cor Idle do Anel",
+    "field_UI_COLOR_IDLE_help": "Cor do anel quando a Maya esta parada. Escolha pelo seletor de cores.",
+    "field_UI_COLOR_READY_label": "Cor Ready do Anel",
+    "field_UI_COLOR_READY_help": "Cor do anel quando a Maya esta pronta. Escolha pelo seletor de cores.",
+    "field_UI_COLOR_HEARING_label": "Cor de Escuta do Anel",
+    "field_UI_COLOR_HEARING_help": "Cor do anel quando a Maya esta ouvindo. Escolha pelo seletor de cores.",
+    "field_UI_COLOR_SPEAKING_label": "Cor de Fala do Anel",
+    "field_UI_COLOR_SPEAKING_help": "Cor do anel quando a Maya esta falando. Escolha pelo seletor de cores.",
+    "field_UI_COLOR_ERROR_label": "Cor de Erro do Anel",
+    "field_UI_COLOR_ERROR_help": "Cor do anel quando a Maya entra em erro. Escolha pelo seletor de cores.",
+    "field_UI_COLOR_CORE_label": "Cor Central do Anel",
+    "field_UI_COLOR_CORE_help": "Cor principal do anel interno. Escolha pelo seletor de cores.",
+    "field_MAX_BACKUPS_PER_FILE_label": "Maximo de Backups por Arquivo",
+    "field_MAX_BACKUPS_PER_FILE_help": "Quantos backups as ferramentas auxiliares mantem por arquivo.",
+    "field_VOCAB_PATH_label": "Caminho do Vocabulario",
+    "field_VOCAB_PATH_help": "Caminho para o JSON do vocabulario aprendido.",
+    "field_MEMORY_PATH_label": "Caminho da Memoria",
+    "field_MEMORY_PATH_help": "Caminho para o JSON de memoria persistente da Maya.",
+    "field_RESPONSES_PATH_label": "Caminho das Respostas",
+    "field_RESPONSES_PATH_help": "Caminho para o catalogo de respostas.",
+    "field_APPS_PATH_label": "Caminho do Catalogo de Apps",
+    "field_APPS_PATH_help": "Caminho para o catalogo de apps permitidos.",
+    "field_KNOWLEDGE_PATH_label": "Caminho do Conhecimento",
+    "field_KNOWLEDGE_PATH_help": "Caminho para o JSON de conhecimento aprendido.",
+    "field_DEV_PROJECTS_PATH_label": "Caminho dos Projetos Dev",
+    "field_DEV_PROJECTS_PATH_help": "Pasta base onde a Maya cria projetos de desenvolvimento.",
+}
+
+
+def is_portuguese(language=None):
+    normalized = str(language or get_env("LANGUAGE", "en")).strip().lower()
+    return normalized.startswith("pt")
+
+
+def ui_text(key, language=None, **kwargs):
+    template = PT_BR_UI.get(key) if is_portuguese(language) else None
+    if template is None:
+        template = key
+    return template.format(**kwargs) if kwargs else template
+
+
+PT_BR_UI.update({'category_Text replies': 'Respostas em texto', 'field_RESPONSE_BUBBLE_MODE_label': 'Mostrar respostas', 'field_RESPONSE_BUBBLE_MODE_help': 'Exibir após chamar pelo atalho, sempre ou nunca.', 'field_RESPONSE_BUBBLE_POSITION_label': 'Canto', 'field_RESPONSE_BUBBLE_POSITION_help': 'Canto da tela para as respostas.', 'field_RESPONSE_BUBBLE_MARGIN_label': 'Distância da borda', 'field_RESPONSE_BUBBLE_MARGIN_help': 'Distância das bordas úteis da tela, em pixels.', 'field_RESPONSE_BUBBLE_WIDTH_label': 'Largura máxima', 'field_RESPONSE_BUBBLE_WIDTH_help': 'Largura máxima em pixels; respostas curtas continuam compactas.', 'field_RESPONSE_BUBBLE_HEIGHT_PERCENT_label': 'Altura máxima da tela (%)', 'field_RESPONSE_BUBBLE_HEIGHT_PERCENT_help': 'Limita a altura do balão; textos maiores têm rolagem.', 'field_RESPONSE_BUBBLE_FONT_SIZE_label': 'Tamanho do texto', 'field_RESPONSE_BUBBLE_FONT_SIZE_help': 'Tamanho da fonte da resposta em pixels.', 'field_RESPONSE_BUBBLE_OPACITY_label': 'Opacidade do fundo (%)', 'field_RESPONSE_BUBBLE_OPACITY_help': '100 é sólido; valores menores revelam mais o fundo.', 'field_RESPONSE_BUBBLE_RADIUS_label': 'Arredondamento', 'field_RESPONSE_BUBBLE_RADIUS_help': 'Raio dos cantos em pixels.', 'field_RESPONSE_BUBBLE_MIN_SECONDS_label': 'Tempo mínimo', 'field_RESPONSE_BUBBLE_MIN_SECONDS_help': 'Mínimo de segundos antes de a resposta desaparecer.', 'field_RESPONSE_BUBBLE_MAX_SECONDS_label': 'Tempo máximo', 'field_RESPONSE_BUBBLE_MAX_SECONDS_help': 'Máximo de segundos para respostas longas.', 'field_RESPONSE_BUBBLE_MS_PER_CHAR_label': 'Tempo de leitura por caractere', 'field_RESPONSE_BUBBLE_MS_PER_CHAR_help': 'Milissegundos por caractere; aumente para ler com mais calma.'})
+
+
+PT_BR_UI.update({
+    "field_QUICK_INPUT_POSITION_label": "Posição da caixa de texto",
+    "field_QUICK_INPUT_POSITION_help": "Onde a caixa de comandos abre na tela.",
+    "field_QUICK_INPUT_MARGIN_label": "Margem da caixa de texto",
+    "field_QUICK_INPUT_MARGIN_help": "Distância entre a caixa e as bordas da tela, em pixels.",
+})
+
+
+PT_BR_UI.update({
+    "category_Media": "Mídia",
+    "field_SPOTIFY_UI_CONTROL_label": "Controle de reprodução do Spotify",
+    "field_SPOTIFY_UI_CONTROL_help": "Lê a interface local do Spotify para tocar resultados correspondentes. Vale quando a Maya inicia o Spotify.",
+    "field_SPOTIFY_CONTROL_PORT_label": "Porta local do Spotify",
+    "field_SPOTIFY_CONTROL_PORT_help": "Porta local para controlar o Spotify. Reinicie o Spotify após alterar.",
+})
+
+
+PT_BR_UI.update({
+    "category_Conversation": "Conversa",
+    "field_DIALOGUE_ENABLED_label": "Contexto nativo",
+    "field_DIALOGUE_ENABLED_help": "Relaciona assuntos, perguntas de continuação e referências recentes a aplicativos usando o motor da Maya.",
+})
+
+
+def localize_env_field(field, language=None):
+    label_key = f"field_{field.key}_label"
+    help_key = f"field_{field.key}_help"
+    category_key = f"category_{field.category}"
+    label = PT_BR_UI.get(label_key, field.label or field.key.replace("_", " ").title()) if is_portuguese(language) else (field.label or field.key.replace("_", " ").title())
+    help_text = PT_BR_UI.get(help_key, field.help_text or "") if is_portuguese(language) else (field.help_text or "")
+    category = PT_BR_UI.get(category_key, field.category) if is_portuguese(language) else field.category
+    return {
+        "label": label,
+        "help_text": help_text,
+        "category": category,
+    }

@@ -1,0 +1,606 @@
+{
+  "version": 1,
+  "topics": [
+    {
+      "id": "bugs",
+      "title": "bug",
+      "aliases": [
+        "bug",
+        "depuracao",
+        "debug"
+      ],
+      "replies": {
+        "intro": "bug é uma hipótese errada tentando passar despercebida. vamos procurar evidência.",
+        "why": "reproduzir o problema permite distinguir causa de coincidência.",
+        "how": "anote a entrada, o resultado esperado e o resultado real.",
+        "pitfall": "mudar cinco coisas juntas destrói a pista de qual delas resolveu.",
+        "challenge": "reproduza o problema usando o menor exemplo que conseguir.",
+        "example": "se falha só no segundo clique, compare o estado antes dos dois cliques.",
+        "reflection": "qual fato faria você abandonar sua hipótese atual?",
+        "next": "depois de reproduzir, observe o primeiro ponto onde o estado diverge."
+      }
+    },
+    {
+      "id": "testes",
+      "title": "teste",
+      "aliases": [
+        "teste",
+        "testes",
+        "testar codigo"
+      ],
+      "replies": {
+        "intro": "um teste útil protege um comportamento que importa, não cada linha do código.",
+        "why": "ele permite mudar a implementação sem descobrir os estragos pelo usuário.",
+        "how": "comece por um caso real que já falhou.",
+        "pitfall": "copiar a lógica da implementação pro teste pode repetir o mesmo erro.",
+        "challenge": "escreva um teste que falhe antes da correção e passe depois.",
+        "example": "um inventário cheio deve recusar o item sem apagar os que já existem.",
+        "reflection": "se esse teste falhar, você saberá qual comportamento foi perdido?",
+        "next": "inclua um caso limite relevante e rode o fluxo completo."
+      }
+    },
+    {
+      "id": "git",
+      "title": "git",
+      "aliases": [
+        "git",
+        "branches",
+        "versionamento"
+      ],
+      "replies": {
+        "intro": "git fica bem menos misterioso quando você separa arquivo, área de preparação e commit.",
+        "why": "essa separação deixa você decidir exatamente o que cada mudança registra.",
+        "how": "antes de registrar, revise a diferença e escolha arquivos relacionados.",
+        "pitfall": "um commit gigante mistura decisões e dificulta reverter uma delas.",
+        "challenge": "descreva sua próxima mudança em uma frase que alguém consiga revisar.",
+        "example": "uma correção visual pode ficar separada de uma mudança nas regras do jogo.",
+        "reflection": "qual parte você gostaria de poder desfazer sozinha?",
+        "next": "depois de revisar, registre uma mudança coerente e confira o estado final."
+      }
+    },
+    {
+      "id": "arquitetura",
+      "title": "arquitetura de software",
+      "aliases": [
+        "arquitetura de software",
+        "estrutura do codigo"
+      ],
+      "replies": {
+        "intro": "uma arquitetura boa torna as mudanças frequentes menos dolorosas.",
+        "why": "limites claros reduzem a quantidade de código que precisa entender uma mudança.",
+        "how": "liste quem decide, quem guarda dados e quem executa efeitos.",
+        "pitfall": "criar abstrações antes de encontrar uma variação real pode só espalhar o problema.",
+        "challenge": "desenhe o caminho de uma entrada até o efeito final.",
+        "example": "o parser descreve mover uma janela; o backend sabe como o sistema faz isso.",
+        "reflection": "quais componentes precisam mudar juntos hoje?",
+        "next": "escolha um desses acoplamentos e mova a responsabilidade para um dono claro."
+      }
+    },
+    {
+      "id": "refatoracao",
+      "title": "refatoracao",
+      "aliases": [
+        "refatoracao",
+        "refatorar"
+      ],
+      "replies": {
+        "intro": "refatorar é mudar a estrutura mantendo o comportamento que você quer preservar.",
+        "why": "código mais compreensível reduz o custo das próximas alterações.",
+        "how": "escolha um trecho repetido ou difícil e registre seu comportamento atual.",
+        "pitfall": "misturar uma refatoração grande com novas funções dificulta achar regressões.",
+        "challenge": "extraia uma responsabilidade pequena e compare o antes e o depois.",
+        "example": "separar salvar dados de desenhar a tela evita que ambos precisem conhecer tudo.",
+        "reflection": "qual mudança você está adiando porque esse trecho assusta?",
+        "next": "faça uma alteração pequena, valide e só então continue."
+      }
+    },
+    {
+      "id": "python",
+      "title": "python",
+      "aliases": [
+        "python",
+        "codigo python"
+      ],
+      "replies": {
+        "intro": "em python, clareza costuma render mais que um truque esperto por linha.",
+        "why": "código explícito facilita descobrir tipos inesperados e efeitos escondidos.",
+        "how": "defina entradas e saídas da função antes de encher o corpo dela.",
+        "pitfall": "capturar toda exceção e continuar pode esconder o erro que precisava aparecer.",
+        "challenge": "transforme uma função longa em duas responsabilidades com nomes concretos.",
+        "example": "uma função pode ler um arquivo e outra validar os dados lidos.",
+        "reflection": "o nome da função conta o que ela realmente faz?",
+        "next": "rode com uma entrada vazia, uma válida e uma inválida relevante."
+      }
+    },
+    {
+      "id": "csharp",
+      "title": "c sharp",
+      "aliases": [
+        "c sharp",
+        "csharp",
+        "c#"
+      ],
+      "replies": {
+        "intro": "em C#, referências e estados de inicialização merecem atenção desde o começo.",
+        "why": "muitos erros aparecem porque uma referência existe em um momento e falta em outro.",
+        "how": "deixe explícito o que pode ser nulo e quando cada dependência fica pronta.",
+        "pitfall": "silenciar um aviso de nulidade não cria o objeto que está faltando.",
+        "challenge": "rastreie onde uma referência é criada antes de onde ela é usada.",
+        "example": "um nó pode existir na cena e ainda estar em um caminho diferente do esperado.",
+        "reflection": "essa dependência deveria ser obrigatória ou opcional?",
+        "next": "valide o contrato na entrada e dê um erro que indique o objeto ausente."
+      }
+    },
+    {
+      "id": "godot",
+      "title": "godot",
+      "aliases": [
+        "godot",
+        "cenas",
+        "nos da godot"
+      ],
+      "replies": {
+        "intro": "uma cena fica mais flexível quando suas responsabilidades acompanham a composição dos nós.",
+        "why": "peças independentes podem ser reutilizadas sem carregar regras que não precisam.",
+        "how": "defina o contrato da raiz e quais filhos realmente são obrigatórios.",
+        "pitfall": "presumir um tipo de raiz diferente do importado causa falhas na instanciação.",
+        "challenge": "instancie uma cena isolada e confira o tipo real da raiz.",
+        "example": "uma árvore pode ter raiz Node3D e vários MeshInstance3D abaixo dela.",
+        "reflection": "quem deveria conhecer o caminho desse filho: a peça ou o mundo inteiro?",
+        "next": "valide a cena no jogo, além de verificar se o projeto compila."
+      }
+    },
+    {
+      "id": "lowpoly",
+      "title": "low poly",
+      "aliases": [
+        "low poly",
+        "lowpoly",
+        "modelagem simples"
+      ],
+      "replies": {
+        "intro": "low poly funciona melhor quando a silhueta conta a história com poucas formas.",
+        "why": "detalhes pequenos se perdem à distância, enquanto proporção e contraste continuam visíveis.",
+        "how": "observe o modelo no tamanho em que ele aparece durante o jogo.",
+        "pitfall": "reduzir polígonos sem olhar a silhueta pode destruir justamente a parte expressiva.",
+        "challenge": "remova um detalhe e compare se a leitura realmente piorou.",
+        "example": "uma copa com poucos volumes diferentes pode variar mais que muitos galhos minúsculos.",
+        "reflection": "qual forma faz esse objeto ser reconhecido de longe?",
+        "next": "compare as versões com a câmera do jogo e a iluminação final."
+      }
+    },
+    {
+      "id": "procedural",
+      "title": "geracao procedural",
+      "aliases": [
+        "geracao procedural",
+        "procedural",
+        "mundo procedural"
+      ],
+      "replies": {
+        "intro": "geração procedural precisa de regras que produzam variedade com coerência.",
+        "why": "aleatoriedade sem restrições costuma gerar mais ruído que lugares interessantes.",
+        "how": "separe a semente, as regras e a validação do resultado.",
+        "pitfall": "consertar resultados aleatórios à mão pode esconder uma regra inconsistente.",
+        "challenge": "use uma semente fixa para reproduzir um resultado ruim.",
+        "example": "uma clareira pode limitar árvores próximas em vez de depender só de sorte.",
+        "reflection": "o que deve continuar verdadeiro em todo mundo gerado?",
+        "next": "gere várias sementes e procure a primeira que quebra essa regra."
+      }
+    },
+    {
+      "id": "gamedesign",
+      "title": "game design",
+      "aliases": [
+        "game design",
+        "design de jogos",
+        "mecanicas"
+      ],
+      "replies": {
+        "intro": "uma mecânica fica interessante quando cria uma decisão com consequência perceptível.",
+        "why": "o jogador precisa perceber a relação entre escolha, risco e resultado.",
+        "how": "descreva o que o jogador decide em dez segundos de jogo.",
+        "pitfall": "mais sistemas não garantem mais decisões interessantes.",
+        "challenge": "prototipe uma escolha com duas opções realmente diferentes.",
+        "example": "uma arma lenta e forte pede um ritmo diferente de uma rápida e fraca.",
+        "reflection": "qual escolha você quer que o jogador discuta consigo mesmo?",
+        "next": "teste com alguém e observe o que ele faz antes de explicar as regras."
+      }
+    },
+    {
+      "id": "audiogame",
+      "title": "audio de jogo",
+      "aliases": [
+        "audio de jogo",
+        "som de jogo",
+        "efeitos sonoros"
+      ],
+      "replies": {
+        "intro": "o som pode explicar um estado antes de o jogador olhar para a interface.",
+        "why": "pistas consistentes ajudam a reconhecer ações e resultados rapidamente.",
+        "how": "liste os estados que precisam de confirmação sonora.",
+        "pitfall": "tocar tudo no mesmo volume faz os sons competirem pela mesma atenção.",
+        "challenge": "faça três sons distinguíveis para sucesso, falha e aviso.",
+        "example": "um clique vazio pode indicar falta de munição sem abrir um painel.",
+        "reflection": "que informação importante hoje depende só de texto?",
+        "next": "teste os sons durante o jogo, junto da música e dos outros efeitos."
+      }
+    },
+    {
+      "id": "otimizacao",
+      "title": "otimizacao",
+      "aliases": [
+        "otimizacao",
+        "performance",
+        "otimizar"
+      ],
+      "replies": {
+        "intro": "otimizar começa por medir onde o tempo ou a memória estão indo.",
+        "why": "uma melhoria fora do gargalo pode não mudar a experiência.",
+        "how": "escolha uma tarefa reproduzível e meça antes de alterar.",
+        "pitfall": "um único resultado rápido pode ser cache ou variação do sistema.",
+        "challenge": "repita o mesmo cenário e compare medianas.",
+        "example": "abrir a voz fria e sintetizar com ela carregada são medições diferentes.",
+        "reflection": "qual atraso o usuário realmente percebe?",
+        "next": "mude o gargalo encontrado e repita a mesma medição."
+      }
+    },
+    {
+      "id": "linux",
+      "title": "linux",
+      "aliases": [
+        "linux",
+        "fedora",
+        "desktop linux"
+      ],
+      "replies": {
+        "intro": "no linux, aplicativo instalado e comando disponível no terminal não são a mesma coisa.",
+        "why": "o lançador do desktop pode conter argumentos e caminhos que o nome sozinho não revela.",
+        "how": "confira a sessão, o executável e o lançador usados de verdade.",
+        "pitfall": "assumir que todo aplicativo veio do mesmo gerenciador quebra instalações por usuário.",
+        "challenge": "compare o nome do app com o comando do arquivo desktop.",
+        "example": "um AppImage pode estar em Applications sem existir no PATH.",
+        "reflection": "qual camada está falhando: descobrir, iniciar ou controlar o aplicativo?",
+        "next": "teste a abertura e confira a janela ou o processo resultante."
+      }
+    },
+    {
+      "id": "privacidade",
+      "title": "privacidade",
+      "aliases": [
+        "privacidade",
+        "dados pessoais"
+      ],
+      "replies": {
+        "intro": "privacidade começa por saber quais dados existem, onde ficam e quem os recebe.",
+        "why": "fica difícil controlar algo cujo caminho você não conhece.",
+        "how": "liste os dados guardados e por que cada um é necessário.",
+        "pitfall": "guardar tudo por precaução cria uma coleção que ninguém sabe administrar.",
+        "challenge": "escolha um dado e siga seu caminho da entrada ao armazenamento.",
+        "example": "histórico recente e preferências permanentes podem ter políticas diferentes.",
+        "reflection": "esse dado precisa mesmo continuar guardado amanhã?",
+        "next": "defina como visualizar, corrigir e apagar o que foi armazenado."
+      }
+    },
+    {
+      "id": "backup",
+      "title": "backup",
+      "aliases": [
+        "backup",
+        "backups",
+        "copia de seguranca"
+      ],
+      "replies": {
+        "intro": "um backup só deixa de ser esperança depois que você testa a restauração.",
+        "why": "a cópia pode existir e ainda estar incompleta ou ilegível.",
+        "how": "escolha um arquivo importante e restaure numa pasta separada.",
+        "pitfall": "uma cópia no mesmo disco não protege contra a perda desse disco.",
+        "challenge": "recupere uma versão antiga sem mexer no arquivo atual.",
+        "example": "o código pode estar no git enquanto modelos e configurações ainda precisam de cópia.",
+        "reflection": "o que você não conseguiria reconstruir se sumisse agora?",
+        "next": "inclua esse material no backup e teste a leitura."
+      }
+    },
+    {
+      "id": "hardware",
+      "title": "hardware",
+      "aliases": [
+        "hardware",
+        "pecas do pc"
+      ],
+      "replies": {
+        "intro": "uma máquina equilibrada depende da tarefa, não de uma peça com o maior número.",
+        "why": "o componente que limita a carga muda conforme o trabalho.",
+        "how": "descreva a tarefa e observe CPU, memória, disco e GPU durante ela.",
+        "pitfall": "comparar só frequência ou quantidade de núcleos ignora o comportamento real.",
+        "challenge": "meça um fluxo que você executa todo dia.",
+        "example": "gerar voz pode pesar na CPU enquanto desenhar a interface quase não exige GPU.",
+        "reflection": "você quer reduzir espera, aumentar capacidade ou diminuir consumo?",
+        "next": "compare configurações usando a mesma tarefa e as mesmas condições."
+      }
+    },
+    {
+      "id": "ram",
+      "title": "ram",
+      "aliases": [
+        "ram",
+        "memoria ram"
+      ],
+      "replies": {
+        "intro": "RAM é espaço de trabalho; ter mais permite manter mais dados prontos.",
+        "why": "evitar recarregamentos e pressão de memória pode melhorar a fluidez.",
+        "how": "observe memória disponível e uso de troca durante sua carga normal.",
+        "pitfall": "memória ocupada por cache não significa automaticamente falta de RAM.",
+        "challenge": "abra sua combinação habitual de apps e veja se começa a paginar muito.",
+        "example": "um modelo carregado pode responder mais rápido que outro descarregado a cada frase.",
+        "reflection": "você está sem espaço de trabalho ou apenas usando o que tem?",
+        "next": "meça o processo e o sistema separadamente antes de decidir."
+      }
+    },
+    {
+      "id": "cpu",
+      "title": "cpu",
+      "aliases": [
+        "cpu",
+        "processador"
+      ],
+      "replies": {
+        "intro": "o processador precisa combinar bom desempenho por tarefa com paralelismo útil.",
+        "why": "nem todo programa consegue dividir seu trabalho entre todos os núcleos.",
+        "how": "veja quantas threads a tarefa realmente ocupa.",
+        "pitfall": "aumentar threads demais pode acrescentar disputa em vez de velocidade.",
+        "challenge": "compare a mesma tarefa com diferentes limites de threads.",
+        "example": "síntese de voz com quatro threads pode não aproveitar uma CPU inteira.",
+        "reflection": "a espera vem de cálculo, entrada e saída ou sincronização?",
+        "next": "registre tempo total e uso de CPU para distinguir essas causas."
+      }
+    },
+    {
+      "id": "gpu",
+      "title": "gpu",
+      "aliases": [
+        "gpu",
+        "placa de video",
+        "vram"
+      ],
+      "replies": {
+        "intro": "uma GPU ajuda quando o software tem um caminho que a utiliza.",
+        "why": "uma placa forte não acelera automaticamente uma implementação feita só para CPU.",
+        "how": "confira o backend ativo e a memória usada pela tarefa.",
+        "pitfall": "confundir RAM do sistema com VRAM atrapalha o diagnóstico.",
+        "challenge": "execute a tarefa e veja se há uso mensurável da GPU.",
+        "example": "um compositor pode usar GPU enquanto o modelo de voz continua na CPU.",
+        "reflection": "o seu programa está usando a placa ou você só espera que use?",
+        "next": "valide o backend antes de comparar resultados."
+      }
+    },
+    {
+      "id": "ssd",
+      "title": "ssd",
+      "aliases": [
+        "ssd",
+        "armazenamento",
+        "disco"
+      ],
+      "replies": {
+        "intro": "armazenamento influencia carregamentos, instalação e a velocidade de acessar muitos arquivos.",
+        "why": "ler dados do disco pode dominar o primeiro uso mesmo quando o cálculo é rápido.",
+        "how": "separe tempo de leitura do tempo de processamento.",
+        "pitfall": "um disco quase cheio e uma aplicação lenta podem coexistir sem a mesma causa.",
+        "challenge": "compare a primeira abertura com uma segunda abertura controlada.",
+        "example": "um modelo pode carregar lentamente e depois gerar respostas sem acessar o disco.",
+        "reflection": "a demora acontece ao carregar ou continua depois de tudo pronto?",
+        "next": "meça as duas etapas antes de apontar o culpado."
+      }
+    },
+    {
+      "id": "automacao",
+      "title": "automacao",
+      "aliases": [
+        "automacao",
+        "automatizar",
+        "rotinas do computador"
+      ],
+      "replies": {
+        "intro": "uma automação boa confirma o que fez e explica onde parou.",
+        "why": "executar uma etapa não prova que o objetivo foi atingido.",
+        "how": "defina a condição de sucesso antes de encadear comandos.",
+        "pitfall": "tentar de novo sem saber o estado pode duplicar ações.",
+        "challenge": "escreva uma checagem para o resultado de uma ação.",
+        "example": "abrir uma busca de música e começar a tocar são resultados diferentes.",
+        "reflection": "como você distinguiria sucesso de uma tentativa silenciosamente falha?",
+        "next": "adicione essa verificação antes de automatizar a próxima etapa."
+      }
+    },
+    {
+      "id": "foco",
+      "title": "foco",
+      "aliases": [
+        "foco",
+        "concentracao",
+        "concentrar"
+      ],
+      "replies": {
+        "intro": "foco fica mais fácil quando o próximo passo é concreto o suficiente para começar.",
+        "why": "uma tarefa nebulosa cobra decisões antes de produzir qualquer avanço.",
+        "how": "escolha uma ação pequena que deixe um resultado visível.",
+        "pitfall": "organizar o trabalho infinitamente pode virar outra forma de adiá-lo.",
+        "challenge": "trabalhe por dez minutos em uma única alteração pequena.",
+        "example": "em vez de melhorar tudo, corrija uma mensagem de erro confusa.",
+        "reflection": "qual é o menor avanço que você reconheceria hoje?",
+        "next": "termine esse avanço e decida conscientemente se continua."
+      }
+    },
+    {
+      "id": "habitos",
+      "title": "habitos",
+      "aliases": [
+        "habitos",
+        "habito",
+        "consistencia"
+      ],
+      "replies": {
+        "intro": "um hábito fica mais praticável quando tem um gatilho claro e uma versão pequena.",
+        "why": "depender de disposição perfeita torna a repetição mais difícil.",
+        "how": "ligue uma ação curta a algo que já acontece no seu dia.",
+        "pitfall": "transformar uma falha em abandono apaga o valor das repetições anteriores.",
+        "challenge": "defina uma versão de dois minutos da atividade.",
+        "example": "depois de abrir o projeto, escreva qual será a próxima alteração.",
+        "reflection": "o hábito cabe num dia ruim ou só no ideal?",
+        "next": "teste a versão pequena antes de aumentar a exigência."
+      }
+    },
+    {
+      "id": "criatividade",
+      "title": "criatividade",
+      "aliases": [
+        "criatividade",
+        "ideias",
+        "ideia criativa"
+      ],
+      "replies": {
+        "intro": "criatividade também é recombinar limitações conhecidas de um jeito diferente.",
+        "why": "uma restrição concreta reduz o espaço infinito de escolhas.",
+        "how": "escolha duas coisas que você gosta e uma regra que não pode quebrar.",
+        "pitfall": "julgar cada ideia no instante em que aparece pode impedir explorar qualquer uma.",
+        "challenge": "invente três soluções ruins de propósito antes de escolher uma.",
+        "example": "como seria um jogo de exploração em que o mapa só existe pelo som?",
+        "reflection": "qual restrição tornaria sua ideia mais reconhecível?",
+        "next": "prototipe a combinação mais estranha em uma forma pequena."
+      }
+    },
+    {
+      "id": "perfeccionismo",
+      "title": "perfeccionismo",
+      "aliases": [
+        "perfeccionismo",
+        "perfeito",
+        "perfeccionista"
+      ],
+      "replies": {
+        "intro": "acabamento importa, mas precisa de um critério de parada.",
+        "why": "sem esse critério, cada melhoria cria uma nova razão para nunca testar.",
+        "how": "escreva o que precisa funcionar para essa versão valer um teste.",
+        "pitfall": "confundir desconforto com defeito pode tornar qualquer resultado insuficiente.",
+        "challenge": "defina três condições observáveis para encerrar a tarefa.",
+        "example": "uma tela pode estar pronta quando é legível, consistente e executa o fluxo.",
+        "reflection": "qual defeito realmente impede alguém de usar isso?",
+        "next": "corrija esse impedimento e coloque a versão diante de alguém."
+      }
+    },
+    {
+      "id": "aprendizado",
+      "title": "aprender",
+      "aliases": [
+        "aprender",
+        "aprendizado",
+        "estudar"
+      ],
+      "replies": {
+        "intro": "aprender fica mais verificável quando você tenta fazer algo sem copiar a referência.",
+        "why": "reconhecer uma explicação não é igual a conseguir aplicá-la.",
+        "how": "escolha um problema pequeno e tente explicar sua solução.",
+        "pitfall": "consumir exemplos sem testar compreensão pode dar uma sensação enganosa de domínio.",
+        "challenge": "recrie uma função curta sem olhar e depois compare.",
+        "example": "explique o fluxo de entrada e saída de um trecho do seu projeto.",
+        "reflection": "qual parte você consegue usar, mas ainda não explicar?",
+        "next": "volte justamente a essa parte e produza um exemplo próprio."
+      }
+    },
+    {
+      "id": "filosofia",
+      "title": "filosofia",
+      "aliases": [
+        "filosofia",
+        "questao filosofica",
+        "pensamento filosofico"
+      ],
+      "replies": {
+        "intro": "uma boa pergunta filosófica revela o que você estava assumindo sem perceber.",
+        "why": "duas pessoas podem discordar porque usam palavras iguais com sentidos diferentes.",
+        "how": "defina os termos antes de defender uma conclusão.",
+        "pitfall": "uma analogia bonita pode esconder uma diferença importante.",
+        "challenge": "defenda por dois minutos a melhor versão da opinião contrária.",
+        "example": "se algo parece livre, pergunte livre de quê e para fazer o quê.",
+        "reflection": "qual evidência ou argumento mudaria sua posição?",
+        "next": "compare as premissas, não só as conclusões."
+      }
+    },
+    {
+      "id": "identidade",
+      "title": "identidade",
+      "aliases": [
+        "identidade",
+        "autoria",
+        "fiz sozinho"
+      ],
+      "replies": {
+        "intro": "autoria pode envolver concepção, decisões, execução e responsabilidade em proporções diferentes.",
+        "why": "dizer quem fez o quê esclarece mais do que tratar autoria como tudo ou nada.",
+        "how": "separe quais decisões foram suas e quais contribuições você recebeu.",
+        "pitfall": "apagar ajuda recebida e apagar seu próprio trabalho são distorções diferentes.",
+        "challenge": "descreva seu projeto sem diminuir nem exagerar a participação de ninguém.",
+        "example": "você pode ter criado o projeto e recebido ajuda numa melhoria posterior.",
+        "reflection": "qual parte da obra carrega suas escolhas mais importantes?",
+        "next": "registre as contribuições de forma que a história do projeto continue legível."
+      }
+    },
+    {
+      "id": "natureza",
+      "title": "natureza",
+      "aliases": [
+        "natureza",
+        "floresta",
+        "arvores"
+      ],
+      "replies": {
+        "intro": "observar a natureza pode virar um exercício de atenção e também de criação.",
+        "why": "formas e variações ficam mais claras quando você procura padrões concretos.",
+        "how": "escolha um detalhe: silhueta, distribuição, sombra ou textura.",
+        "pitfall": "copiar todos os detalhes pode esconder o padrão que você queria estudar.",
+        "challenge": "observe cinco árvores e liste diferenças sem chamar nenhuma de só árvore.",
+        "example": "duas copas parecidas podem ter troncos e espaços vazios muito diferentes.",
+        "reflection": "qual detalhe você nunca tinha reparado até olhar de propósito?",
+        "next": "use uma dessas diferenças num desenho, modelo ou descrição."
+      }
+    },
+    {
+      "id": "musica",
+      "title": "musica",
+      "aliases": [
+        "musica",
+        "escutar musica",
+        "trilha sonora"
+      ],
+      "replies": {
+        "intro": "música pode servir de cenário, foco ou assunto; depende do que você quer dela agora.",
+        "why": "o mesmo som pode ajudar numa tarefa e disputar atenção em outra.",
+        "how": "decida se quer energia, companhia ou menos distração.",
+        "pitfall": "tentar escolher a playlist perfeita pode levar mais tempo que a tarefa.",
+        "challenge": "compare dez minutos de trabalho com música e dez sem.",
+        "example": "uma faixa instrumental familiar pode disputar menos atenção que uma letra nova.",
+        "reflection": "você quer ouvir a música ou quer que ela acompanhe outra coisa?",
+        "next": "escolha pelo efeito que procura e ajuste depois de perceber o resultado."
+      }
+    },
+    {
+      "id": "experimento",
+      "title": "experimento",
+      "aliases": [
+        "experimento",
+        "hipotese",
+        "metodo"
+      ],
+      "replies": {
+        "intro": "um experimento começa com uma previsão que pode dar errado.",
+        "why": "se todo resultado confirma sua ideia, o teste não está distinguindo nada.",
+        "how": "escreva o que espera observar antes de começar.",
+        "pitfall": "mudar as condições durante a medição dificulta comparar os resultados.",
+        "challenge": "formule duas explicações diferentes para o mesmo problema.",
+        "example": "se a lentidão vem do disco, aquecer o cache pode alterar o tempo de abertura.",
+        "reflection": "o que você observaria se sua explicação estivesse errada?",
+        "next": "teste a condição que melhor separa as duas hipóteses."
+      }
+    }
+  ]
+}

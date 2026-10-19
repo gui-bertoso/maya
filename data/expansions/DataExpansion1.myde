@@ -1,0 +1,14 @@
+{
+  "format": "maya-data-expansion",
+  "format_version": 1,
+  "name": "foco-e-rotina",
+  "version": 1,
+  "commands": {
+    "asks_focus_help": ["me poe nos trilhos", "bora produzir", "me ajuda a sair do zero"],
+    "asks_encouragement": ["preciso de energia", "me da coragem"]
+  },
+  "responses": {
+    "asks_focus_help_unknown_pt": ["abre a tarefa e faz cinco minutos. depois a gente negocia com a preguica."],
+    "asks_encouragement_unknown_pt": ["voce nao precisa vencer o dia inteiro agora. vence os proximos dez minutos."]
+  }
+}
