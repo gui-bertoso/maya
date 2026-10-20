@@ -1,0 +1,350 @@
+{
+  "format": "maya-data-expansion",
+  "format_version": 1,
+  "name": "git-foundations",
+  "version": 1,
+  "language": "en",
+  "description": "Authored concise reference answers; exact question aliases; source links retained. No executable actions.",
+  "knowledge": [
+    {
+      "questions": [
+        "git working tree",
+        "what is git working tree",
+        "what is a git working tree",
+        "explain git working tree",
+        "tell me about git working tree",
+        "define git working tree"
+      ],
+      "answer": "The working tree contains checked-out files and their current edits.",
+      "sources": [
+        {
+          "title": "Git status manual",
+          "url": "https://git-scm.com/docs/git-status"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "git staging area",
+        "what is git staging area",
+        "what is a git staging area",
+        "explain git staging area",
+        "tell me about git staging area",
+        "define git staging area"
+      ],
+      "answer": "The index holds the content prepared for the next commit.",
+      "sources": [
+        {
+          "title": "Git status manual",
+          "url": "https://git-scm.com/docs/git-status"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "git staged change",
+        "what is git staged change",
+        "what is a git staged change",
+        "explain git staged change",
+        "tell me about git staged change",
+        "define git staged change"
+      ],
+      "answer": "A staged change has been added to the index.",
+      "sources": [
+        {
+          "title": "Git status manual",
+          "url": "https://git-scm.com/docs/git-status"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "git unstaged change",
+        "what is git unstaged change",
+        "what is a git unstaged change",
+        "explain git unstaged change",
+        "tell me about git unstaged change",
+        "define git unstaged change"
+      ],
+      "answer": "An unstaged change differs between the working tree and the index.",
+      "sources": [
+        {
+          "title": "Git status manual",
+          "url": "https://git-scm.com/docs/git-status"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "git untracked file",
+        "what is git untracked file",
+        "what is a git untracked file",
+        "explain git untracked file",
+        "tell me about git untracked file",
+        "define git untracked file"
+      ],
+      "answer": "An untracked file exists locally but is absent from the index.",
+      "sources": [
+        {
+          "title": "Git status manual",
+          "url": "https://git-scm.com/docs/git-status"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "git ignored file",
+        "what is git ignored file",
+        "what is a git ignored file",
+        "explain git ignored file",
+        "tell me about git ignored file",
+        "define git ignored file"
+      ],
+      "answer": "An ignored file matches exclusion rules and is normally omitted from untracked-file reporting.",
+      "sources": [
+        {
+          "title": "Git status manual",
+          "url": "https://git-scm.com/docs/git-status"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "git branch",
+        "what is git branch",
+        "what is a git branch",
+        "explain git branch",
+        "tell me about git branch",
+        "define git branch"
+      ],
+      "answer": "A branch names a movable line of development identified by a reference.",
+      "sources": [
+        {
+          "title": "Git branch manual",
+          "url": "https://git-scm.com/docs/git-branch"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "git upstream branch",
+        "what is git upstream branch",
+        "what is a git upstream branch",
+        "explain git upstream branch",
+        "tell me about git upstream branch",
+        "define git upstream branch"
+      ],
+      "answer": "An upstream is the tracked branch used by several default comparison and synchronization behaviors.",
+      "sources": [
+        {
+          "title": "Git branch manual",
+          "url": "https://git-scm.com/docs/git-branch"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "git remote tracking branch",
+        "what is git remote tracking branch",
+        "what is a git remote tracking branch",
+        "explain git remote tracking branch",
+        "tell me about git remote tracking branch",
+        "define git remote tracking branch"
+      ],
+      "answer": "A remote-tracking reference represents the locally recorded state of a remote branch.",
+      "sources": [
+        {
+          "title": "Git branch manual",
+          "url": "https://git-scm.com/docs/git-branch"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "git branch listing",
+        "what is git branch listing",
+        "what is a git branch listing",
+        "explain git branch listing",
+        "tell me about git branch listing",
+        "define git branch listing"
+      ],
+      "answer": "Listing branches shows local branches; other options include remote-tracking branches.",
+      "sources": [
+        {
+          "title": "Git branch manual",
+          "url": "https://git-scm.com/docs/git-branch"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "git branch rename",
+        "what is git branch rename",
+        "what is a git branch rename",
+        "explain git branch rename",
+        "tell me about git branch rename",
+        "define git branch rename"
+      ],
+      "answer": "Renaming a branch updates its name and associated configuration and reflog.",
+      "sources": [
+        {
+          "title": "Git branch manual",
+          "url": "https://git-scm.com/docs/git-branch"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "git branch deletion",
+        "what is git branch deletion",
+        "what is a git branch deletion",
+        "explain git branch deletion",
+        "tell me about git branch deletion",
+        "define git branch deletion"
+      ],
+      "answer": "Deleting a branch removes its reference; it does not directly delete working files.",
+      "sources": [
+        {
+          "title": "Git branch manual",
+          "url": "https://git-scm.com/docs/git-branch"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "git commit",
+        "what is git commit",
+        "what is a git commit",
+        "explain git commit",
+        "tell me about git commit",
+        "define git commit"
+      ],
+      "answer": "A commit records a snapshot with metadata and references to its parent commits.",
+      "sources": [
+        {
+          "title": "Git commit manual",
+          "url": "https://git-scm.com/docs/git-commit"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "git commit message",
+        "what is git commit message",
+        "what is a git commit message",
+        "explain git commit message",
+        "tell me about git commit message",
+        "define git commit message"
+      ],
+      "answer": "A commit message explains the change recorded by that commit.",
+      "sources": [
+        {
+          "title": "Git commit manual",
+          "url": "https://git-scm.com/docs/git-commit"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "git amend",
+        "what is git amend",
+        "what is a git amend",
+        "explain git amend",
+        "tell me about git amend",
+        "define git amend"
+      ],
+      "answer": "Amending creates a replacement for the latest commit; it changes the commit identity.",
+      "sources": [
+        {
+          "title": "Git commit manual",
+          "url": "https://git-scm.com/docs/git-commit"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "git empty commit",
+        "what is git empty commit",
+        "what is a git empty commit",
+        "explain git empty commit",
+        "tell me about git empty commit",
+        "define git empty commit"
+      ],
+      "answer": "An empty commit records a commit even when its tree matches its parent.",
+      "sources": [
+        {
+          "title": "Git commit manual",
+          "url": "https://git-scm.com/docs/git-commit"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "git diff",
+        "what is git diff",
+        "what is a git diff",
+        "explain git diff",
+        "tell me about git diff",
+        "define git diff"
+      ],
+      "answer": "Git diff compares content between working files, the index, or commits.",
+      "sources": [
+        {
+          "title": "Git diff manual",
+          "url": "https://git-scm.com/docs/git-diff"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "git cached diff",
+        "what is git cached diff",
+        "what is a git cached diff",
+        "explain git cached diff",
+        "tell me about git cached diff",
+        "define git cached diff"
+      ],
+      "answer": "A cached diff shows staged changes relative to the selected commit, normally HEAD.",
+      "sources": [
+        {
+          "title": "Git diff manual",
+          "url": "https://git-scm.com/docs/git-diff"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "git diff stat",
+        "what is git diff stat",
+        "what is a git diff stat",
+        "explain git diff stat",
+        "tell me about git diff stat",
+        "define git diff stat"
+      ],
+      "answer": "A diff stat summarizes changed files and line counts.",
+      "sources": [
+        {
+          "title": "Git diff manual",
+          "url": "https://git-scm.com/docs/git-diff"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "git word diff",
+        "what is git word diff",
+        "what is a git word diff",
+        "explain git word diff",
+        "tell me about git word diff",
+        "define git word diff"
+      ],
+      "answer": "A word diff highlights changes at a word-oriented level.",
+      "sources": [
+        {
+          "title": "Git diff manual",
+          "url": "https://git-scm.com/docs/git-diff"
+        }
+      ]
+    }
+  ]
+}

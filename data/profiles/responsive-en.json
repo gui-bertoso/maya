@@ -1,0 +1,21 @@
+{
+  "name": "update e bug hunter — responsive english",
+  "description": "Longer interaction window, faster speech endpoint and slightly faster af_heart voice. Applied through Maya settings; personal paths and microphone gain are preserved.",
+  "values": {
+    "LANGUAGE": "en",
+    "TTS_ENGINE": "kokoro",
+    "TTS_VOICE_ID": "af_heart",
+    "TTS_RATE": "190",
+    "WAKE_DURATION": "12.0",
+    "WAKE_RESPONSE_COOLDOWN": "2.0",
+    "WAKE_RESPONSE_OPTIONS": "I'm listening.|Go ahead.|Yep, I'm here.|What's up?",
+    "VOICE_BLOCK_SIZE": "1600",
+    "VOICE_ENDPOINT_SILENCE_MS": "300",
+    "VOICE_SPEECH_HANGOVER": "3",
+    "VOICE_IGNORE_COOLDOWN": "0.35",
+    "RESPONSE_BUBBLE_MODE": "always",
+    "RESPONSE_BUBBLE_MIN_SECONDS": "8",
+    "QUICK_INPUT_WIDTH": "520",
+    "QUICK_INPUT_HEIGHT": "180"
+  }
+}

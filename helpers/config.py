@@ -1,4 +1,7 @@
+from helpers.diagnostics import report_error
 import os
+import math
+import tempfile
 import shutil
 import sys
 from dataclasses import dataclass
@@ -129,6 +132,12 @@ ENV_FIELDS = (
     EnvField("DAILY_BRIEF_LOCATION", "", str, "Wake", "Daily Brief Location", "Optional weather location for the startup daily brief."),
     EnvField("VOICE_IGNORE_COOLDOWN", "1.2", float, "Voice", "Voice Ignore Cooldown", "Cooldown for low-signal voice input suppression."),
     EnvField("MICROPHONE_ENABLED", "true", str, "Voice", "Microphone Enabled", "Enable microphone-driven voice recognition and clap wake.", ("true", "false")),
+    EnvField("STT_ENGINE", "vosk", str, "Voice", "Speech recognition engine", "Vosk streaming or local whisper.cpp sentence transcription.", ("vosk", "whisper.cpp")),
+    EnvField("WHISPER_CPP_SERVER", ".runtime/whisper.cpp/build/bin/whisper-server", str, "Voice", "Whisper server binary", "Local compiled whisper-server executable."),
+    EnvField("WHISPER_MODEL_PATH", "models/whisper/ggml-small.en.bin", str, "Voice", "Whisper model", "Local ggml model file; small.en is the initial English experiment."),
+    EnvField("WHISPER_THREADS", "6", int, "Voice", "Whisper CPU threads", "CPU threads available to the local recognition server."),
+    EnvField("WHISPER_USE_GPU", "true", str, "Voice", "Whisper GPU", "Use a supported compiled GPU backend, such as Vulkan.", ("true", "false")),
+    EnvField("WHISPER_PROMPT", "Maya, Steam, Spotify, Firefox, Godot, Blender, VS Code.", str, "Voice", "Whisper vocabulary hints", "Short context for proper names; this is a hint, not an accuracy guarantee."),
     EnvField("VOICE_SAMPLE_RATE", "16000", int, "Voice", "Voice Sample Rate", "Recognizer microphone sample rate."),
     EnvField("VOICE_BLOCK_SIZE", "2000", int, "Voice", "Voice Block Size", "Smaller blocks reduce wake word latency."),
     EnvField("VOICE_NOISE_SUPPRESSION", "true", str, "Voice", "Noise Suppression", "Adaptive input noise gate before speech recognition.", ("true", "false")),
@@ -207,7 +216,8 @@ def get_env(key, default=None, cast=str):
 
     try:
         return cast(value)
-    except Exception:
+    except Exception as diagnostic_error:
+        report_error("config_value", diagnostic_error, operation="config.get_env", notify=False)
         return default
 
 
@@ -244,27 +254,50 @@ def get_env_values():
     return values
 
 
+NUMERIC_LIMITS = {
+    "WHISPER_THREADS": (1, 32),
+    "WAKE_DURATION": (1, 300), "VOICE_SAMPLE_RATE": (8000, 192000),
+    "VOICE_BLOCK_SIZE": (1600, 16000), "VOICE_ENDPOINT_SILENCE_MS": (200, 3000),
+    "VOICE_NOISE_GATE": (20, 20000), "TTS_RATE": (80, 400), "TTS_VOLUME": (0, 1),
+    "INITIAL_SCALE": (0.1, 3), "INITIAL_MONITOR": (1, 32),
+    "WINDOW_WIDTH": (80, 2000), "WINDOW_HEIGHT": (80, 2000), "WINDOW_MARGIN": (0, 1000),
+}
+
+
 def save_env_values(values):
-    ENV_FILE.parent.mkdir(parents=True, exist_ok=True)
-    if not ENV_FILE.exists():
-        ENV_FILE.touch()
-
+    current = get_env_values()
+    cleaned = {}
     for field in ENV_FIELDS:
-        raw_value = values.get(field.key, field.default)
-        clean_value = "" if raw_value is None else str(raw_value).strip()
-
-        if clean_value == "":
-            clean_value = field.default
-
-        if field.options and clean_value not in field.options:
+        raw = values.get(field.key, current.get(field.key, field.default))
+        value = "" if raw is None else str(raw).strip()
+        value = value or field.default
+        if field.options and value not in field.options:
             raise ValueError(f"{field.key} must be one of: {', '.join(field.options)}")
-
         if field.cast in (int, float):
             try:
-                field.cast(clean_value)
-            except Exception as error:
-                raise ValueError(f"{field.key} must be a valid {field.cast.__name__}") from error
+                number = field.cast(value)
+                if not math.isfinite(number):
+                    raise ValueError('must be finite')
+                lower, upper = NUMERIC_LIMITS.get(field.key, (0, float('inf')))
+                if not lower <= number <= upper:
+                    raise ValueError(f'must be between {lower} and {upper}')
+            except (ValueError, TypeError, OverflowError) as error:
+                raise ValueError(f"{field.key}: {error}") from error
+        cleaned[field.key] = value
 
-        set_key(str(ENV_FILE), field.key, clean_value, quote_mode="auto")
-
+    ENV_FILE.parent.mkdir(parents=True, exist_ok=True)
+    fd, temporary = tempfile.mkstemp(prefix='.maya-env-', dir=ENV_FILE.parent)
+    try:
+        with os.fdopen(fd, 'wb') as stream:
+            if ENV_FILE.exists():
+                stream.write(ENV_FILE.read_bytes())
+                os.fchmod(stream.fileno(), ENV_FILE.stat().st_mode & 0o777)
+        for key, value in cleaned.items():
+            set_key(temporary, key, value, quote_mode='auto')
+        with open(temporary, 'rb') as stream:
+            os.fsync(stream.fileno())
+        os.replace(temporary, ENV_FILE)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
     reload_env()

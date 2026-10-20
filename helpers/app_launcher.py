@@ -12,6 +12,15 @@ from pathlib import Path
 
 from helpers.config import get_path, get_env
 
+from helpers.diagnostics import report_error
+
+
+class ApplicationStartupError(OSError):
+    def __init__(self, returncode):
+        super().__init__("Application exited during startup")
+        self.returncode = returncode
+
+
 APPS_PATH = get_path("APPS_PATH", "data/apps.json")
 
 
@@ -202,7 +211,7 @@ class AppLauncher:
         try:
             code = process.wait(timeout=0.2)
             if code:
-                raise OSError(f"Application exited with status {code}")
+                raise ApplicationStartupError(code)
         except subprocess.TimeoutExpired:
             pass
         return process
@@ -254,7 +263,9 @@ class AppLauncher:
                     self._open_target(target)
                 else:
                     self._spawn([target])
-        except Exception:
+        except Exception as error:
+            key = "app_exit" if isinstance(error, ApplicationStartupError) else "app_missing" if isinstance(error, FileNotFoundError) else "app_launch"
+            report_error(key, error, operation="apps.launch")
             return False, "launch_failed"
 
         return True, None
@@ -275,7 +286,9 @@ class AppLauncher:
                 self._spawn(resolved_command + [target])
             else:
                 self._spawn([str(resolved_command), target])
-        except Exception:
+        except Exception as error:
+            key = "app_exit" if isinstance(error, ApplicationStartupError) else "app_missing" if isinstance(error, FileNotFoundError) else "app_launch"
+            report_error(key, error, operation="apps.launch")
             return False, "launch_failed"
 
         return True, None
@@ -316,7 +329,9 @@ class AppLauncher:
                         self._spawn([target])
             else:
                 self._spawn([target])
-        except Exception:
+        except Exception as error:
+            key = "app_exit" if isinstance(error, ApplicationStartupError) else "app_missing" if isinstance(error, FileNotFoundError) else "app_launch"
+            report_error(key, error, operation="apps.launch")
             return False, "launch_failed"
 
         return True, None
@@ -832,7 +847,9 @@ class AppLauncher:
                 self._open_target(target)
             else:
                 self._spawn([target])
-        except Exception:
+        except Exception as error:
+            key = "app_exit" if isinstance(error, ApplicationStartupError) else "app_missing" if isinstance(error, FileNotFoundError) else "app_launch"
+            report_error(key, error, operation="apps.launch")
             return False, "launch_failed"
 
         return True, None
@@ -897,7 +914,8 @@ class AppLauncher:
                         text=True,
                         check=False,
                     )
-            except Exception:
+            except Exception as error:
+                report_error("app_target", error, operation="apps.close")
                 return False, "close_failed"
 
             if result.returncode == 0:

@@ -14,6 +14,8 @@ PT_BR_UI = {
     "quick_input_status_listening": "OUVINDO",
     "quick_input_status_speaking": "FALANDO",
     "quick_input_status_error": "OFFLINE",
+    "quick_input_status_busy": "OCUPADA — TENTE NOVAMENTE",
+    "quick_input_status_thinking": "TRANSCREVENDO",
     "dev_editor_title": "editor dev da maya",
     "dev_editor_window_title": "{caption} editor dev",
     "dev_editor_new": "Novo",

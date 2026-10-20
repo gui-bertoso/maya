@@ -9,6 +9,7 @@ class SingleInstanceTests(unittest.TestCase):
     def test_non_windows_does_not_block_startup(self):
         self.assertTrue(SingleInstance().acquire())
 
+    @unittest.skipUnless(__import__("sys").platform.startswith("win"), "Windows mutex integration")
     @patch("helpers.single_instance.ctypes.get_last_error", return_value=ERROR_ALREADY_EXISTS)
     @patch("helpers.single_instance.ctypes.set_last_error")
     @patch("helpers.single_instance.ctypes.WinDLL")

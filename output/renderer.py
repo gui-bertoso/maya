@@ -1,3 +1,4 @@
+from helpers.diagnostics import report_error
 import math
 import os
 import sys
@@ -788,7 +789,7 @@ class QuickInputWidget(QWidget):
         self.response_label.setVisible(bool(compact))
 
     def set_status(self, status):
-        keys = {"hearing": "quick_input_status_listening", "speaking": "quick_input_status_speaking", "error": "quick_input_status_error"}
+        keys = {"hearing": "quick_input_status_listening", "speaking": "quick_input_status_speaking", "error": "quick_input_status_error", "unavailable": "quick_input_status_error", "busy": "quick_input_status_busy", "thinking": "quick_input_status_thinking"}
         self.status_label.setText(self.renderer.tr(keys.get(status, "quick_input_status_ready")).lower())
         self.status_label.setVisible(status in keys)
 
@@ -798,13 +799,22 @@ class QuickInputWidget(QWidget):
             return True
         return False
 
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Escape:
+            self.renderer.hide_quick_input()
+            event.accept()
+            return
+        super().keyPressEvent(event)
+
     def submit_text(self, keep_open=False):
         submitted_text = self.entry.text().strip()
         if submitted_text:
             if submitted_text == "exit":
                 self.renderer.app.quit()
                 return
-            self.renderer.submit_input_callback(submitted_text)
+            if self.renderer.submit_input_callback(submitted_text) is False:
+                self.set_status("busy")
+                return
         self.entry.clear()
         if not keep_open:
             self.renderer.hide_quick_input()
@@ -941,6 +951,7 @@ class DevEditorWidget(QWidget):
             self.status_label.setText(self.renderer.tr("dev_editor_opened", name=os.path.basename(file_path)))
             self.editor.document().setModified(False)
         except Exception as error:
+            report_error("ui_runtime", error, operation="renderer.open_file", notify=False)
             self.status_label.setText(self.renderer.tr("dev_editor_open_failed", error=error))
 
     def save_file(self):
@@ -954,6 +965,7 @@ class DevEditorWidget(QWidget):
             self.editor.document().setModified(False)
             return True
         except Exception as error:
+            report_error("memory_storage", error, operation="renderer.save_file", notify=False)
             self.status_label.setText(self.renderer.tr("dev_editor_save_failed", error=error))
             return False
 
@@ -1269,9 +1281,9 @@ class SettingsWindow(QWidget):
             for key, control in self.inputs.items()
         }
         success, message = self.renderer.apply_settings_callback(values)
-        self.status_label.setText(message)
         if success:
             self.load_values()
+        self.status_label.setText(message)
 
 
 class Renderer:
@@ -1311,9 +1323,8 @@ class Renderer:
         self.initial_scale = get_env("INITIAL_SCALE", 0.5, float)
         self.is_linux = sys.platform.startswith("linux")
         self.is_windows = sys.platform.startswith("win")
-        self.window_positioning_limited = self.is_linux and os.getenv("XDG_SESSION_TYPE", "").strip().lower() == "wayland"
-
         self.app = QApplication.instance() or QApplication(sys.argv)
+        self.window_positioning_limited = self.is_linux and self.app.platformName().lower().startswith("wayland")
         self.app.setQuitOnLastWindowClosed(False)
 
         self.voice_status = "idle"
@@ -1389,6 +1400,11 @@ class Renderer:
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.update)
+        self.app.screenAdded.connect(self._handle_screen_change)
+        self.app.screenRemoved.connect(self._handle_screen_change)
+        self.app.primaryScreenChanged.connect(self._handle_screen_change)
+        self._observed_screens = []
+        self._connect_screen_signals()
 
     def _create_tray_icon(self):
         self.tray_icon = QSystemTrayIcon(QIcon(str(get_resource_path("icon.ico"))), self.app)
@@ -1433,6 +1449,8 @@ class Renderer:
             "quick_input_status_listening": "LISTENING",
             "quick_input_status_speaking": "SPEAKING",
             "quick_input_status_error": "OFFLINE",
+            "quick_input_status_busy": "BUSY — TRY AGAIN",
+            "quick_input_status_thinking": "TRANSCRIBING",
             "dev_editor_title": "maya dev editor",
             "dev_editor_window_title": "{caption} dev editor",
             "dev_editor_new": "New",
@@ -1528,10 +1546,34 @@ class Renderer:
         ]
 
     def refresh_screens(self):
+        previous = self.screens[self.current_monitor_index].get("handle") if self.screens else None
         self.screens = self._get_screens()
-        if self.current_monitor_index >= len(self.screens):
-            self.current_monitor_index = max(0, len(self.screens) - 1)
+        self.current_monitor_index = next(
+            (index for index, screen in enumerate(self.screens) if screen.get("handle") is previous),
+            max(0, min(self.current_monitor_index, len(self.screens) - 1)),
+        )
         return self.screens
+
+    def _handle_screen_change(self, *_args):
+        # Qt may still be settling the screen layout while emitting its signals.
+        QTimer.singleShot(0, self._restore_screen_position)
+
+    def _restore_screen_position(self):
+        self.refresh_screens()
+        self._reset_visual_transition_state()
+        x, y = self._compute_window_location(self.current_position_name, self.current_monitor_index)
+        self._snap_to_position(x, y, self.current_monitor_index)
+        self.position_quick_input()
+        self.position_dev_editor()
+        self._connect_screen_signals()
+
+    def _connect_screen_signals(self):
+        screens = self.app.screens()
+        self._observed_screens = [old for old in self._observed_screens if any(old is new for new in screens)]
+        for screen in screens:
+            if not any(screen is old for old in self._observed_screens):
+                screen.availableGeometryChanged.connect(self._handle_screen_change)
+                self._observed_screens.append(screen)
 
     def _get_screen(self, monitor_index):
         safe_index = max(0, min(monitor_index, len(self.screens) - 1))
@@ -1585,7 +1627,8 @@ class Renderer:
         if window_handle and screen.get("handle") is not None:
             try:
                 window_handle.setScreen(screen["handle"])
-            except Exception:
+            except Exception as diagnostic_error:
+                report_error("ui_screen", diagnostic_error, operation="renderer._set_wayland_screen", notify=False)
                 pass
         return screen, safe_index
 
@@ -2402,7 +2445,16 @@ class Renderer:
         if self.keep_awake_callback:
             self.keep_awake_callback()
 
+    def has_active_interaction(self):
+        quick = self.quick_input_window
+        return bool(
+            (quick.isVisible() and (quick.isActiveWindow() or quick.entry.text().strip()))
+            or (self.settings_window.isVisible() and self.settings_window.isActiveWindow())
+            or (self.dev_editor_window.isVisible() and self.dev_editor_window.isActiveWindow())
+        )
+
     def show_quick_input(self):
+        self.response_bubble_enabled = True
         if self.keep_awake_callback:
             self.keep_awake_callback()
         self.position_quick_input()
@@ -2416,7 +2468,7 @@ class Renderer:
             self.quick_input_window.windowHandle().requestActivate()
         self.quick_input_window.setFocus(Qt.ActiveWindowFocusReason)
         self.quick_input_window.entry.setFocus(Qt.ActiveWindowFocusReason)
-        self.quick_input_window.entry.selectAll()
+        # Preserve the draft and selection when wake events repeat.
 
     def hide_quick_input(self):
         self.quick_input_window.hide()
@@ -2449,7 +2501,7 @@ class Renderer:
         self.initial_position = get_env("INITIAL_POSITION", "top_right")
         self.initial_monitor = max(1, get_env("INITIAL_MONITOR", 2, int))
         self.initial_scale = get_env("INITIAL_SCALE", 0.5, float)
-        self.window_positioning_limited = self.is_linux and os.getenv("XDG_SESSION_TYPE", "").strip().lower() == "wayland"
+        self.window_positioning_limited = self.is_linux and QApplication.platformName().lower().startswith("wayland")
         self.screens = self._get_screens()
         self.root.setWindowTitle(self.overlay_window_title)
         self.window_showcase_window.setWindowTitle(self.showcase_window_title)
@@ -2567,7 +2619,10 @@ class Renderer:
         while not self.events.empty():
             event, value = self.events.get()
 
-            if event == "voice_status":
+            if event == "diagnostic_error":
+                self.set_response_text(f"[{value['code']}] {value['message']}. {value['action']}")
+                self.set_voice_status("error")
+            elif event == "voice_status":
                 self.set_voice_status(value)
             elif event == "voice_partial":
                 self.set_voice_partial(value)
@@ -2582,7 +2637,8 @@ class Renderer:
             elif event == "app_background":
                 self.send_to_background()
             elif event == "app_sleep_ui":
-                self.hide_overlay()
+                if not self.has_active_interaction():
+                    self.hide_overlay()
             elif event == "app_foreground":
                 self.bring_to_front()
             elif event == "app_show_quick_input":

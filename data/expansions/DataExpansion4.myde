@@ -1,0 +1,350 @@
+{
+  "format": "maya-data-expansion",
+  "format_version": 1,
+  "name": "python-foundations",
+  "version": 1,
+  "language": "en",
+  "description": "Authored concise reference answers; exact question aliases; source links retained. No executable actions.",
+  "knowledge": [
+    {
+      "questions": [
+        "python list",
+        "what is python list",
+        "what is a python list",
+        "explain python list",
+        "tell me about python list",
+        "define python list"
+      ],
+      "answer": "Lists hold ordered items and can be changed after creation.",
+      "sources": [
+        {
+          "title": "Python data structures",
+          "url": "https://docs.python.org/3/tutorial/datastructures.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "python tuple",
+        "what is python tuple",
+        "what is a python tuple",
+        "explain python tuple",
+        "tell me about python tuple",
+        "define python tuple"
+      ],
+      "answer": "Tuples are immutable sequences; objects stored inside them can still be mutable.",
+      "sources": [
+        {
+          "title": "Python data structures",
+          "url": "https://docs.python.org/3/tutorial/datastructures.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "python set",
+        "what is python set",
+        "what is a python set",
+        "explain python set",
+        "tell me about python set",
+        "define python set"
+      ],
+      "answer": "Sets store distinct hashable elements and support union, intersection and difference.",
+      "sources": [
+        {
+          "title": "Python data structures",
+          "url": "https://docs.python.org/3/tutorial/datastructures.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "python dictionary",
+        "what is python dictionary",
+        "what is a python dictionary",
+        "explain python dictionary",
+        "tell me about python dictionary",
+        "define python dictionary"
+      ],
+      "answer": "Dictionaries associate hashable keys with values; assigning an existing key replaces its value.",
+      "sources": [
+        {
+          "title": "Python data structures",
+          "url": "https://docs.python.org/3/tutorial/datastructures.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "python list comprehension",
+        "what is python list comprehension",
+        "what is a python list comprehension",
+        "explain python list comprehension",
+        "tell me about python list comprehension",
+        "define python list comprehension"
+      ],
+      "answer": "A comprehension builds a collection from iteration with optional filtering.",
+      "sources": [
+        {
+          "title": "Python data structures",
+          "url": "https://docs.python.org/3/tutorial/datastructures.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "python stack",
+        "what is python stack",
+        "what is a python stack",
+        "explain python stack",
+        "tell me about python stack",
+        "define python stack"
+      ],
+      "answer": "A list can act as a stack using append and pop at its end.",
+      "sources": [
+        {
+          "title": "Python data structures",
+          "url": "https://docs.python.org/3/tutorial/datastructures.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "python queue",
+        "what is python queue",
+        "what is a python queue",
+        "explain python queue",
+        "tell me about python queue",
+        "define python queue"
+      ],
+      "answer": "A deque supports efficient additions and removals at both ends.",
+      "sources": [
+        {
+          "title": "Python data structures",
+          "url": "https://docs.python.org/3/tutorial/datastructures.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "python shallow copy",
+        "what is python shallow copy",
+        "what is a python shallow copy",
+        "explain python shallow copy",
+        "tell me about python shallow copy",
+        "define python shallow copy"
+      ],
+      "answer": "A shallow copy duplicates the outer container while sharing references to nested objects.",
+      "sources": [
+        {
+          "title": "Python data structures",
+          "url": "https://docs.python.org/3/tutorial/datastructures.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "python for loop",
+        "what is python for loop",
+        "what is a python for loop",
+        "explain python for loop",
+        "tell me about python for loop",
+        "define python for loop"
+      ],
+      "answer": "A for loop visits the elements of an iterable.",
+      "sources": [
+        {
+          "title": "Python control flow",
+          "url": "https://docs.python.org/3/tutorial/controlflow.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "python range",
+        "what is python range",
+        "what is a python range",
+        "explain python range",
+        "tell me about python range",
+        "define python range"
+      ],
+      "answer": "Range represents an arithmetic progression of integers without building a list of them.",
+      "sources": [
+        {
+          "title": "Python control flow",
+          "url": "https://docs.python.org/3/tutorial/controlflow.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "python break",
+        "what is python break",
+        "what is a python break",
+        "explain python break",
+        "tell me about python break",
+        "define python break"
+      ],
+      "answer": "Break exits the innermost enclosing loop.",
+      "sources": [
+        {
+          "title": "Python control flow",
+          "url": "https://docs.python.org/3/tutorial/controlflow.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "python continue",
+        "what is python continue",
+        "what is a python continue",
+        "explain python continue",
+        "tell me about python continue",
+        "define python continue"
+      ],
+      "answer": "Continue skips the remaining loop body and starts its next iteration.",
+      "sources": [
+        {
+          "title": "Python control flow",
+          "url": "https://docs.python.org/3/tutorial/controlflow.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "python function",
+        "what is python function",
+        "what is a python function",
+        "explain python function",
+        "tell me about python function",
+        "define python function"
+      ],
+      "answer": "A function groups reusable behavior and can receive arguments and return a result.",
+      "sources": [
+        {
+          "title": "Python control flow",
+          "url": "https://docs.python.org/3/tutorial/controlflow.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "python default argument",
+        "what is python default argument",
+        "what is a python default argument",
+        "explain python default argument",
+        "tell me about python default argument",
+        "define python default argument"
+      ],
+      "answer": "Default argument values are evaluated when the function is defined, not on each call.",
+      "sources": [
+        {
+          "title": "Python control flow",
+          "url": "https://docs.python.org/3/tutorial/controlflow.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "python lambda",
+        "what is python lambda",
+        "what is a python lambda",
+        "explain python lambda",
+        "tell me about python lambda",
+        "define python lambda"
+      ],
+      "answer": "A lambda creates an anonymous function containing one expression.",
+      "sources": [
+        {
+          "title": "Python control flow",
+          "url": "https://docs.python.org/3/tutorial/controlflow.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "python class",
+        "what is python class",
+        "what is a python class",
+        "explain python class",
+        "tell me about python class",
+        "define python class"
+      ],
+      "answer": "A class combines behavior and attributes and can create instances.",
+      "sources": [
+        {
+          "title": "Python classes",
+          "url": "https://docs.python.org/3.11/tutorial/classes.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "python instance",
+        "what is python instance",
+        "what is a python instance",
+        "explain python instance",
+        "tell me about python instance",
+        "define python instance"
+      ],
+      "answer": "An instance is an object created from a class, with its own state.",
+      "sources": [
+        {
+          "title": "Python classes",
+          "url": "https://docs.python.org/3.11/tutorial/classes.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "python inheritance",
+        "what is python inheritance",
+        "what is a python inheritance",
+        "explain python inheritance",
+        "tell me about python inheritance",
+        "define python inheritance"
+      ],
+      "answer": "Inheritance lets a derived class reuse and override behavior from base classes.",
+      "sources": [
+        {
+          "title": "Python classes",
+          "url": "https://docs.python.org/3.11/tutorial/classes.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "python namespace",
+        "what is python namespace",
+        "what is a python namespace",
+        "explain python namespace",
+        "tell me about python namespace",
+        "define python namespace"
+      ],
+      "answer": "A namespace maps names to objects; different namespaces can contain identical names.",
+      "sources": [
+        {
+          "title": "Python classes",
+          "url": "https://docs.python.org/3.11/tutorial/classes.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "python generator",
+        "what is python generator",
+        "what is a python generator",
+        "explain python generator",
+        "tell me about python generator",
+        "define python generator"
+      ],
+      "answer": "A generator yields values incrementally and resumes execution between requests.",
+      "sources": [
+        {
+          "title": "Python classes",
+          "url": "https://docs.python.org/3.11/tutorial/classes.html"
+        }
+      ]
+    }
+  ]
+}

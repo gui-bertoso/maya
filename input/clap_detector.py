@@ -3,6 +3,7 @@ import time
 import threading
 import numpy as np
 from helpers.config import get_env
+from helpers.diagnostics import report_error
 
 try:
     import sounddevice as sd
@@ -23,7 +24,8 @@ class ClapDetector:
         self.cooldown = cooldown
         self.double_clap_window = double_clap_window
 
-        self.audio_queue = queue.Queue()
+        self.audio_queue = queue.Queue(maxsize=16)
+        self._stop_requested = threading.Event()
         self.thread = None
         self.is_running = False
 
@@ -45,6 +47,7 @@ class ClapDetector:
         try:
             devices = sd.query_devices()
         except Exception as error:
+            report_error("microphone_device", error, operation="clap_detector.has_input_device", notify=False)
             self.last_error = str(error)
             return False
 
@@ -60,7 +63,10 @@ class ClapDetector:
             if self.DEBUG_MODE:
                 print("clap audio status:", status)
 
-        self.audio_queue.put(bytes(indata))
+        try:
+            self.audio_queue.put_nowait(bytes(indata))
+        except queue.Full:
+            pass
 
     def detect_clap(self, audio_data):
         audio_np = np.frombuffer(audio_data, dtype=np.int16)
@@ -76,6 +82,8 @@ class ClapDetector:
         return rms > self.threshold, rms
 
     def process_audio(self, on_double_clap=None, on_clap=None):
+        if self._stop_requested.is_set():
+            return
         self.is_running = True
 
         try:
@@ -89,8 +97,11 @@ class ClapDetector:
                 if self.DEBUG_MODE:
                     print("clap detector listening...")
 
-                while self.is_running:
-                    audio_data = self.audio_queue.get()
+                while self.is_running and not self._stop_requested.is_set():
+                    try:
+                        audio_data = self.audio_queue.get(timeout=0.2)
+                    except queue.Empty:
+                        continue
                     is_clap, rms = self.detect_clap(audio_data)
                     now = time.time()
 
@@ -127,7 +138,8 @@ class ClapDetector:
                         self.first_clap_time = 0.0
 
         except Exception as error:
-            print("clap detector error:", error)
+            self.last_error = str(error)
+            report_error("voice_runtime", error, operation="voice.clap.capture")
 
         finally:
             self.is_running = False
@@ -136,12 +148,14 @@ class ClapDetector:
 
     def start(self, on_double_clap=None, on_clap=None):
         if self.thread and self.thread.is_alive():
-            return True
+            return not self._stop_requested.is_set()
 
         if not self.has_input_device():
-            print("clap detector unavailable:", self.last_error)
+            report_error("microphone_device", operation="voice.clap.start", notify=False)
             return False
 
+        self._stop_requested.clear()
+        self.last_error = None
         self.thread = threading.Thread(
             target=self.process_audio,
             kwargs={
@@ -154,4 +168,5 @@ class ClapDetector:
         return True
 
     def stop(self):
+        self._stop_requested.set()
         self.is_running = False

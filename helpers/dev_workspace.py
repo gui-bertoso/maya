@@ -1,3 +1,4 @@
+from helpers.diagnostics import report_error
 import os
 import sys
 import time
@@ -336,7 +337,8 @@ class DevWorkspaceOrchestrator:
                 win32gui.ShowWindow(target_id, win32con.SW_RESTORE)
                 win32gui.MoveWindow(target_id, int(x), int(y), int(width), int(height), True)
                 return True
-            except Exception:
+            except Exception as diagnostic_error:
+                report_error("ui_position", diagnostic_error, operation="dev_workspace.move_resize_window", notify=False)
                 return False
 
         try:
@@ -353,7 +355,8 @@ class DevWorkspaceOrchestrator:
             target_window.raise_window()
             self.display.sync()
             return True
-        except Exception:
+        except Exception as diagnostic_error:
+            report_error("ui_position", diagnostic_error, operation="dev_workspace.move_resize_window", notify=False)
             return False
 
     def activate_window(self, window_id):
@@ -367,7 +370,8 @@ class DevWorkspaceOrchestrator:
                 win32gui.ShowWindow(target_id, win32con.SW_RESTORE)
                 win32gui.SetForegroundWindow(target_id)
                 return True
-            except Exception:
+            except Exception as diagnostic_error:
+                report_error("app_target", diagnostic_error, operation="dev_workspace.activate_window", notify=False)
                 return False
         try:
             target_window = self.display.create_resource_object("window", int(window_id))
@@ -380,7 +384,8 @@ class DevWorkspaceOrchestrator:
             target_window.raise_window()
             self.display.sync()
             return True
-        except Exception:
+        except Exception as diagnostic_error:
+            report_error("app_target", diagnostic_error, operation="dev_workspace.activate_window", notify=False)
             return False
 
     def position_window_on_screen(self, window_snapshot, screen, mode):

@@ -8,6 +8,10 @@ from pathlib import Path
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+from helpers.diagnostics import report_error
+from helpers.errors import user_message
 TARGET_DIR = PROJECT_ROOT / "models" / "piper"
 BASE_URL = "https://huggingface.co/rhasspy/piper-voices/resolve/main"
 MODELS = {
@@ -79,7 +83,8 @@ def main() -> int:
         for url, destination in iter_selected_models(args.model):
             download(url, destination, args.force)
     except Exception as error:
-        print(f"failed to download Piper models: {error}", file=sys.stderr)
+        report_error("voice_model", error, operation="models.piper.download", notify=False)
+        print(user_message("voice_model", "en"), file=sys.stderr)
         return 1
     return 0
 

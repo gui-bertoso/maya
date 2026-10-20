@@ -1,3 +1,4 @@
+from helpers.diagnostics import report_error
 import json
 import gzip
 import io
@@ -104,7 +105,12 @@ class WebAssistant:
     def _open_request(self, url):
         request = urllib.request.Request(url, headers=self.request_headers)
 
-        return urllib.request.urlopen(request, timeout=6)
+        try:
+            return urllib.request.urlopen(request, timeout=6)
+        except Exception as error:
+            report_error("web_timeout" if isinstance(error,TimeoutError) else "web_request", error,
+                         operation="web.request", notify=False)
+            raise
 
     @staticmethod
     def _read_payload(response, limit=1_000_000):
@@ -119,9 +125,13 @@ class WebAssistant:
         return payload
 
     def _fetch_json(self, url):
-        with self._open_request(url) as response:
-            payload = self._read_payload(response).decode("utf-8", errors="replace")
-            return json.loads(payload)
+        try:
+            with self._open_request(url) as response:
+                payload = self._read_payload(response).decode("utf-8", errors="replace")
+                return json.loads(payload)
+        except (ValueError, UnicodeError) as error:
+            report_error("web_payload", error, operation="web.json.decode", notify=False)
+            raise
 
     def _fetch_text(self, url):
         with self._open_request(url) as response:

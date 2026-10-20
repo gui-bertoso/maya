@@ -1,3 +1,4 @@
+from helpers.diagnostics import report_error
 import json
 import re
 from copy import deepcopy
@@ -64,15 +65,21 @@ class RoutineManager:
             result = self._defaults()
             result.update(loaded if isinstance(loaded, dict) else {})
             return result
-        except (OSError, ValueError, TypeError):
+        except (OSError, ValueError, TypeError) as error:
+            if self.path.exists():
+                report_error("routine_storage", error, operation="routine.load", notify=False)
             return self._defaults()
 
     def save(self):
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        temp_path = self.path.with_suffix(self.path.suffix + ".tmp")
-        with temp_path.open("w", encoding="utf-8") as stream:
-            json.dump(self.data, stream, ensure_ascii=False, indent=2)
-        temp_path.replace(self.path)
+        try:
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            temp_path = self.path.with_suffix(self.path.suffix + ".tmp")
+            with temp_path.open("w", encoding="utf-8") as stream:
+                json.dump(self.data, stream, ensure_ascii=False, indent=2)
+            temp_path.replace(self.path)
+        except Exception as error:
+            report_error("routine_storage", error, operation="routine.save")
+            raise
 
     def _now(self, now=None):
         return now or self.now_provider()

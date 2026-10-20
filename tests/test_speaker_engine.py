@@ -40,6 +40,13 @@ import output.speaker as speaker_module
 
 
 class SpeakerEngineTests(unittest.TestCase):
+    def setUp(self):
+        # These tests inspect configuration; native audio drivers belong in runtime checks.
+        worker = patch.object(Speaker, '_run', return_value=None)
+        worker.start()
+        self.addCleanup(worker.stop)
+
+    @unittest.skipUnless(sys.platform.startswith("win"), "Windows subprocess integration")
     def test_windows_voice_helpers_never_open_a_console(self):
         with patch("output.speaker.sys.platform", "win32"):
             options = _hidden_subprocess_kwargs()

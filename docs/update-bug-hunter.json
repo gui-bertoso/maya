@@ -1,0 +1,628 @@
+{
+  "name": "update e bug hunter",
+  "schema_version": 1,
+  "date": "2026-10-19",
+  "scope": "Código local Maya, interface Qt/XWayland, captura, fila, settings, persistência e containers. Catálogo de achados, não auditoria exaustiva.",
+  "baseline_commit": "3027f3a",
+  "summary": {
+    "fixed": 30,
+    "confirmed_open": 1,
+    "platform_limitation": 1,
+    "needs_reproduction": 1,
+    "field_test_pending": 1
+  },
+  "bugs": [
+    {
+      "id": "MAYA-001",
+      "slug": "qt-backend",
+      "severity": "high",
+      "area": "interface",
+      "title": "XWayland confundido com Wayland nativo",
+      "status": "fixed",
+      "evidence": "launcher força xcb, mas renderer consultava XDG_SESSION_TYPE",
+      "fix": "usar QApplication.platformName",
+      "validation": "tests/test_interaction_regressions.py::test_xwayland_uses_actual_qt_backend"
+    },
+    {
+      "id": "MAYA-002",
+      "slug": "sleep-loop",
+      "severity": "high",
+      "area": "interface",
+      "title": "Evento de dormir emitido a cada frame",
+      "status": "fixed",
+      "evidence": "listener continua ativo após deadline e o mesmo evento é enviado novamente",
+      "fix": "zerar deadline após dormir",
+      "validation": "tests/test_interaction_regressions.py::test_sleep_only_emits_once"
+    },
+    {
+      "id": "MAYA-003",
+      "slug": "wake-hidden",
+      "severity": "high",
+      "area": "interface",
+      "title": "Chamar durante prazo ativo não restaura janela",
+      "status": "fixed",
+      "evidence": "wake_maya retornava antes de enviar app_foreground",
+      "fix": "restaurar visibilidade mesmo quando já acordada",
+      "validation": "tests/test_interaction_regressions.py::test_wake_restores_window_even_inside_wake_deadline"
+    },
+    {
+      "id": "MAYA-004",
+      "slug": "missing-text",
+      "severity": "high",
+      "area": "respostas",
+      "title": "Resposta normal não publicada no texto",
+      "status": "fixed",
+      "evidence": "App.handle_input chamava Speaker sem response_text",
+      "fix": "publicar resposta para interface",
+      "validation": "tests/test_interaction_regressions.py::test_normal_reply_reaches_text_output"
+    },
+    {
+      "id": "MAYA-005",
+      "slug": "draft-reset",
+      "severity": "high",
+      "area": "input",
+      "title": "Reabrir input seleciona e substitui rascunho",
+      "status": "fixed",
+      "evidence": "selectAll no show_quick_input a cada chamada",
+      "fix": "preservar texto e posição do cursor",
+      "validation": "tests/test_interaction_regressions.py::test_reopening_preserves_draft_and_cursor"
+    },
+    {
+      "id": "MAYA-006",
+      "slug": "draft-timeout",
+      "severity": "high",
+      "area": "input",
+      "title": "Input fecha durante edição",
+      "status": "fixed",
+      "evidence": "deadline não protege foco, rascunho ou trabalho pendente",
+      "fix": "renovar atividade durante interação e ignorar evento de sleep obsoleto",
+      "validation": "tests/test_interaction_regressions.py::test_draft_survives_expired_wake_timeout"
+    },
+    {
+      "id": "MAYA-007",
+      "slug": "escape-focus",
+      "severity": "medium",
+      "area": "input",
+      "title": "Escape não fecha com foco em botões",
+      "status": "fixed",
+      "evidence": "eventFilter existia apenas no campo de texto",
+      "fix": "tratar Escape também no widget pai",
+      "validation": "tests/test_interaction_regressions.py::test_escape_closes_when_button_has_focus"
+    },
+    {
+      "id": "MAYA-008",
+      "slug": "busy-erases-input",
+      "severity": "high",
+      "area": "input",
+      "title": "Fila cheia apaga pergunta recusada",
+      "status": "fixed",
+      "evidence": "submit_text limpava o campo mesmo com callback False",
+      "fix": "preservar texto e indicar busy",
+      "validation": "tests/test_interaction_regressions.py::test_rejected_submission_preserves_text"
+    },
+    {
+      "id": "MAYA-009",
+      "slug": "audio-stop",
+      "severity": "high",
+      "area": "audio",
+      "title": "Captura fica presa sem novos pacotes",
+      "status": "fixed",
+      "evidence": "queue.get sem timeout impede parar thread",
+      "fix": "evento de parada e leitura com timeout",
+      "validation": "tests/test_audio_lifecycle.py::test_voice_stop_exits_without_waiting_for_another_audio_packet"
+    },
+    {
+      "id": "MAYA-010",
+      "slug": "audio-status",
+      "severity": "high",
+      "area": "audio",
+      "title": "Estado ativo fica incorreto após falha ou troca",
+      "status": "fixed",
+      "evidence": "erros de captura e callbacks antigos não eram reconciliados",
+      "fix": "estado de erro limpa atividade; callbacks de instância antiga ignorados",
+      "validation": "tests/test_audio_lifecycle.py::test_old_capture_status_cannot_disable_replacement"
+    },
+    {
+      "id": "MAYA-011",
+      "slug": "partial-cancels-tts",
+      "severity": "medium",
+      "area": "audio",
+      "title": "Resultado parcial corta resposta falada",
+      "status": "fixed",
+      "evidence": "cada parcial de voz chamava speaker.stop",
+      "fix": "não cancelar fala por resultados parciais",
+      "validation": "app.py::handle_partial_voice; inspeção de fluxo"
+    },
+    {
+      "id": "MAYA-012",
+      "slug": "short-question",
+      "severity": "medium",
+      "area": "respostas",
+      "title": "Perguntas curtas são descartadas ou silenciadas",
+      "status": "fixed",
+      "evidence": "exigia quatro tokens e silenciava fallback com até cinco",
+      "fix": "aceitar perguntas curtas após filtro e manter resposta visível",
+      "validation": "tests/test_audio_lifecycle.py::test_short_unknown_question_is_not_discarded_or_silenced"
+    },
+    {
+      "id": "MAYA-013",
+      "slug": "screen-reorder",
+      "severity": "medium",
+      "area": "interface",
+      "title": "Índice de monitor muda após reordenação",
+      "status": "fixed",
+      "evidence": "refresh só limitava índice numérico",
+      "fix": "preservar identidade de QScreen e observar mudanças de layout",
+      "validation": "tests/test_interaction_regressions.py::test_refresh_preserves_monitor_identity_after_reorder"
+    },
+    {
+      "id": "MAYA-014",
+      "slug": "invalid-pack",
+      "severity": "high",
+      "area": "containers",
+      "title": "Container inválido derruba carga ou vaza aliases",
+      "status": "fixed",
+      "evidence": "seção não-objeto provocava AttributeError; merge parcial antes da rejeição",
+      "fix": "validar pacote inteiro e isolar erros",
+      "validation": "tests/test_bug_hunter.py::test_invalid_pack_section_is_isolated_without_alias_leak"
+    },
+    {
+      "id": "MAYA-015",
+      "slug": "discovery-race",
+      "severity": "medium",
+      "area": "containers",
+      "title": "Arquivo removido durante descoberta causa falha",
+      "status": "fixed",
+      "evidence": "stat fora de tratamento de OSError",
+      "fix": "manter snapshot anterior e tentar novamente na próxima consulta",
+      "validation": "tests/test_bug_hunter.py::test_disappearing_file_preserves_loaded_snapshot"
+    },
+    {
+      "id": "MAYA-016",
+      "slug": "pack-encoding",
+      "severity": "medium",
+      "area": "containers",
+      "title": "Encoding inválido derruba carga",
+      "status": "fixed",
+      "evidence": "UnicodeDecodeError não era tratado",
+      "fix": "registrar erro e continuar outros pacotes",
+      "validation": "tests/test_bug_hunter.py::test_non_utf8_container_is_reported_without_crash"
+    },
+    {
+      "id": "MAYA-017",
+      "slug": "pack-case",
+      "severity": "low",
+      "area": "containers",
+      "title": "Nome permitido por regex não é descoberto",
+      "status": "fixed",
+      "evidence": "glob sensível a caixa contrariava regex case-insensitive",
+      "fix": "descobrir nomes por regex após iterdir",
+      "validation": "tests/test_bug_hunter.py::test_case_insensitive_container_discovery"
+    },
+    {
+      "id": "MAYA-018",
+      "slug": "command-order",
+      "severity": "high",
+      "area": "concorrencia",
+      "title": "Fila não garante ordem de comandos",
+      "status": "fixed",
+      "evidence": "vários workers disputam semáforo sem garantia FIFO",
+      "fix": "executor com um worker para comandos que compartilham estado",
+      "validation": "tests/test_bug_hunter.py::test_commands_execute_in_submission_order"
+    },
+    {
+      "id": "MAYA-019",
+      "slug": "cancelled-pending",
+      "severity": "medium",
+      "area": "concorrencia",
+      "title": "Cancelamento deixa estado busy permanentemente",
+      "status": "fixed",
+      "evidence": "decremento só ocorria no corpo da tarefa, que pode nunca iniciar",
+      "fix": "liberar capacidade em callback de conclusão inclusive cancelamento",
+      "validation": "tests/test_bug_hunter.py::test_cancelled_commands_release_pending_count"
+    },
+    {
+      "id": "MAYA-020",
+      "slug": "partial-settings",
+      "severity": "high",
+      "area": "settings",
+      "title": "Valor inválido salva parcialmente configurações",
+      "status": "fixed",
+      "evidence": "validação e escrita por campo no arquivo real",
+      "fix": "validar tudo antes de publicar arquivo temporário atomicamente",
+      "validation": "tests/test_bug_hunter.py::test_invalid_last_setting_does_not_partially_write_earlier_values"
+    },
+    {
+      "id": "MAYA-021",
+      "slug": "settings-ranges",
+      "severity": "medium",
+      "area": "settings",
+      "title": "NaN, infinito e faixas inválidas aceitos",
+      "status": "fixed",
+      "evidence": "conversão float aceitava NaN e infinito",
+      "fix": "validar finitude e limites relevantes",
+      "validation": "tests/test_bug_hunter.py::test_nonfinite_and_invalid_range_settings_are_rejected"
+    },
+    {
+      "id": "MAYA-022",
+      "slug": "memory-truncation",
+      "severity": "high",
+      "area": "persistencia",
+      "title": "Falha de escrita pode truncar memória",
+      "status": "fixed",
+      "evidence": "safe_json_dump abria arquivo real para escrita antes de serializar",
+      "fix": "arquivo temporário com fsync e substituição atômica",
+      "validation": "tests/test_bug_hunter.py::test_memory_write_failure_preserves_original"
+    },
+    {
+      "id": "MAYA-023",
+      "slug": "backup-collision",
+      "severity": "medium",
+      "area": "persistencia",
+      "title": "Backups no mesmo segundo se sobrescrevem",
+      "status": "fixed",
+      "evidence": "nomes usavam apenas segundos",
+      "fix": "microssegundos e sufixo único",
+      "validation": "tests/test_bug_hunter.py::test_rapid_backups_have_distinct_names"
+    },
+    {
+      "id": "MAYA-024",
+      "slug": "memory-encoding",
+      "severity": "medium",
+      "area": "persistencia",
+      "title": "Arquivo de memória não UTF-8 causa crash",
+      "status": "fixed",
+      "evidence": "safe_json_load não tratava UnicodeDecodeError",
+      "fix": "preservar backup e retornar default",
+      "validation": "tests/test_bug_hunter.py::test_corrupt_encoding_uses_default_and_retains_backup"
+    },
+    {
+      "id": "MAYA-025",
+      "slug": "embedded-action",
+      "severity": "high",
+      "area": "parser",
+      "title": "Explicação com run/search é tratada como ação",
+      "status": "fixed",
+      "evidence": "600 consultas detectaram falsos launch/web em termos técnicos",
+      "fix": "ancorar comandos e limpar ações em consultas explicativas",
+      "validation": "tests/test_knowledge_packs.py::test_explanations_never_become_embedded_actions"
+    },
+    {
+      "id": "MAYA-026",
+      "slug": "personal-schema",
+      "severity": "medium",
+      "area": "conhecimento",
+      "title": "Registro pessoal malformado causa crash",
+      "status": "fixed",
+      "evidence": "records aceitava valores escalares e skills comandos nulos",
+      "fix": "validar registros em memória sem reescrever arquivo na leitura",
+      "validation": "tests/test_bug_hunter.py::test_malformed_personal_records_are_not_executed_or_returned"
+    },
+    {
+      "id": "MAYA-027",
+      "slug": "platform-tests",
+      "severity": "medium",
+      "area": "testes",
+      "title": "Testes Windows falham no Linux e driver TTS causa falha nativa",
+      "status": "fixed",
+      "evidence": "WinDLL/STARTUPINFO inexistentes e testes de configuração iniciavam driver real",
+      "fix": "pular apenas integrações Windows e isolar worker de testes de configuração",
+      "validation": "suíte completa sem falha nativa; 2 skips explícitos"
+    },
+    {
+      "id": "MAYA-028",
+      "slug": "settings-feedback",
+      "severity": "low",
+      "area": "settings",
+      "title": "Mensagem de sucesso some imediatamente",
+      "status": "fixed",
+      "evidence": "apply_changes mostrava mensagem antes de load_values que a limpava",
+      "fix": "atualizar campos antes de exibir resultado",
+      "validation": "tests/test_interaction_regressions.py::test_settings_success_message_survives_refresh"
+    },
+    {
+      "id": "MAYA-029",
+      "slug": "linux-single-instance",
+      "severity": "medium",
+      "area": "lifecycle",
+      "title": "Linux não impede instâncias duplicadas",
+      "status": "confirmed_open",
+      "evidence": "helpers/single_instance.py::acquire retorna True fora de Windows; App não adquire lock Linux",
+      "next_step": "implementar lock de sessão e protocolo local para mostrar a instância existente"
+    },
+    {
+      "id": "MAYA-030",
+      "slug": "native-wayland-hotkey",
+      "severity": "medium",
+      "area": "platform",
+      "title": "Atalho X11 não alcança todos os aplicativos Wayland nativos",
+      "status": "platform_limitation",
+      "evidence": "listener X11 usado em sessão XWayland; docs/development.md descreve a restrição",
+      "next_step": "avaliar atalhos globais via portal/compositor; voz e tray continuam disponíveis"
+    },
+    {
+      "id": "MAYA-031",
+      "slug": "speaker-echo",
+      "severity": "medium",
+      "area": "audio",
+      "title": "Possível reconhecimento da própria voz e interrupção durante fala",
+      "status": "needs_reproduction",
+      "evidence": "captura e TTS podem funcionar simultaneamente; não foi realizado teste acústico controlado",
+      "next_step": "reproduzir com alto-falantes e fones antes de escolher cancelamento de eco ou política de interrupção"
+    },
+    {
+      "id": "MAYA-032",
+      "slug": "app-name-recognition",
+      "severity": "high",
+      "area": "audio",
+      "title": "Reconhecimento ruim de nomes de aplicativos como Steam e Spotify",
+      "status": "field_test_pending",
+      "evidence": "Relato do usuário em 2026-10-19; configuração atual usa vosk-model-small-en-us-0.15",
+      "next_step": "whisper.cpp small.en/Vulkan instalado e selecionado; benchmark sintético idêntico aos dois motores registrado em WhisperComparison.json. Aguardando comparação com voz real do usuário.",
+      "user_example": {
+        "spoken": "what is a purple star",
+        "vosk_reported_by_user": "what is that for author"
+      }
+    },
+    {
+      "id": "MAYA-033",
+      "slug": "joined-decoder-wake",
+      "severity": "medium",
+      "area": "audio",
+      "title": "Whisper pode unir wake word e verbo: MayaOpen",
+      "status": "fixed",
+      "evidence": "Benchmark local produziu MayaOpen Spotify.",
+      "fix": "Separar wake word de palavra CamelCase e remover prefixo inclusive quando já acordada",
+      "validation": "tests/test_whisper_cpp.py::test_joined_camel_case_wake_word_is_recognized; test_joined_wake_is_removed_even_while_already_awake"
+    },
+    {
+      "id": "MAYA-034",
+      "slug": "spotify-stale-singleton-lock",
+      "severity": "high",
+      "area": "external-app",
+      "title": "Spotify não inicia por travas Chromium órfãs",
+      "status": "fixed",
+      "evidence": "SingletonLock apontava PID inexistente; SingletonSocket não tinha destino; binário encerrava com status 1.",
+      "fix": "Três symlinks de trava movidos para backup na cache, sem apagar perfil; relançado por AppLauncher.",
+      "validation": "AppLauncher.launch(spotify) retornou True; processo ativo; MPRIS Identity Spotify confirmado.",
+      "limitation": "Recuperação da sessão atual. A causa da saída anterior e a recorrência ainda não foram determinadas."
+    }
+  ],
+  "enhancements": [
+    {
+      "name": "knowledge_containers",
+      "files": [
+        "data/expansions/DataExpansion4.myde",
+        "data/expansions/DataExpansion5.myde",
+        "data/expansions/DataExpansion6.myde",
+        "data/expansions/DataExpansion7.myde",
+        "data/expansions/DataExpansion8.myde"
+      ],
+      "records": 100,
+      "question_aliases": 600,
+      "language": "en",
+      "lookup": "normalized exact aliases; personal answers override packs; sources retained"
+    },
+    {
+      "name": "responsive_settings",
+      "profile": "data/profiles/responsive-en.json",
+      "applied_via": "native SettingsWindow controls and Apply button",
+      "changes": {
+        "LANGUAGE": {
+          "before": "en",
+          "after": "en"
+        },
+        "TTS_ENGINE": {
+          "before": "kokoro",
+          "after": "kokoro"
+        },
+        "TTS_VOICE_ID": {
+          "before": "af_heart",
+          "after": "af_heart"
+        },
+        "TTS_RATE": {
+          "before": "180",
+          "after": "190"
+        },
+        "WAKE_DURATION": {
+          "before": "6.0",
+          "after": "12.0"
+        },
+        "WAKE_RESPONSE_COOLDOWN": {
+          "before": "2.5",
+          "after": "2.0"
+        },
+        "WAKE_RESPONSE_OPTIONS": {
+          "before": "whats up?|hey",
+          "after": "I'm listening.|Go ahead.|Yep, I'm here.|What's up?"
+        },
+        "VOICE_BLOCK_SIZE": {
+          "before": "2000",
+          "after": "1600"
+        },
+        "VOICE_ENDPOINT_SILENCE_MS": {
+          "before": "375",
+          "after": "300"
+        },
+        "VOICE_SPEECH_HANGOVER": {
+          "before": "4",
+          "after": "3"
+        },
+        "VOICE_IGNORE_COOLDOWN": {
+          "before": "1.2",
+          "after": "0.35"
+        },
+        "RESPONSE_BUBBLE_MODE": {
+          "before": "hotkey",
+          "after": "always"
+        },
+        "RESPONSE_BUBBLE_MIN_SECONDS": {
+          "before": "6",
+          "after": "8"
+        },
+        "QUICK_INPUT_WIDTH": {
+          "before": "420",
+          "after": "520"
+        },
+        "QUICK_INPUT_HEIGHT": {
+          "before": "160",
+          "after": "180"
+        }
+      }
+    }
+  ],
+  "validation": {
+    "suite": "python -m unittest discover -s tests -v",
+    "tests_run": 170,
+    "passed": 168,
+    "skipped_windows_only": 2,
+    "knowledge_queries_checked": 600,
+    "runtime": {
+      "settings_applied": true,
+      "spoken_replies": [
+        {
+          "success": true,
+          "seconds": 5.625,
+          "voice": "af_heart"
+        },
+        {
+          "success": true,
+          "seconds": 5.98,
+          "voice": "af_heart"
+        },
+        {
+          "success": true,
+          "seconds": 3.69,
+          "voice": "af_heart"
+        },
+        {
+          "success": true,
+          "seconds": 3.917,
+          "voice": "af_heart"
+        },
+        {
+          "success": true,
+          "seconds": 3.741,
+          "voice": "af_heart"
+        },
+        {
+          "success": true,
+          "seconds": 2.517,
+          "voice": "af_heart"
+        },
+        {
+          "success": true,
+          "seconds": 6.825,
+          "voice": "af_heart"
+        }
+      ],
+      "checks": [
+        {
+          "name": "native_question_submitted",
+          "accepted": true
+        }
+      ],
+      "settings": {
+        "LANGUAGE": {
+          "before": "en",
+          "after": "en"
+        },
+        "TTS_ENGINE": {
+          "before": "kokoro",
+          "after": "kokoro"
+        },
+        "TTS_VOICE_ID": {
+          "before": "af_heart",
+          "after": "af_heart"
+        },
+        "TTS_RATE": {
+          "before": "180",
+          "after": "190"
+        },
+        "WAKE_DURATION": {
+          "before": "6.0",
+          "after": "12.0"
+        },
+        "WAKE_RESPONSE_COOLDOWN": {
+          "before": "2.5",
+          "after": "2.0"
+        },
+        "WAKE_RESPONSE_OPTIONS": {
+          "before": "whats up?|hey",
+          "after": "I'm listening.|Go ahead.|Yep, I'm here.|What's up?"
+        },
+        "VOICE_BLOCK_SIZE": {
+          "before": "2000",
+          "after": "1600"
+        },
+        "VOICE_ENDPOINT_SILENCE_MS": {
+          "before": "375",
+          "after": "300"
+        },
+        "VOICE_SPEECH_HANGOVER": {
+          "before": "4",
+          "after": "3"
+        },
+        "VOICE_IGNORE_COOLDOWN": {
+          "before": "1.2",
+          "after": "0.35"
+        },
+        "RESPONSE_BUBBLE_MODE": {
+          "before": "hotkey",
+          "after": "always"
+        },
+        "RESPONSE_BUBBLE_MIN_SECONDS": {
+          "before": "6",
+          "after": "8"
+        },
+        "QUICK_INPUT_WIDTH": {
+          "before": "420",
+          "after": "520"
+        },
+        "QUICK_INPUT_HEIGHT": {
+          "before": "160",
+          "after": "180"
+        }
+      },
+      "settings_status": "",
+      "knowledge_questions": 600,
+      "container_errors": [],
+      "microphone": {
+        "active": true,
+        "status": "ready",
+        "listening": true,
+        "error": null
+      },
+      "backend": "xcb",
+      "overlay_visible": true,
+      "reply_visible": false,
+      "response_received": true,
+      "process_alive": true,
+      "pid": 40026
+    },
+    "whisper": {
+      "runtime": {
+        "parent_pid": 52021,
+        "server_pid": 52075,
+        "health_ok": true,
+        "old_server_stopped_with_parent": true,
+        "normal_launcher": true
+      },
+      "model": "small.en",
+      "version": "v1.9.5",
+      "backend": "Vulkan, AMD Radeon RX 7600",
+      "model_sha256": "c6138d6d58ecc8322097e0f987c32f1be8bb0a18532a3f88f734d1bbf9c41e5d",
+      "benchmark": "WhisperComparison.json",
+      "limitations": [
+        "Benchmark sintetizado com af_heart, não com voz/microfone do usuário.",
+        "Modo Whisper ignora captura durante fala da Maya; interrupção por voz ainda não implementada.",
+        "Resultados finais por frase; sem transcrição parcial."
+      ]
+    }
+  },
+  "notes": [
+    "Correções locais ainda não commitadas.",
+    "Push do baseline segue pendente: autenticação rejeitada no remoto configurado.",
+    "Tempos de TTS no runtime incluem síntese e reprodução; não são latência até primeiro áudio."
+  ]
+}

@@ -1,0 +1,350 @@
+{
+  "format": "maya-data-expansion",
+  "format_version": 1,
+  "name": "computing-and-web",
+  "version": 1,
+  "language": "en",
+  "description": "Authored concise reference answers; exact question aliases; source links retained. No executable actions.",
+  "knowledge": [
+    {
+      "questions": [
+        "hashable object",
+        "what is hashable object",
+        "what is a hashable object",
+        "explain hashable object",
+        "tell me about hashable object",
+        "define hashable object"
+      ],
+      "answer": "A hashable object has a stable hash and supports equality comparisons consistently.",
+      "sources": [
+        {
+          "title": "Python glossary",
+          "url": "https://docs.python.org/3.11/glossary.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "immutable object",
+        "what is immutable object",
+        "what is a immutable object",
+        "explain immutable object",
+        "tell me about immutable object",
+        "define immutable object"
+      ],
+      "answer": "An immutable object's value cannot be changed after creation.",
+      "sources": [
+        {
+          "title": "Python glossary",
+          "url": "https://docs.python.org/3.11/glossary.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "mutable object",
+        "what is mutable object",
+        "what is a mutable object",
+        "explain mutable object",
+        "tell me about mutable object",
+        "define mutable object"
+      ],
+      "answer": "A mutable object's value can be changed after creation.",
+      "sources": [
+        {
+          "title": "Python glossary",
+          "url": "https://docs.python.org/3.11/glossary.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "iterable object",
+        "what is iterable object",
+        "what is a iterable object",
+        "explain iterable object",
+        "tell me about iterable object",
+        "define iterable object"
+      ],
+      "answer": "An iterable can provide an iterator for visiting its elements.",
+      "sources": [
+        {
+          "title": "Python glossary",
+          "url": "https://docs.python.org/3.11/glossary.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "iterator object",
+        "what is iterator object",
+        "what is a iterator object",
+        "explain iterator object",
+        "tell me about iterator object",
+        "define iterator object"
+      ],
+      "answer": "An iterator returns successive items until it signals exhaustion.",
+      "sources": [
+        {
+          "title": "Python glossary",
+          "url": "https://docs.python.org/3.11/glossary.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "python context manager",
+        "what is python context manager",
+        "what is a python context manager",
+        "explain python context manager",
+        "tell me about python context manager",
+        "define python context manager"
+      ],
+      "answer": "A context manager defines setup and cleanup behavior around a with block.",
+      "sources": [
+        {
+          "title": "Python glossary",
+          "url": "https://docs.python.org/3.11/glossary.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "python exception",
+        "what is python exception",
+        "what is a python exception",
+        "explain python exception",
+        "tell me about python exception",
+        "define python exception"
+      ],
+      "answer": "An exception signals an error or exceptional condition during execution.",
+      "sources": [
+        {
+          "title": "Python glossary",
+          "url": "https://docs.python.org/3.11/glossary.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "python coroutine",
+        "what is python coroutine",
+        "what is a python coroutine",
+        "explain python coroutine",
+        "tell me about python coroutine",
+        "define python coroutine"
+      ],
+      "answer": "A coroutine can suspend and resume execution as part of asynchronous cooperation.",
+      "sources": [
+        {
+          "title": "Python glossary",
+          "url": "https://docs.python.org/3.11/glossary.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "python bytecode",
+        "what is python bytecode",
+        "what is a python bytecode",
+        "explain python bytecode",
+        "tell me about python bytecode",
+        "define python bytecode"
+      ],
+      "answer": "Bytecode is an intermediate instruction representation used by Python implementations such as CPython.",
+      "sources": [
+        {
+          "title": "Python glossary",
+          "url": "https://docs.python.org/3.11/glossary.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "python duck typing",
+        "what is python duck typing",
+        "what is a python duck typing",
+        "explain python duck typing",
+        "tell me about python duck typing",
+        "define python duck typing"
+      ],
+      "answer": "Duck typing emphasizes supported behavior rather than requiring one particular concrete type.",
+      "sources": [
+        {
+          "title": "Python glossary",
+          "url": "https://docs.python.org/3.11/glossary.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "http",
+        "what is http",
+        "what is a http",
+        "explain http",
+        "tell me about http",
+        "define http"
+      ],
+      "answer": "HTTP is an application-layer protocol used to exchange resources over the web.",
+      "sources": [
+        {
+          "title": "MDN HTTP glossary",
+          "url": "https://developer.mozilla.org/en-US/docs/Glossary/HTTP"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "http request",
+        "what is http request",
+        "what is a http request",
+        "explain http request",
+        "tell me about http request",
+        "define http request"
+      ],
+      "answer": "An HTTP request asks a server to perform an operation on a resource.",
+      "sources": [
+        {
+          "title": "MDN HTTP glossary",
+          "url": "https://developer.mozilla.org/en-US/docs/Glossary/HTTP"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "http response",
+        "what is http response",
+        "what is a http response",
+        "explain http response",
+        "tell me about http response",
+        "define http response"
+      ],
+      "answer": "An HTTP response returns a status and may include headers and a body.",
+      "sources": [
+        {
+          "title": "MDN HTTP glossary",
+          "url": "https://developer.mozilla.org/en-US/docs/Glossary/HTTP"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "http statelessness",
+        "what is http statelessness",
+        "what is a http statelessness",
+        "explain http statelessness",
+        "tell me about http statelessness",
+        "define http statelessness"
+      ],
+      "answer": "HTTP does not inherently retain conversational state between independent requests.",
+      "sources": [
+        {
+          "title": "MDN HTTP glossary",
+          "url": "https://developer.mozilla.org/en-US/docs/Glossary/HTTP"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "https",
+        "what is https",
+        "what is a https",
+        "explain https",
+        "tell me about https",
+        "define https"
+      ],
+      "answer": "HTTPS protects HTTP exchanges using TLS encryption and authentication.",
+      "sources": [
+        {
+          "title": "MDN HTTP glossary",
+          "url": "https://developer.mozilla.org/en-US/docs/Glossary/HTTP"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "javascript event loop",
+        "what is javascript event loop",
+        "what is a javascript event loop",
+        "explain javascript event loop",
+        "tell me about javascript event loop",
+        "define javascript event loop"
+      ],
+      "answer": "The event loop coordinates queued jobs with JavaScript execution.",
+      "sources": [
+        {
+          "title": "MDN JavaScript execution model",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Execution_model"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "javascript run to completion",
+        "what is javascript run to completion",
+        "what is a javascript run to completion",
+        "explain javascript run to completion",
+        "tell me about javascript run to completion",
+        "define javascript run to completion"
+      ],
+      "answer": "A job runs to completion before another job starts on the same execution thread.",
+      "sources": [
+        {
+          "title": "MDN JavaScript execution model",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Execution_model"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "javascript blocking task",
+        "what is javascript blocking task",
+        "what is a javascript blocking task",
+        "explain javascript blocking task",
+        "tell me about javascript blocking task",
+        "define javascript blocking task"
+      ],
+      "answer": "A long-running task delays other jobs on the same execution thread.",
+      "sources": [
+        {
+          "title": "MDN JavaScript execution model",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Execution_model"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "javascript job queue",
+        "what is javascript job queue",
+        "what is a javascript job queue",
+        "explain javascript job queue",
+        "tell me about javascript job queue",
+        "define javascript job queue"
+      ],
+      "answer": "A job queue holds work waiting for execution.",
+      "sources": [
+        {
+          "title": "MDN JavaScript execution model",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Execution_model"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "javascript asynchronous callback",
+        "what is javascript asynchronous callback",
+        "what is a javascript asynchronous callback",
+        "explain javascript asynchronous callback",
+        "tell me about javascript asynchronous callback",
+        "define javascript asynchronous callback"
+      ],
+      "answer": "A callback can run later when its associated work has completed and execution is scheduled.",
+      "sources": [
+        {
+          "title": "MDN JavaScript execution model",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Execution_model"
+        }
+      ]
+    }
+  ]
+}

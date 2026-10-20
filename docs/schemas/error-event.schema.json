@@ -1,0 +1,220 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Maya error event v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "event_id",
+    "timestamp",
+    "code",
+    "key",
+    "category",
+    "severity",
+    "retryable",
+    "operation",
+    "correlation_id",
+    "fingerprint",
+    "message",
+    "action",
+    "exception",
+    "context"
+  ],
+  "properties": {
+    "schema": {
+      "const": "maya.error.event.v1"
+    },
+    "event_id": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{32}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "code": {
+      "enum": [
+        "MAY-0001",
+        "MAY-0101",
+        "MAY-0102",
+        "MAY-0103",
+        "MAY-0201",
+        "MAY-0202",
+        "MAY-0301",
+        "MAY-0302",
+        "MAY-0303",
+        "MAY-0304",
+        "MAY-0305",
+        "MAY-0401",
+        "MAY-0402",
+        "MAY-0501",
+        "MAY-0502",
+        "MAY-0601",
+        "MAY-0701",
+        "MAY-0702",
+        "MAY-0801",
+        "MAY-0901",
+        "MAY-1001",
+        "MAY-1002",
+        "MAY-0104",
+        "MAY-0105",
+        "MAY-0306",
+        "MAY-0307",
+        "MAY-0308",
+        "MAY-0403",
+        "MAY-0503",
+        "MAY-0504",
+        "MAY-0602",
+        "MAY-0604",
+        "MAY-0603",
+        "MAY-0703",
+        "MAY-0704",
+        "MAY-0705",
+        "MAY-0706",
+        "MAY-0707",
+        "MAY-0708",
+        "MAY-0802",
+        "MAY-0803",
+        "MAY-0804",
+        "MAY-0805",
+        "MAY-0902",
+        "MAY-0903",
+        "MAY-0002"
+      ]
+    },
+    "key": {
+      "enum": [
+        "unexpected",
+        "config_permission",
+        "config_layout",
+        "config_value",
+        "single_instance",
+        "hotkey",
+        "microphone_dependency",
+        "microphone_device",
+        "voice_model",
+        "voice_runtime",
+        "noise_suppression",
+        "tts_init",
+        "tts_runtime",
+        "ui_init",
+        "ui_runtime",
+        "input_pipeline",
+        "memory_storage",
+        "routine_storage",
+        "app_launch",
+        "web_request",
+        "installer",
+        "app_control",
+        "config_write",
+        "config_apply",
+        "voice_timeout",
+        "voice_server",
+        "voice_backpressure",
+        "tts_fallback",
+        "ui_screen",
+        "ui_position",
+        "input_busy",
+        "dev_command",
+        "parser",
+        "knowledge_invalid",
+        "container_invalid",
+        "container_reload",
+        "knowledge_write",
+        "storage_corrupt",
+        "backup_failure",
+        "app_missing",
+        "app_exit",
+        "app_stale_lock",
+        "app_target",
+        "web_timeout",
+        "web_payload",
+        "diagnostics_write"
+      ]
+    },
+    "category": {
+      "enum": [
+        "activation",
+        "applications",
+        "commands",
+        "configuration",
+        "general",
+        "installation",
+        "interface",
+        "network",
+        "persistence",
+        "speech_input",
+        "speech_output"
+      ]
+    },
+    "severity": {
+      "enum": [
+        "info",
+        "warning",
+        "error",
+        "critical"
+      ]
+    },
+    "retryable": {
+      "type": "boolean"
+    },
+    "operation": {
+      "type": "string",
+      "maxLength": 100
+    },
+    "correlation_id": {
+      "type": "string"
+    },
+    "fingerprint": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{16}$"
+    },
+    "message": {
+      "type": "string"
+    },
+    "action": {
+      "type": "string"
+    },
+    "exception": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "errno": {
+          "type": "integer"
+        },
+        "returncode": {
+          "type": "integer"
+        },
+        "source": {
+          "type": "object",
+          "properties": {
+            "file": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "context": {
+      "type": "object",
+      "additionalProperties": {
+        "type": [
+          "string",
+          "number",
+          "boolean",
+          "null"
+        ]
+      }
+    }
+  },
+  "additionalProperties": false
+}

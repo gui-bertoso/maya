@@ -7,6 +7,7 @@ import json
 import tempfile
 import copy
 from helpers.config import get_path
+from helpers.diagnostics import report_error
 
 KNOWLEDGE_PATH = get_path('KNOWLEDGE_PATH', 'data/learned_knowledge.json')
 
@@ -34,6 +35,22 @@ class KnowledgeBase:
             if not isinstance(self.data.get(name), dict):
                 self.data[name] = {}
         self.data['answers'] = {self.normalize_question(k): v for k,v in self.data['answers'].items() if isinstance(v,str)}
+        self.data['records'] = {
+            self.normalize_question(key): record
+            for key, record in self.data['records'].items()
+            if isinstance(key, str) and isinstance(record, dict)
+            and isinstance(record.get('answer'), str) and record['answer'].strip()
+            and isinstance(record.get('source'), str)
+            and isinstance(record.get('sources', []), list)
+            and all(isinstance(source, dict) and isinstance(source.get('title'), str)
+                    and isinstance(source.get('url'), str) for source in record.get('sources', []))
+        }
+        self.data['skills'] = {
+            self.normalize_question(key): skill
+            for key, skill in self.data['skills'].items()
+            if isinstance(key, str) and isinstance(skill, dict)
+            and isinstance(skill.get('command'), str) and skill['command'].strip()
+        }
         self.data['version'] = 2
 
     def save(self):
@@ -105,8 +122,9 @@ class KnowledgeBase:
     def _save_or_restore(self, before):
         try:
             self.save()
-        except Exception:
+        except Exception as error:
             self.data = before
+            report_error("knowledge_write", error, operation="knowledge.save")
             raise
 
     def get_skill(self, trigger):

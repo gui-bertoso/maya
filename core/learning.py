@@ -68,8 +68,8 @@ class LearningEngine:
         if match:
             removed=kb.forget(self.clean(match.group(1)))
             return True,'apaguei esse aprendizado.' if removed else 'não achei esse aprendizado com esse nome.',None
-        if clean in {'fonte disso','qual a fonte disso','de onde aprendeu isso','de onde voce tirou isso'}:
-            record=kb.get_record(state.get('last_learning_question',''))
+        if clean in {'fonte disso','qual a fonte disso','de onde aprendeu isso','de onde voce tirou isso','source','source for that','what is your source','where did you learn that'}:
+            record=kb.get_record(state.get('last_learning_question','')) or process.expansion_loader.get_record(state.get('last_learning_question',''))
             if not record:return True,'ainda não tenho um aprendizado recente para mostrar a fonte.',None
             if record['source']=='user':return True,'você me ensinou essa resposta diretamente.',None
             sources=record.get('sources',[])
@@ -86,7 +86,7 @@ class LearningEngine:
             if not any(process.detect_patterns(skill['command']).get(key) for key in self.SUPPORTED):
                 return True,'a ação desse aprendizado não é mais reconhecida. ensine o comando novamente.',None
             return True,None,skill['command']
-        record=kb.get_record(text)
+        record=kb.get_record(text) or process.expansion_loader.get_record(text)
         if record:
             state['last_learning_question']=text
             return True,record['answer'],None
