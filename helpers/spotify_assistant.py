@@ -1,3 +1,4 @@
+from helpers.diagnostics import report_error
 import re
 import shutil
 import subprocess
@@ -167,9 +168,11 @@ class SpotifyAssistant:
                         self.last_playback_confirmed = play_search(query, uri)
                     except Exception as error:
                         self.last_error = str(error)
+                        report_error("app_target", error, operation="spotify.playback", context={"app":"spotify"}, notify=False)
                 return True
             except Exception as error:
                 self.last_error = str(error)
+                report_error("app_target", error, operation="spotify.search", context={"app":"spotify"}, notify=False)
                 return False
 
         uri = self.build_search_uri(query)
@@ -286,7 +289,8 @@ class SpotifyAssistant:
             self._press_windows_key("tab")
             self._press_windows_key("enter")
             return True
-        except Exception:
+        except Exception as error:
+            report_error("app_target", error, operation="spotify.windows.playback", context={"app":"spotify"}, notify=False)
             return False
 
     def _schedule_windows_playback(self, query, app_launcher, app_key):

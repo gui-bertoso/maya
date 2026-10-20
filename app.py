@@ -58,12 +58,9 @@ def _runtime_log_path():
 def _log_unhandled_exception(exc_type, exc_value, exc_traceback):
     try:
         from helpers.errors import classify_exception
-
-        log_path = _runtime_log_path()
+        from helpers.diagnostics import report_error
         known_error = classify_exception(exc_value, "startup")
-        with open(log_path, "a", encoding="utf-8") as log_file:
-            log_file.write(f"\n[{datetime.datetime.now().isoformat()}] [{known_error.code}] {known_error.title}\n")
-            traceback.print_exception(exc_type, exc_value, exc_traceback, file=log_file)
+        report_error(known_error.code, exc_value, operation="app.unhandled")
     except Exception:
         pass
 
@@ -96,7 +93,8 @@ from helpers.global_hotkey import GlobalHotkeyListener
 from helpers.runtime_console import RuntimeConsole, should_enable_runtime_console
 from helpers.web_assistant import WebAssistant
 from helpers.spotify_assistant import SpotifyAssistant
-from helpers.errors import format_error
+from helpers.errors import format_error, classify_exception, user_message
+from helpers.diagnostics import report_error, get_reporter
 
 
 RUNTIME_CONSOLE = RuntimeConsole()
@@ -114,6 +112,7 @@ class App:
         self.app_text = load_app_text()
         vocabulary_manager.load_vocabulary()
         self.events = queue.Queue()
+        get_reporter().sink = lambda event: self.send_event("diagnostic_error", event)
 
         self.memory = Memory()
         self.memory.load()
@@ -196,16 +195,16 @@ class App:
             wake_word_started = self.voice.start_background(
                 on_final_text=self.handle_voice_input,
                 on_partial_text=self.handle_partial_voice,
-                on_status_change=self.handle_voice_status,
+                on_status_change=lambda status, voice=self.voice: self._handle_voice_status_from(voice, status),
             )
-            self.voice_active = bool(wake_word_started)
+            self.voice_active = bool(wake_word_started) and self.voice.status not in {"error", "unavailable"}
 
         if not hotkey_started:
             reason = getattr(self.hotkey_listener, "last_error", None) or "could not register Delete + Page Up"
-            print(format_error("hotkey", reason))
+            report_error("hotkey", operation="app.hotkey.start", notify=False)
 
         if not clap_started and self.clap_detector.last_error:
-            print(format_error("microphone_device", self.clap_detector.last_error))
+            report_error("microphone_device", operation="app.clap.start", notify=False)
 
         if not hotkey_started and not clap_started and not wake_word_started:
             print("no wake method is currently available, opening Maya on screen")
@@ -220,7 +219,12 @@ class App:
         try:
             self.renderer.run()
         finally:
+            self.voice.stop()
+            self.clap_detector.stop()
+            self.hotkey_listener.stop()
+            self.speaker.shutdown()
             self.input_pipeline.shutdown()
+            get_reporter().sink = None
 
     @staticmethod
     def _normalize_command(text):
@@ -253,7 +257,22 @@ class App:
         )
 
     def _create_voice(self):
-        return Voice(
+        voice_class = Voice
+        backend_options = {}
+        if get_env("STT_ENGINE", "vosk") == "whisper.cpp":
+            from input.whisper_cpp import WhisperVoice
+            voice_class = WhisperVoice
+            backend_options = dict(
+                binary=get_env("WHISPER_CPP_SERVER", ".runtime/whisper.cpp/build/bin/whisper-server"),
+                whisper_model=get_env("WHISPER_MODEL_PATH", "models/whisper/ggml-small.en.bin"),
+                language=self.LANGUAGE.split('-')[0],
+                threads=get_env("WHISPER_THREADS", 6, int),
+                use_gpu=get_env("WHISPER_USE_GPU", "true").lower() == "true",
+                prompt=get_env("WHISPER_PROMPT", "Maya, Steam, Spotify, Firefox, Godot, Blender, VS Code."),
+                can_capture=lambda: not self.speaker.is_speaking,
+            )
+        return voice_class(
+            **backend_options,
             model_path=get_env("VOSK_MODEL_PATH", "models/vosk-model-small-pt-0.3"),
             sample_rate=get_env("VOICE_SAMPLE_RATE", 16000, int),
             block_size=get_env("VOICE_BLOCK_SIZE", 2000, int),
@@ -271,6 +290,10 @@ class App:
         return tuple(item for item in values if item)
 
     def _extract_wake_word_command(self, text):
+        # Some decoders join a proper-name wake word to a capitalized verb.
+        for wake_word in self.wake_words:
+            text = re.sub(r'^(?i:' + re.escape(wake_word) + r')(?=[A-Z][a-z])',
+                          lambda match: match.group() + ' ', (text or '').strip())
         normalized = self._normalize_command(text)
         for wake_word in self.wake_words:
             if normalized == wake_word:
@@ -360,9 +383,9 @@ class App:
             started = self.voice.start_background(
                 on_final_text=self.handle_voice_input,
                 on_partial_text=self.handle_partial_voice,
-                on_status_change=self.handle_voice_status,
+                on_status_change=lambda status, voice=self.voice: self._handle_voice_status_from(voice, status),
             )
-            self.voice_active = bool(started)
+            self.voice_active = bool(started) and self.voice.status not in {"error", "unavailable"}
             self.send_event("voice_status", "ready" if started else "unavailable")
         else:
             self.voice_active = False
@@ -378,19 +401,23 @@ class App:
                 on_clap=self.handle_single_clap,
             )
         if not clap_started and self.clap_detector.last_error:
-            print(f"microphone wake unavailable: {self.clap_detector.last_error}")
+            report_error("microphone_device", operation="app.clap.reload", notify=False)
 
         if hasattr(self, "renderer") and self.renderer is not None:
             self.renderer.apply_runtime_settings()
 
     def apply_user_settings(self, values):
+        saved = False
         try:
             save_env_values(values)
+            saved = True
             self.apply_runtime_settings()
             return True, self._app_message("settings_applied")
         except Exception as error:
-            prefix = self._app_message("settings_apply_failed_prefix")
-            return False, f"{prefix}: {error}"
+            definition = classify_exception(error, "config.save")
+            key = "config_apply" if saved else definition.code
+            report_error(key, error, operation="app.settings.apply", notify=False)
+            return False, user_message(key, self.LANGUAGE)
 
     def get_wake_response_text(self):
         if self.wake_response_options:
@@ -427,9 +454,9 @@ class App:
         started = self.voice.start_background(
             on_final_text=self.handle_voice_input,
             on_partial_text=self.handle_partial_voice,
-            on_status_change=self.handle_voice_status,
+            on_status_change=lambda status, voice=self.voice: self._handle_voice_status_from(voice, status),
         )
-        self.voice_active = bool(started)
+        self.voice_active = bool(started) and self.voice.status not in {"error", "unavailable"}
         self.send_event("voice_status", "ready" if started else "unavailable")
 
     def _looks_like_startup_brief_yes(self, text):
@@ -602,16 +629,11 @@ class App:
 
     def wake_maya(self, trigger_source="clap"):
         now = time.time()
-        if now < self.maya_awake_until:
-            self.maya_awake_until = now + self.wake_duration
-            return
-
+        already_awake = now < self.maya_awake_until
         self.maya_awake_until = now + self.wake_duration
-
         self.send_event("app_foreground", None)
         self.send_event("double_clap", None)
-
-        should_speak_for_source = self.speak_wake_response and (
+        should_speak_for_source = not already_awake and self.speak_wake_response and (
             (trigger_source == "clap" and self.speak_wake_response_on_clap)
             or (trigger_source == "hotkey" and self.speak_wake_response_on_hotkey)
             or (trigger_source == "wake_word" and self.speak_wake_response_on_word)
@@ -630,9 +652,9 @@ class App:
             started = self.voice.start_background(
                 on_final_text=self.handle_voice_input,
                 on_partial_text=self.handle_partial_voice,
-                on_status_change=self.handle_voice_status
+                on_status_change=lambda status, voice=self.voice: self._handle_voice_status_from(voice, status)
             )
-            self.voice_active = bool(started)
+            self.voice_active = bool(started) and self.voice.status not in {"error", "unavailable"}
             if not started:
                 self.send_event("voice_status", "unavailable")
         else:
@@ -640,6 +662,7 @@ class App:
 
     def sleep_maya(self):
         if not self.voice_active:
+            self.maya_awake_until = 0.0
             self.send_event("app_sleep_ui", None)
             return
 
@@ -648,12 +671,16 @@ class App:
             self.voice_active = False
         self.send_event("voice_status", "idle")
         self.send_event("voice_partial", "")
+        self.maya_awake_until = 0.0
         self.send_event("app_sleep_ui", None)
         if self.DEBUG_MODE:
             print("maya sleeping again")
 
     def update_app_state(self, dt):
-        if self.voice_active and time.time() > self.maya_awake_until:
+        if (self.speaker.is_speaking or not self.speaker.queue.empty()
+                or self.input_pipeline.is_busy or self.renderer.has_active_interaction()):
+            self.keep_awake()
+        elif self.maya_awake_until > 0 and time.time() > self.maya_awake_until:
             self.sleep_maya()
 
         current_minute = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -704,9 +731,6 @@ class App:
         if tokens[0] in self._app_text_values("voice_question_starters"):
             return True
 
-        if len(tokens) == 1 and normalized not in {"hello", "hi", "hey", "thanks", "thank", "bye"}:
-            return False
-
         if not hasattr(self.process, "detect_patterns"):
             return True
 
@@ -723,7 +747,7 @@ class App:
         if actionable:
             return True
 
-        return len(tokens) >= 4
+        return len(tokens) >= 2
 
     def _should_suppress_voice_response(self, text, response):
         normalized_response = (response or "").strip().lower()
@@ -734,7 +758,7 @@ class App:
             return True
 
         tokens = self.process.tokenize((text or "").lower())
-        return len(tokens) <= 5
+        return len(tokens) <= 1
 
     def handle_voice_input(self, text):
         now = time.time()
@@ -755,6 +779,8 @@ class App:
                 return None
             text = trailing_command
 
+        if wake_command:
+            text = wake_command
         self.maya_awake_until = now + self.wake_duration
         if now - self.last_ignored_voice_at < self.ignored_voice_cooldown:
             if self.DEBUG_MODE:
@@ -774,12 +800,13 @@ class App:
         return None
 
     def _handle_async_input_error(self, error):
-        print(format_error("input_pipeline", repr(error)))
+        report_error("input_pipeline", error, operation="app.command.process")
         self.send_event("voice_status", "error")
 
     def submit_input_async(self, text, input_source="text"):
         accepted = self.input_pipeline.submit(self.handle_input, text, input_source=input_source)
         if not accepted:
+            report_error("input_busy", operation="app.command.submit", notify=False)
             if self.DEBUG_MODE:
                 print("input pipeline busy, dropped:", repr(text))
             self.send_event("voice_status", "busy")
@@ -801,13 +828,18 @@ class App:
         if self.wake_word_enabled and now >= self.maya_awake_until:
             return
         self.maya_awake_until = time.time() + self.wake_duration
-        if self.current_response_source == "voice":
-            self.speaker.stop()
         self.send_event("voice_partial", text)
 
+    def _handle_voice_status_from(self, voice, status):
+        if self.voice is voice:
+            self.handle_voice_status(status)
+
     def handle_voice_status(self, status):
-        if self.voice_active:
-            self.send_event("voice_status", status)
+        if status in {"error", "unavailable", "idle"}:
+            self.voice_active = False
+        elif status in {"ready", "hearing"}:
+            self.voice_active = True
+        self.send_event("voice_status", status)
 
     def handle_input(self, text, input_source="text"):
         self.maya_awake_until = time.time() + self.wake_duration
@@ -877,12 +909,14 @@ class App:
             print("response:", repr(response))
 
         if input_source == "voice" and self._should_suppress_voice_response(text, response):
+            self.send_event("response_text", response)
             self.last_ignored_voice_at = time.time()
             if self.DEBUG_MODE:
                 print("suppressed low-signal fallback response:", repr(response))
             return None
 
         if response:
+            self.send_event("response_text", response)
             self.current_response_source = input_source
             if input_source != "text":
                 self.speaker.stop()

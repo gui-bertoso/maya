@@ -1,0 +1,5464 @@
+{
+  "schema": "maya.error.map.v1",
+  "scope": "First-party Python: root, core, input, output, helpers, scripts. Tests, vendored/native code, virtualenvs and runtime data excluded.",
+  "caveat": "Static sites are a triage map, not confirmed bugs or proof that every failure emits an event. Suggested codes require semantic review.",
+  "runtime_coverage_measured": false,
+  "classification_basis": "AST and documented named-boundary policies; not a bug verdict",
+  "files_scanned": 45,
+  "summary": {
+    "raise": 65,
+    "standard_report": 70,
+    "exception_handler": 178,
+    "failure_return": 141,
+    "legacy_last_error": 20
+  },
+  "handler_classification": {
+    "last_resort_failure_isolation": 5,
+    "contains_standard_report": 60,
+    "propagates": 3,
+    "delegated_error_callback": 1,
+    "startup_observation_window": 1,
+    "application_discovery_fallback": 6,
+    "optional_dependency_guard": 6,
+    "platform_or_window_probe": 39,
+    "cleanup_best_effort": 2,
+    "network_fallback_boundary": 10,
+    "optional_console_or_cleanup": 3,
+    "optional_bridge_or_playback_probe": 5,
+    "optional_version_probe": 1,
+    "bounded_queue_policy": 2,
+    "control_flow": 7,
+    "startup_health_polling": 1,
+    "process_stop_escalation": 1,
+    "optional_platform_styling": 1,
+    "best_effort_preview": 2,
+    "voice_fallback_or_cleanup": 13,
+    "diagnostic_tool_input_handling": 2,
+    "installer_bootstrap_review": 7
+  },
+  "parse_errors": [],
+  "unknown_literal_codes": [],
+  "sites": [
+    {
+      "site_id": "1e1346acbab2dca3",
+      "file": "app.py",
+      "line": 21,
+      "function": "<module>",
+      "kind": "raise",
+      "suggested_code": "MAY-0001",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "8b8c3583a7bc51b7",
+      "file": "app.py",
+      "line": 63,
+      "function": "_log_unhandled_exception",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0001",
+      "classification": "standard_event",
+      "key": "<dynamic>",
+      "operation": "app.unhandled"
+    },
+    {
+      "site_id": "07c149573daf8ff8",
+      "file": "app.py",
+      "line": 64,
+      "function": "_log_unhandled_exception",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "last_resort_failure_isolation",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "18d6bfda15e84860",
+      "file": "app.py",
+      "line": 204,
+      "function": "App.__init__",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0001",
+      "classification": "standard_event",
+      "key": "hotkey",
+      "operation": "app.hotkey.start"
+    },
+    {
+      "site_id": "e42b31dc53bea215",
+      "file": "app.py",
+      "line": 207,
+      "function": "App.__init__",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0001",
+      "classification": "standard_event",
+      "key": "microphone_device",
+      "operation": "app.clap.start"
+    },
+    {
+      "site_id": "5a4dca7ec216ef0d",
+      "file": "app.py",
+      "line": 404,
+      "function": "App.apply_runtime_settings",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0001",
+      "classification": "standard_event",
+      "key": "microphone_device",
+      "operation": "app.clap.reload"
+    },
+    {
+      "site_id": "cbeb9c8573a6e72c",
+      "file": "app.py",
+      "line": 416,
+      "function": "App.apply_user_settings",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "3734a98c3a1370af",
+      "file": "app.py",
+      "line": 419,
+      "function": "App.apply_user_settings",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0001",
+      "classification": "standard_event",
+      "key": "<dynamic>",
+      "operation": "app.settings.apply"
+    },
+    {
+      "site_id": "d641ba10ffee074d",
+      "file": "app.py",
+      "line": 420,
+      "function": "App.apply_user_settings",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "75eea9ab5c604d77",
+      "file": "app.py",
+      "line": 719,
+      "function": "App._is_actionable_voice_text",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "c4b8a3045aa6a42a",
+      "file": "app.py",
+      "line": 722,
+      "function": "App._is_actionable_voice_text",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "508a01189053fc09",
+      "file": "app.py",
+      "line": 729,
+      "function": "App._is_actionable_voice_text",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "2ae64865f23a0ba2",
+      "file": "app.py",
+      "line": 755,
+      "function": "App._should_suppress_voice_response",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "8ae77547da86baed",
+      "file": "app.py",
+      "line": 803,
+      "function": "App._handle_async_input_error",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0001",
+      "classification": "standard_event",
+      "key": "input_pipeline",
+      "operation": "app.command.process"
+    },
+    {
+      "site_id": "f525a95f61e83ba8",
+      "file": "app.py",
+      "line": 809,
+      "function": "App.submit_input_async",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0001",
+      "classification": "standard_event",
+      "key": "input_busy",
+      "operation": "app.command.submit"
+    },
+    {
+      "site_id": "cdf3b389988c4b57",
+      "file": "core/dialogue.py",
+      "line": 37,
+      "function": "DialogueEngine.__init__",
+      "kind": "raise",
+      "suggested_code": "MAY-0001",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "f6c0b13f664cbc36",
+      "file": "core/input_pipeline.py",
+      "line": 29,
+      "function": "AsyncInputPipeline.submit",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "899895f6f3b2a6d1",
+      "file": "core/input_pipeline.py",
+      "line": 33,
+      "function": "AsyncInputPipeline.submit",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "propagates",
+      "contains_raise": true,
+      "risk_flags": []
+    },
+    {
+      "site_id": "ba65fda5337bdba0",
+      "file": "core/input_pipeline.py",
+      "line": 36,
+      "function": "AsyncInputPipeline.submit",
+      "kind": "raise",
+      "suggested_code": "MAY-0001",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "82a3085aa87c5919",
+      "file": "core/input_pipeline.py",
+      "line": 50,
+      "function": "AsyncInputPipeline._run",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "delegated_error_callback",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "f9a06bf6c2303218",
+      "file": "core/knowledge_base.py",
+      "line": 125,
+      "function": "KnowledgeBase._save_or_restore",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0703",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": true,
+      "risk_flags": []
+    },
+    {
+      "site_id": "09f907b5b4c314e3",
+      "file": "core/knowledge_base.py",
+      "line": 127,
+      "function": "KnowledgeBase._save_or_restore",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0703",
+      "classification": "standard_event",
+      "key": "knowledge_write",
+      "operation": "knowledge.save"
+    },
+    {
+      "site_id": "d893c917b9f5e0be",
+      "file": "core/knowledge_base.py",
+      "line": 128,
+      "function": "KnowledgeBase._save_or_restore",
+      "kind": "raise",
+      "suggested_code": "MAY-0703",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "a57e64d3152b0114",
+      "file": "core/learning.py",
+      "line": 83,
+      "function": "LearningEngine.handle",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "6e1f0810d95f3904",
+      "file": "core/learning.py",
+      "line": 93,
+      "function": "LearningEngine.handle",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "0818975f3509f055",
+      "file": "core/memory.py",
+      "line": 36,
+      "function": "Memory._is_valid_preference",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0701",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "e6f5f541f206152e",
+      "file": "core/memory.py",
+      "line": 40,
+      "function": "Memory._is_valid_preference",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0701",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "37c3945f28e508da",
+      "file": "core/memory.py",
+      "line": 48,
+      "function": "Memory._is_valid_preference",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0701",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "cec28c7473e767f0",
+      "file": "core/memory.py",
+      "line": 51,
+      "function": "Memory._is_valid_preference",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0701",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "c78b1398bed31e69",
+      "file": "core/process.py",
+      "line": 67,
+      "function": "Process.refresh_data_expansions",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "f82b5e3a71c3b31f",
+      "file": "core/process.py",
+      "line": 94,
+      "function": "Process.pick_response",
+      "kind": "raise",
+      "suggested_code": "MAY-0001",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "82c7c09fa7ab06c8",
+      "file": "core/process.py",
+      "line": 232,
+      "function": "Process._tokens_match",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "e20fd79c4c0989e2",
+      "file": "core/process.py",
+      "line": 241,
+      "function": "Process.contains_phrase",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "0797bf6c9277eb81",
+      "file": "core/process.py",
+      "line": 248,
+      "function": "Process.contains_phrase",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "09759497ad238107",
+      "file": "core/process.py",
+      "line": 254,
+      "function": "Process.contains_phrase",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "27d95b120e11c6a6",
+      "file": "core/process.py",
+      "line": 880,
+      "function": "Process.parse_natural_status_request",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "53284d52e7a8acb0",
+      "file": "core/process.py",
+      "line": 887,
+      "function": "Process.parse_natural_capabilities_request",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "80483d7e8d253ffa",
+      "file": "core/process.py",
+      "line": 893,
+      "function": "Process.is_useful_summary",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "65e37709c6422b21",
+      "file": "core/process.py",
+      "line": 900,
+      "function": "Process.is_useful_summary",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "492f49cecfbf6d8d",
+      "file": "core/process.py",
+      "line": 903,
+      "function": "Process.is_useful_summary",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "cbf7a3f1dabb0623",
+      "file": "core/process.py",
+      "line": 906,
+      "function": "Process.is_useful_summary",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "8ad13a3139ff1529",
+      "file": "core/process.py",
+      "line": 1482,
+      "function": "Process.open_web_in_app",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "e25ae53be6c2f61c",
+      "file": "core/process.py",
+      "line": 1486,
+      "function": "Process.open_web_in_app",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "442af22f1f30bf93",
+      "file": "core/routine_manager.py",
+      "line": 68,
+      "function": "RoutineManager._load",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0702",
+      "exception": "(OSError, ValueError, TypeError)",
+      "broad_catch": false,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "e76a47548a5244c9",
+      "file": "core/routine_manager.py",
+      "line": 70,
+      "function": "RoutineManager._load",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0702",
+      "classification": "standard_event",
+      "key": "routine_storage",
+      "operation": "routine.load"
+    },
+    {
+      "site_id": "cbdcb3f513470fd5",
+      "file": "core/routine_manager.py",
+      "line": 80,
+      "function": "RoutineManager.save",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0702",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": true,
+      "risk_flags": []
+    },
+    {
+      "site_id": "5fe3af2d58923737",
+      "file": "core/routine_manager.py",
+      "line": 81,
+      "function": "RoutineManager.save",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0702",
+      "classification": "standard_event",
+      "key": "routine_storage",
+      "operation": "routine.save"
+    },
+    {
+      "site_id": "4cc178de9b85e4da",
+      "file": "core/routine_manager.py",
+      "line": 82,
+      "function": "RoutineManager.save",
+      "kind": "raise",
+      "suggested_code": "MAY-0702",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "e2cd5d0e77b44c6c",
+      "file": "helpers/app_launcher.py",
+      "line": 172,
+      "function": "AppLauncher._command_exists",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0801",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "ab1ca2dd4a24e7eb",
+      "file": "helpers/app_launcher.py",
+      "line": 214,
+      "function": "AppLauncher._spawn",
+      "kind": "raise",
+      "suggested_code": "MAY-0801",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "47cd8d4f2d82864c",
+      "file": "helpers/app_launcher.py",
+      "line": 215,
+      "function": "AppLauncher._spawn",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0801",
+      "exception": "subprocess.TimeoutExpired",
+      "broad_catch": false,
+      "classification": "startup_observation_window",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "b624ee1a0418f4ea",
+      "file": "helpers/app_launcher.py",
+      "line": 249,
+      "function": "AppLauncher.launch",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0801",
+      "classification": "result_contract_review",
+      "reason": "unknown_app"
+    },
+    {
+      "site_id": "77a978d96b60ac73",
+      "file": "helpers/app_launcher.py",
+      "line": 253,
+      "function": "AppLauncher.launch",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0801",
+      "classification": "result_contract_review",
+      "reason": "missing_command"
+    },
+    {
+      "site_id": "97a73b82e1198560",
+      "file": "helpers/app_launcher.py",
+      "line": 266,
+      "function": "AppLauncher.launch",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0801",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "e5d56e3cc9c2b614",
+      "file": "helpers/app_launcher.py",
+      "line": 268,
+      "function": "AppLauncher.launch",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0801",
+      "classification": "standard_event",
+      "key": "<dynamic>",
+      "operation": "apps.launch"
+    },
+    {
+      "site_id": "01012e3531839596",
+      "file": "helpers/app_launcher.py",
+      "line": 269,
+      "function": "AppLauncher.launch",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0801",
+      "classification": "result_contract_review",
+      "reason": "launch_failed"
+    },
+    {
+      "site_id": "dd275b463765ff3f",
+      "file": "helpers/app_launcher.py",
+      "line": 276,
+      "function": "AppLauncher.launch_with_target",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0801",
+      "classification": "result_contract_review",
+      "reason": "unknown_app"
+    },
+    {
+      "site_id": "de982334a862aaa3",
+      "file": "helpers/app_launcher.py",
+      "line": 280,
+      "function": "AppLauncher.launch_with_target",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0801",
+      "classification": "result_contract_review",
+      "reason": "missing_command"
+    },
+    {
+      "site_id": "529a99d54383e4d2",
+      "file": "helpers/app_launcher.py",
+      "line": 289,
+      "function": "AppLauncher.launch_with_target",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0801",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "897a48e623e6909e",
+      "file": "helpers/app_launcher.py",
+      "line": 291,
+      "function": "AppLauncher.launch_with_target",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0801",
+      "classification": "standard_event",
+      "key": "<dynamic>",
+      "operation": "apps.launch"
+    },
+    {
+      "site_id": "ab58125aec0e3ac8",
+      "file": "helpers/app_launcher.py",
+      "line": 292,
+      "function": "AppLauncher.launch_with_target",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0801",
+      "classification": "result_contract_review",
+      "reason": "launch_failed"
+    },
+    {
+      "site_id": "7f29d0b7cc55a18d",
+      "file": "helpers/app_launcher.py",
+      "line": 299,
+      "function": "AppLauncher.launch_subapp",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0801",
+      "classification": "result_contract_review",
+      "reason": "unknown_app"
+    },
+    {
+      "site_id": "2397dbc1935bb8db",
+      "file": "helpers/app_launcher.py",
+      "line": 305,
+      "function": "AppLauncher.launch_subapp",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0801",
+      "classification": "result_contract_review",
+      "reason": "unknown_subapp"
+    },
+    {
+      "site_id": "21e88431a6245c38",
+      "file": "helpers/app_launcher.py",
+      "line": 310,
+      "function": "AppLauncher.launch_subapp",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0801",
+      "classification": "result_contract_review",
+      "reason": "missing_target"
+    },
+    {
+      "site_id": "2976ea1d119db7a8",
+      "file": "helpers/app_launcher.py",
+      "line": 317,
+      "function": "AppLauncher.launch_any",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0801",
+      "classification": "result_contract_review",
+      "reason": "missing_command"
+    },
+    {
+      "site_id": "4af03bcb37939281",
+      "file": "helpers/app_launcher.py",
+      "line": 332,
+      "function": "AppLauncher.launch_any",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0801",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "4d7386efd33bdc22",
+      "file": "helpers/app_launcher.py",
+      "line": 334,
+      "function": "AppLauncher.launch_any",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0801",
+      "classification": "standard_event",
+      "key": "<dynamic>",
+      "operation": "apps.launch"
+    },
+    {
+      "site_id": "d57a422593cd5518",
+      "file": "helpers/app_launcher.py",
+      "line": 335,
+      "function": "AppLauncher.launch_any",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0801",
+      "classification": "result_contract_review",
+      "reason": "launch_failed"
+    },
+    {
+      "site_id": "fdd4d31b0e756903",
+      "file": "helpers/app_launcher.py",
+      "line": 399,
+      "function": "AppLauncher._parse_desktop_exec",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0801",
+      "exception": "ValueError",
+      "broad_catch": false,
+      "classification": "application_discovery_fallback",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "e5c4e2a658198ec8",
+      "file": "helpers/app_launcher.py",
+      "line": 408,
+      "function": "AppLauncher._read_desktop_entry",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0801",
+      "exception": "OSError",
+      "broad_catch": false,
+      "classification": "application_discovery_fallback",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "d9a11db411724b9c",
+      "file": "helpers/app_launcher.py",
+      "line": 451,
+      "function": "AppLauncher._read_windows_registry_value",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0801",
+      "exception": "ImportError",
+      "broad_catch": false,
+      "classification": "optional_dependency_guard",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "b0d7dd48b1b8a557",
+      "file": "helpers/app_launcher.py",
+      "line": 458,
+      "function": "AppLauncher._read_windows_registry_value",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0801",
+      "exception": "OSError",
+      "broad_catch": false,
+      "classification": "application_discovery_fallback",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "11769d445c339720",
+      "file": "helpers/app_launcher.py",
+      "line": 467,
+      "function": "AppLauncher._get_windows_steam_registry_paths",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0801",
+      "exception": "ImportError",
+      "broad_catch": false,
+      "classification": "optional_dependency_guard",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "a7f4d42f0d5da0d2",
+      "file": "helpers/app_launcher.py",
+      "line": 505,
+      "function": "AppLauncher._get_steam_library_paths",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0801",
+      "exception": "OSError",
+      "broad_catch": false,
+      "classification": "application_discovery_fallback",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "c3167b65903c494e",
+      "file": "helpers/app_launcher.py",
+      "line": 538,
+      "function": "AppLauncher._get_linux_steam_library_paths",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0801",
+      "exception": "OSError",
+      "broad_catch": false,
+      "classification": "application_discovery_fallback",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "75765c5785085bd9",
+      "file": "helpers/app_launcher.py",
+      "line": 577,
+      "function": "AppLauncher._find_steam_manifest_target",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0801",
+      "exception": "OSError",
+      "broad_catch": false,
+      "classification": "application_discovery_fallback",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "ec3821dfaa85cdc2",
+      "file": "helpers/app_launcher.py",
+      "line": 830,
+      "function": "AppLauncher.launch_discovered_app",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0801",
+      "classification": "result_contract_review",
+      "reason": "not_found"
+    },
+    {
+      "site_id": "b08f578711fe6b0c",
+      "file": "helpers/app_launcher.py",
+      "line": 850,
+      "function": "AppLauncher.launch_discovered_app",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0801",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "35a8e209bb945997",
+      "file": "helpers/app_launcher.py",
+      "line": 852,
+      "function": "AppLauncher.launch_discovered_app",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0801",
+      "classification": "standard_event",
+      "key": "<dynamic>",
+      "operation": "apps.launch"
+    },
+    {
+      "site_id": "438dd4dfb313e670",
+      "file": "helpers/app_launcher.py",
+      "line": 853,
+      "function": "AppLauncher.launch_discovered_app",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0801",
+      "classification": "result_contract_review",
+      "reason": "launch_failed"
+    },
+    {
+      "site_id": "9496766a356de675",
+      "file": "helpers/app_launcher.py",
+      "line": 894,
+      "function": "AppLauncher.close",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0801",
+      "classification": "result_contract_review",
+      "reason": "unknown_app"
+    },
+    {
+      "site_id": "0bb16c7d51767a17",
+      "file": "helpers/app_launcher.py",
+      "line": 898,
+      "function": "AppLauncher.close",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0801",
+      "classification": "result_contract_review",
+      "reason": "missing_process_name"
+    },
+    {
+      "site_id": "588fb2da73b306f7",
+      "file": "helpers/app_launcher.py",
+      "line": 917,
+      "function": "AppLauncher.close",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0801",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "00c9939a4d0b42d5",
+      "file": "helpers/app_launcher.py",
+      "line": 918,
+      "function": "AppLauncher.close",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0801",
+      "classification": "standard_event",
+      "key": "app_target",
+      "operation": "apps.close"
+    },
+    {
+      "site_id": "c96d76e4b6b19594",
+      "file": "helpers/app_launcher.py",
+      "line": 919,
+      "function": "AppLauncher.close",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0801",
+      "classification": "result_contract_review",
+      "reason": "close_failed"
+    },
+    {
+      "site_id": "5279a62752160f0a",
+      "file": "helpers/app_launcher.py",
+      "line": 927,
+      "function": "AppLauncher.close",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0801",
+      "classification": "result_contract_review",
+      "reason": "not_running"
+    },
+    {
+      "site_id": "ef6e6a9f4fd44337",
+      "file": "helpers/backup_manager.py",
+      "line": 38,
+      "function": "create_backup",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0701",
+      "exception": "OSError",
+      "broad_catch": false,
+      "classification": "contains_standard_report",
+      "contains_raise": true,
+      "risk_flags": []
+    },
+    {
+      "site_id": "65f32a28439683d4",
+      "file": "helpers/backup_manager.py",
+      "line": 39,
+      "function": "create_backup",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0701",
+      "classification": "standard_event",
+      "key": "backup_failure",
+      "operation": "storage.backup"
+    },
+    {
+      "site_id": "91d600e766d0adc9",
+      "file": "helpers/backup_manager.py",
+      "line": 40,
+      "function": "create_backup",
+      "kind": "raise",
+      "suggested_code": "MAY-0701",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "4c962216d57b0a5a",
+      "file": "helpers/backup_manager.py",
+      "line": 60,
+      "function": "safe_json_load",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0701",
+      "exception": "(FileNotFoundError, json.JSONDecodeError, OSError, UnicodeError)",
+      "broad_catch": false,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "c713430cd90e6acf",
+      "file": "helpers/backup_manager.py",
+      "line": 62,
+      "function": "safe_json_load",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0701",
+      "classification": "standard_event",
+      "key": "<dynamic>",
+      "operation": "storage.json.load"
+    },
+    {
+      "site_id": "d445a279f2009e88",
+      "file": "helpers/backup_manager.py",
+      "line": 80,
+      "function": "safe_json_dump",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0701",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": true,
+      "risk_flags": []
+    },
+    {
+      "site_id": "bf2b918e107f0320",
+      "file": "helpers/backup_manager.py",
+      "line": 81,
+      "function": "safe_json_dump",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0701",
+      "classification": "standard_event",
+      "key": "memory_storage",
+      "operation": "storage.json.save"
+    },
+    {
+      "site_id": "e9e9e90328705736",
+      "file": "helpers/backup_manager.py",
+      "line": 82,
+      "function": "safe_json_dump",
+      "kind": "raise",
+      "suggested_code": "MAY-0701",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "19cace3a3df11b5b",
+      "file": "helpers/config.py",
+      "line": 219,
+      "function": "get_env",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0103",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "fc86ca650b40cc2e",
+      "file": "helpers/config.py",
+      "line": 220,
+      "function": "get_env",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0103",
+      "classification": "standard_event",
+      "key": "config_value",
+      "operation": "config.get_env"
+    },
+    {
+      "site_id": "4b594820fda3511a",
+      "file": "helpers/config.py",
+      "line": 275,
+      "function": "save_env_values",
+      "kind": "raise",
+      "suggested_code": "MAY-0103",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "5768c80c1491745f",
+      "file": "helpers/config.py",
+      "line": 280,
+      "function": "save_env_values",
+      "kind": "raise",
+      "suggested_code": "MAY-0103",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "e02c58f7500255d1",
+      "file": "helpers/config.py",
+      "line": 283,
+      "function": "save_env_values",
+      "kind": "raise",
+      "suggested_code": "MAY-0103",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "9762f18dd54bbcf4",
+      "file": "helpers/config.py",
+      "line": 284,
+      "function": "save_env_values",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0103",
+      "exception": "(ValueError, TypeError, OverflowError)",
+      "broad_catch": false,
+      "classification": "propagates",
+      "contains_raise": true,
+      "risk_flags": []
+    },
+    {
+      "site_id": "699d1b0028d47c58",
+      "file": "helpers/config.py",
+      "line": 285,
+      "function": "save_env_values",
+      "kind": "raise",
+      "suggested_code": "MAY-0103",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "31034f0256196c43",
+      "file": "helpers/data_expansions.py",
+      "line": 54,
+      "function": "DataExpansionLoader._merge",
+      "kind": "raise",
+      "suggested_code": "MAY-0704",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "35edaea1b5c4fd05",
+      "file": "helpers/data_expansions.py",
+      "line": 57,
+      "function": "DataExpansionLoader._merge",
+      "kind": "raise",
+      "suggested_code": "MAY-0704",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "ff251613729f9f9d",
+      "file": "helpers/data_expansions.py",
+      "line": 61,
+      "function": "DataExpansionLoader._merge",
+      "kind": "raise",
+      "suggested_code": "MAY-0704",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "af6f8c76ffa35ead",
+      "file": "helpers/data_expansions.py",
+      "line": 70,
+      "function": "DataExpansionLoader._knowledge_entries",
+      "kind": "raise",
+      "suggested_code": "MAY-0704",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "35acad16c6594ac4",
+      "file": "helpers/data_expansions.py",
+      "line": 74,
+      "function": "DataExpansionLoader._knowledge_entries",
+      "kind": "raise",
+      "suggested_code": "MAY-0704",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "32d5f26d98394a7c",
+      "file": "helpers/data_expansions.py",
+      "line": 77,
+      "function": "DataExpansionLoader._knowledge_entries",
+      "kind": "raise",
+      "suggested_code": "MAY-0704",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "250f780ca4979254",
+      "file": "helpers/data_expansions.py",
+      "line": 79,
+      "function": "DataExpansionLoader._knowledge_entries",
+      "kind": "raise",
+      "suggested_code": "MAY-0704",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "c0e8356e825646a0",
+      "file": "helpers/data_expansions.py",
+      "line": 81,
+      "function": "DataExpansionLoader._knowledge_entries",
+      "kind": "raise",
+      "suggested_code": "MAY-0704",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "3d71158fb1b160ed",
+      "file": "helpers/data_expansions.py",
+      "line": 84,
+      "function": "DataExpansionLoader._knowledge_entries",
+      "kind": "raise",
+      "suggested_code": "MAY-0704",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "17c9713f106ab042",
+      "file": "helpers/data_expansions.py",
+      "line": 87,
+      "function": "DataExpansionLoader._knowledge_entries",
+      "kind": "raise",
+      "suggested_code": "MAY-0704",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "7dcc7296a3fe9c0b",
+      "file": "helpers/data_expansions.py",
+      "line": 94,
+      "function": "DataExpansionLoader._knowledge_entries",
+      "kind": "raise",
+      "suggested_code": "MAY-0704",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "40ea1cda62b15798",
+      "file": "helpers/data_expansions.py",
+      "line": 105,
+      "function": "DataExpansionLoader.refresh",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0704",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "2985feffa33fdb37",
+      "file": "helpers/data_expansions.py",
+      "line": 110,
+      "function": "DataExpansionLoader.refresh",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0704",
+      "exception": "OSError",
+      "broad_catch": false,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "997ab51326526039",
+      "file": "helpers/data_expansions.py",
+      "line": 113,
+      "function": "DataExpansionLoader.refresh",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0704",
+      "classification": "standard_event",
+      "key": "container_reload",
+      "operation": "containers.discover"
+    },
+    {
+      "site_id": "9896764cbd7c8d2f",
+      "file": "helpers/data_expansions.py",
+      "line": 114,
+      "function": "DataExpansionLoader.refresh",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0704",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "8970f0d53bc24863",
+      "file": "helpers/data_expansions.py",
+      "line": 116,
+      "function": "DataExpansionLoader.refresh",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0704",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "02288475187e2830",
+      "file": "helpers/data_expansions.py",
+      "line": 123,
+      "function": "DataExpansionLoader.refresh",
+      "kind": "raise",
+      "suggested_code": "MAY-0704",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "b6ee0245f9275c1c",
+      "file": "helpers/data_expansions.py",
+      "line": 126,
+      "function": "DataExpansionLoader.refresh",
+      "kind": "raise",
+      "suggested_code": "MAY-0704",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "48b5da9507b626dd",
+      "file": "helpers/data_expansions.py",
+      "line": 128,
+      "function": "DataExpansionLoader.refresh",
+      "kind": "raise",
+      "suggested_code": "MAY-0704",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "fa7b4ddd267e489c",
+      "file": "helpers/data_expansions.py",
+      "line": 135,
+      "function": "DataExpansionLoader.refresh",
+      "kind": "raise",
+      "suggested_code": "MAY-0704",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "e7df55344e8530ab",
+      "file": "helpers/data_expansions.py",
+      "line": 140,
+      "function": "DataExpansionLoader.refresh",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0704",
+      "exception": "(OSError, ValueError, TypeError, UnicodeError)",
+      "broad_catch": false,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "8ae931fcb42c58d6",
+      "file": "helpers/data_expansions.py",
+      "line": 142,
+      "function": "DataExpansionLoader.refresh",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0704",
+      "classification": "standard_event",
+      "key": "container_invalid",
+      "operation": "containers.load"
+    },
+    {
+      "site_id": "91a38ff127e2fa07",
+      "file": "helpers/data_expansions.py",
+      "line": 159,
+      "function": "load_legacy_expansions",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0704",
+      "exception": "(OSError, ValueError, TypeError, UnicodeError)",
+      "broad_catch": false,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "596e22305366bd69",
+      "file": "helpers/data_expansions.py",
+      "line": 160,
+      "function": "load_legacy_expansions",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0704",
+      "classification": "standard_event",
+      "key": "container_invalid",
+      "operation": "data_expansions.load_legacy_expansions"
+    },
+    {
+      "site_id": "418db45746ffbc74",
+      "file": "helpers/dev_assistant.py",
+      "line": 103,
+      "function": "DevAssistant._open_in_vscode",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "a125a3c7fc71bc3c",
+      "file": "helpers/dev_assistant.py",
+      "line": 107,
+      "function": "DevAssistant._open_in_vscode",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "4cca57958b80f499",
+      "file": "helpers/dev_assistant.py",
+      "line": 123,
+      "function": "DevAssistant._run_git",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "ad210ae91d346c0a",
+      "file": "helpers/dev_assistant.py",
+      "line": 124,
+      "function": "DevAssistant._run_git",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0001",
+      "classification": "standard_event",
+      "key": "dev_command",
+      "operation": "devtools.git"
+    },
+    {
+      "site_id": "6ab99d59b74e63aa",
+      "file": "helpers/dev_assistant.py",
+      "line": 125,
+      "function": "DevAssistant._run_git",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "2648a436c2b1d54a",
+      "file": "helpers/dev_assistant.py",
+      "line": 129,
+      "function": "DevAssistant._create_initial_commit",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "7810029f1224a2fb",
+      "file": "helpers/dev_assistant.py",
+      "line": 131,
+      "function": "DevAssistant._create_initial_commit",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "2d2192f2e0e6d19e",
+      "file": "helpers/dev_workspace.py",
+      "line": 47,
+      "function": "DevWorkspaceOrchestrator.__init__",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "415f419e0c99e60a",
+      "file": "helpers/dev_workspace.py",
+      "line": 55,
+      "function": "DevWorkspaceOrchestrator.__init__",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "3833c7b21fc43b48",
+      "file": "helpers/dev_workspace.py",
+      "line": 72,
+      "function": "DevWorkspaceOrchestrator._init_windows_backend",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "a241dac7bb73937b",
+      "file": "helpers/dev_workspace.py",
+      "line": 104,
+      "function": "DevWorkspaceOrchestrator._read_text_property",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "9753a4020324e66f",
+      "file": "helpers/dev_workspace.py",
+      "line": 113,
+      "function": "DevWorkspaceOrchestrator._read_window_pid",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "1b2837635be984e9",
+      "file": "helpers/dev_workspace.py",
+      "line": 125,
+      "function": "DevWorkspaceOrchestrator._read_window_title",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "fddb7963a976291a",
+      "file": "helpers/dev_workspace.py",
+      "line": 136,
+      "function": "DevWorkspaceOrchestrator._read_window_app_name",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "74d00300b62664a7",
+      "file": "helpers/dev_workspace.py",
+      "line": 144,
+      "function": "DevWorkspaceOrchestrator._is_window_viewable",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "152aa19423bb43ad",
+      "file": "helpers/dev_workspace.py",
+      "line": 145,
+      "function": "DevWorkspaceOrchestrator._is_window_viewable",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "00eb9e641694071a",
+      "file": "helpers/dev_workspace.py",
+      "line": 153,
+      "function": "DevWorkspaceOrchestrator._get_client_window_ids",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "aff2daf28285d1f5",
+      "file": "helpers/dev_workspace.py",
+      "line": 180,
+      "function": "DevWorkspaceOrchestrator.list_windows.callback",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "12114f0aa12dfbff",
+      "file": "helpers/dev_workspace.py",
+      "line": 193,
+      "function": "DevWorkspaceOrchestrator.list_windows.callback",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "2d1a20343c888371",
+      "file": "helpers/dev_workspace.py",
+      "line": 200,
+      "function": "DevWorkspaceOrchestrator.list_windows.callback",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "2cdf3d79ffe1c816",
+      "file": "helpers/dev_workspace.py",
+      "line": 220,
+      "function": "DevWorkspaceOrchestrator.list_windows",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "07d88af841629c89",
+      "file": "helpers/dev_workspace.py",
+      "line": 232,
+      "function": "DevWorkspaceOrchestrator.list_windows",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "45b18cae7f4ca41f",
+      "file": "helpers/dev_workspace.py",
+      "line": 253,
+      "function": "DevWorkspaceOrchestrator.list_windows",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "9dc05d43656cadc8",
+      "file": "helpers/dev_workspace.py",
+      "line": 284,
+      "function": "DevWorkspaceOrchestrator._matches_window",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "6bec8d31c1c5e9c9",
+      "file": "helpers/dev_workspace.py",
+      "line": 325,
+      "function": "DevWorkspaceOrchestrator._set_maximized",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "f241f0f48175ea22",
+      "file": "helpers/dev_workspace.py",
+      "line": 330,
+      "function": "DevWorkspaceOrchestrator.move_resize_window",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "5dc59604ce270f53",
+      "file": "helpers/dev_workspace.py",
+      "line": 340,
+      "function": "DevWorkspaceOrchestrator.move_resize_window",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "70c23cd6f84da2a3",
+      "file": "helpers/dev_workspace.py",
+      "line": 341,
+      "function": "DevWorkspaceOrchestrator.move_resize_window",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0001",
+      "classification": "standard_event",
+      "key": "ui_position",
+      "operation": "dev_workspace.move_resize_window"
+    },
+    {
+      "site_id": "d7a292744020ea6f",
+      "file": "helpers/dev_workspace.py",
+      "line": 342,
+      "function": "DevWorkspaceOrchestrator.move_resize_window",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "caefc59554675915",
+      "file": "helpers/dev_workspace.py",
+      "line": 358,
+      "function": "DevWorkspaceOrchestrator.move_resize_window",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "6cb311a3a0b53129",
+      "file": "helpers/dev_workspace.py",
+      "line": 359,
+      "function": "DevWorkspaceOrchestrator.move_resize_window",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0001",
+      "classification": "standard_event",
+      "key": "ui_position",
+      "operation": "dev_workspace.move_resize_window"
+    },
+    {
+      "site_id": "51dec5e842cdc48e",
+      "file": "helpers/dev_workspace.py",
+      "line": 360,
+      "function": "DevWorkspaceOrchestrator.move_resize_window",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "8e18c2c5b5a431ec",
+      "file": "helpers/dev_workspace.py",
+      "line": 364,
+      "function": "DevWorkspaceOrchestrator.activate_window",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "11dbf9e0f42a4c3d",
+      "file": "helpers/dev_workspace.py",
+      "line": 373,
+      "function": "DevWorkspaceOrchestrator.activate_window",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "d0a17b627965b07f",
+      "file": "helpers/dev_workspace.py",
+      "line": 374,
+      "function": "DevWorkspaceOrchestrator.activate_window",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0001",
+      "classification": "standard_event",
+      "key": "app_target",
+      "operation": "dev_workspace.activate_window"
+    },
+    {
+      "site_id": "e77b35008bc6c41f",
+      "file": "helpers/dev_workspace.py",
+      "line": 375,
+      "function": "DevWorkspaceOrchestrator.activate_window",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "53061b6403a50b84",
+      "file": "helpers/dev_workspace.py",
+      "line": 387,
+      "function": "DevWorkspaceOrchestrator.activate_window",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "86b4ca19c2a7d0ba",
+      "file": "helpers/dev_workspace.py",
+      "line": 388,
+      "function": "DevWorkspaceOrchestrator.activate_window",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0001",
+      "classification": "standard_event",
+      "key": "app_target",
+      "operation": "dev_workspace.activate_window"
+    },
+    {
+      "site_id": "8dc913b001fe87eb",
+      "file": "helpers/dev_workspace.py",
+      "line": 389,
+      "function": "DevWorkspaceOrchestrator.activate_window",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "6e953b4a1c7c759e",
+      "file": "helpers/diagnostics.py",
+      "line": 40,
+      "function": "_PrivateRotatingHandler.handleError",
+      "kind": "raise",
+      "suggested_code": "MAY-0001",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "7ad78177db0ff61f",
+      "file": "helpers/diagnostics.py",
+      "line": 98,
+      "function": "ErrorReporter.report",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "last_resort_failure_isolation",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "0d57be8a39e8befe",
+      "file": "helpers/diagnostics.py",
+      "line": 103,
+      "function": "ErrorReporter.report",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "last_resort_failure_isolation",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "e1456955a7a45273",
+      "file": "helpers/diagnostics.py",
+      "line": 112,
+      "function": "ErrorReporter.report",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "last_resort_failure_isolation",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "ca13004dc2d9659f",
+      "file": "helpers/diagnostics.py",
+      "line": 132,
+      "function": "get_reporter",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "last_resort_failure_isolation",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "8058ac8aec47d45c",
+      "file": "helpers/global_hotkey.py",
+      "line": 50,
+      "function": "GlobalHotkeyListener._run_windows_hotkey_listener",
+      "kind": "raise",
+      "suggested_code": "MAY-0202",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "5ebbf87dbdbbc28e",
+      "file": "helpers/global_hotkey.py",
+      "line": 58,
+      "function": "GlobalHotkeyListener._run_windows_hotkey_listener",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0202",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "851770fa9997231b",
+      "file": "helpers/global_hotkey.py",
+      "line": 59,
+      "function": "GlobalHotkeyListener._run_windows_hotkey_listener",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0202",
+      "classification": "standard_event",
+      "key": "hotkey",
+      "operation": "global_hotkey._run_windows_hotkey_listener"
+    },
+    {
+      "site_id": "cf529fa0a00d0487",
+      "file": "helpers/global_hotkey.py",
+      "line": 60,
+      "function": "GlobalHotkeyListener._run_windows_hotkey_listener",
+      "kind": "legacy_last_error",
+      "suggested_code": "MAY-0202",
+      "classification": "legacy_state"
+    },
+    {
+      "site_id": "540259dc9621e3b7",
+      "file": "helpers/global_hotkey.py",
+      "line": 90,
+      "function": "GlobalHotkeyListener._run_windows_hotkey_listener",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0202",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "49fb1b985abfce46",
+      "file": "helpers/global_hotkey.py",
+      "line": 91,
+      "function": "GlobalHotkeyListener._run_windows_hotkey_listener",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0202",
+      "classification": "standard_event",
+      "key": "hotkey",
+      "operation": "global_hotkey._run_windows_hotkey_listener"
+    },
+    {
+      "site_id": "a43746830527cff6",
+      "file": "helpers/global_hotkey.py",
+      "line": 92,
+      "function": "GlobalHotkeyListener._run_windows_hotkey_listener",
+      "kind": "legacy_last_error",
+      "suggested_code": "MAY-0202",
+      "classification": "legacy_state"
+    },
+    {
+      "site_id": "77de32a17c773c5c",
+      "file": "helpers/global_hotkey.py",
+      "line": 106,
+      "function": "GlobalHotkeyListener._run_delete_pgup_listener",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0202",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "c1ea840ed12b35d6",
+      "file": "helpers/global_hotkey.py",
+      "line": 107,
+      "function": "GlobalHotkeyListener._run_delete_pgup_listener",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0202",
+      "classification": "standard_event",
+      "key": "hotkey",
+      "operation": "global_hotkey._run_delete_pgup_listener"
+    },
+    {
+      "site_id": "7123195fa0a29993",
+      "file": "helpers/global_hotkey.py",
+      "line": 108,
+      "function": "GlobalHotkeyListener._run_delete_pgup_listener",
+      "kind": "legacy_last_error",
+      "suggested_code": "MAY-0202",
+      "classification": "legacy_state"
+    },
+    {
+      "site_id": "2141d0a42f9776f5",
+      "file": "helpers/global_hotkey.py",
+      "line": 142,
+      "function": "GlobalHotkeyListener._run_delete_pgup_listener",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0202",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "b896f3af2b91bd92",
+      "file": "helpers/global_hotkey.py",
+      "line": 143,
+      "function": "GlobalHotkeyListener._run_delete_pgup_listener",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0202",
+      "classification": "standard_event",
+      "key": "hotkey",
+      "operation": "global_hotkey._run_delete_pgup_listener"
+    },
+    {
+      "site_id": "b9ad5265bfd41bcd",
+      "file": "helpers/global_hotkey.py",
+      "line": 144,
+      "function": "GlobalHotkeyListener._run_delete_pgup_listener",
+      "kind": "legacy_last_error",
+      "suggested_code": "MAY-0202",
+      "classification": "legacy_state"
+    },
+    {
+      "site_id": "c8aa235925939359",
+      "file": "helpers/global_hotkey.py",
+      "line": 157,
+      "function": "GlobalHotkeyListener.stop",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0202",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "cleanup_best_effort",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "0b6f9ca62c08ffd4",
+      "file": "helpers/kwin_control.py",
+      "line": 21,
+      "function": "KWinControl.__init__",
+      "kind": "raise",
+      "suggested_code": "MAY-0001",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "f20e1512aac5d49f",
+      "file": "helpers/kwin_control.py",
+      "line": 23,
+      "function": "KWinControl.__init__",
+      "kind": "raise",
+      "suggested_code": "MAY-0001",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "04325466e848ad84",
+      "file": "helpers/kwin_control.py",
+      "line": 26,
+      "function": "KWinControl.__init__",
+      "kind": "raise",
+      "suggested_code": "MAY-0001",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "1891b4e8ba8c2ed9",
+      "file": "helpers/kwin_control.py",
+      "line": 46,
+      "function": "KWinControl.execute",
+      "kind": "raise",
+      "suggested_code": "MAY-0001",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "5b7480f5adf99613",
+      "file": "helpers/kwin_control.py",
+      "line": 57,
+      "function": "KWinControl.execute",
+      "kind": "raise",
+      "suggested_code": "MAY-0001",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "5c3b18951292243a",
+      "file": "helpers/kwin_control.py",
+      "line": 62,
+      "function": "KWinControl.execute",
+      "kind": "raise",
+      "suggested_code": "MAY-0001",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "6d54b29084eba851",
+      "file": "helpers/kwin_control.py",
+      "line": 64,
+      "function": "KWinControl.execute",
+      "kind": "raise",
+      "suggested_code": "MAY-0001",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "ed00f3174b764893",
+      "file": "helpers/research.py",
+      "line": 59,
+      "function": "Researcher.from_url",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0901",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "network_fallback_boundary",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "edbcfa65e49f1180",
+      "file": "helpers/research.py",
+      "line": 71,
+      "function": "Researcher.search",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0901",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "network_fallback_boundary",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "677d854b8bc85e78",
+      "file": "helpers/research.py",
+      "line": 85,
+      "function": "Researcher.search",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0901",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "network_fallback_boundary",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "91a056c2c2dc42c2",
+      "file": "helpers/runtime_console.py",
+      "line": 34,
+      "function": "RuntimeConsole.attach",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "3afafa98724ccd14",
+      "file": "helpers/runtime_console.py",
+      "line": 44,
+      "function": "RuntimeConsole.attach",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "3e223141f2a67845",
+      "file": "helpers/runtime_console.py",
+      "line": 58,
+      "function": "RuntimeConsole.attach",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "optional_console_or_cleanup",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "b2024a2501807068",
+      "file": "helpers/runtime_console.py",
+      "line": 59,
+      "function": "RuntimeConsole.attach",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "80ae72589b23b3d9",
+      "file": "helpers/runtime_console.py",
+      "line": 63,
+      "function": "RuntimeConsole.detach",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "d052eabd4817081f",
+      "file": "helpers/runtime_console.py",
+      "line": 77,
+      "function": "RuntimeConsole.detach",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "optional_console_or_cleanup",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "6ab625644801fe81",
+      "file": "helpers/runtime_console.py",
+      "line": 84,
+      "function": "RuntimeConsole.detach",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "optional_console_or_cleanup",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "973eedfc4656d2e1",
+      "file": "helpers/runtime_console.py",
+      "line": 85,
+      "function": "RuntimeConsole.detach",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "71f18f53dcad368e",
+      "file": "helpers/single_instance.py",
+      "line": 35,
+      "function": "SingleInstance.show_existing_window",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0201",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "cccc1f18a595f660",
+      "file": "helpers/single_instance.py",
+      "line": 41,
+      "function": "SingleInstance.show_existing_window",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0201",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "30adb6460372b3c7",
+      "file": "helpers/single_instance.py",
+      "line": 45,
+      "function": "SingleInstance.show_existing_window",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0201",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "e3f48caf17b7bf26",
+      "file": "helpers/single_instance.py",
+      "line": 46,
+      "function": "SingleInstance.show_existing_window",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0201",
+      "classification": "standard_event",
+      "key": "ui_runtime",
+      "operation": "activation.show_existing"
+    },
+    {
+      "site_id": "6c23bf59acce8690",
+      "file": "helpers/single_instance.py",
+      "line": 47,
+      "function": "SingleInstance.show_existing_window",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0201",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "fe87b575992492d9",
+      "file": "helpers/spotify_assistant.py",
+      "line": 36,
+      "function": "SpotifyAssistant._launch_flatpak",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0801",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "9be9f9c1e084f1d2",
+      "file": "helpers/spotify_assistant.py",
+      "line": 45,
+      "function": "SpotifyAssistant._launch_flatpak",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0801",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "82d18ae1f3d1938b",
+      "file": "helpers/spotify_assistant.py",
+      "line": 48,
+      "function": "SpotifyAssistant._launch_flatpak",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0801",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "optional_bridge_or_playback_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "052ada6360d0487c",
+      "file": "helpers/spotify_assistant.py",
+      "line": 49,
+      "function": "SpotifyAssistant._launch_flatpak",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0801",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "683eb274e9140477",
+      "file": "helpers/spotify_assistant.py",
+      "line": 142,
+      "function": "SpotifyAssistant.open_search",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0801",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "8dbfda0bf5d4a4b6",
+      "file": "helpers/spotify_assistant.py",
+      "line": 145,
+      "function": "SpotifyAssistant.open_search",
+      "kind": "legacy_last_error",
+      "suggested_code": "MAY-0801",
+      "classification": "legacy_state"
+    },
+    {
+      "site_id": "2e05faba0f1863b8",
+      "file": "helpers/spotify_assistant.py",
+      "line": 152,
+      "function": "SpotifyAssistant.open_search",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0801",
+      "exception": "RuntimeError",
+      "broad_catch": false,
+      "classification": "optional_bridge_or_playback_probe",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "57ac41ac580cd59f",
+      "file": "helpers/spotify_assistant.py",
+      "line": 154,
+      "function": "SpotifyAssistant.open_search",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0801",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "682ada9ab137366f",
+      "file": "helpers/spotify_assistant.py",
+      "line": 160,
+      "function": "SpotifyAssistant.open_search",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0801",
+      "exception": "RuntimeError",
+      "broad_catch": false,
+      "classification": "optional_bridge_or_playback_probe",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "1390bf16ea64320c",
+      "file": "helpers/spotify_assistant.py",
+      "line": 162,
+      "function": "SpotifyAssistant.open_search",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0801",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "3ee29eb24b456bb5",
+      "file": "helpers/spotify_assistant.py",
+      "line": 169,
+      "function": "SpotifyAssistant.open_search",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0801",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "ec51a947f07a7f6a",
+      "file": "helpers/spotify_assistant.py",
+      "line": 170,
+      "function": "SpotifyAssistant.open_search",
+      "kind": "legacy_last_error",
+      "suggested_code": "MAY-0801",
+      "classification": "legacy_state"
+    },
+    {
+      "site_id": "d72b8a1e43276bf8",
+      "file": "helpers/spotify_assistant.py",
+      "line": 171,
+      "function": "SpotifyAssistant.open_search",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0801",
+      "classification": "standard_event",
+      "key": "app_target",
+      "operation": "spotify.playback"
+    },
+    {
+      "site_id": "7e0ead046809d228",
+      "file": "helpers/spotify_assistant.py",
+      "line": 173,
+      "function": "SpotifyAssistant.open_search",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0801",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "1571bcf225124b24",
+      "file": "helpers/spotify_assistant.py",
+      "line": 174,
+      "function": "SpotifyAssistant.open_search",
+      "kind": "legacy_last_error",
+      "suggested_code": "MAY-0801",
+      "classification": "legacy_state"
+    },
+    {
+      "site_id": "0da4603774bb5a41",
+      "file": "helpers/spotify_assistant.py",
+      "line": 175,
+      "function": "SpotifyAssistant.open_search",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0801",
+      "classification": "standard_event",
+      "key": "app_target",
+      "operation": "spotify.search"
+    },
+    {
+      "site_id": "5d792a9f700d4b24",
+      "file": "helpers/spotify_assistant.py",
+      "line": 176,
+      "function": "SpotifyAssistant.open_search",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0801",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "8d42ce5eb138d378",
+      "file": "helpers/spotify_assistant.py",
+      "line": 194,
+      "function": "SpotifyAssistant.open_search",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0801",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "f89f611638fe16af",
+      "file": "helpers/spotify_assistant.py",
+      "line": 206,
+      "function": "SpotifyAssistant._find_windows_spotify_window",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0801",
+      "exception": "ImportError",
+      "broad_catch": false,
+      "classification": "optional_dependency_guard",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "ca4d3930d5f0c8f8",
+      "file": "helpers/spotify_assistant.py",
+      "line": 221,
+      "function": "SpotifyAssistant._find_windows_spotify_window.callback",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0801",
+      "exception": "(OSError, psutil.Error)",
+      "broad_catch": false,
+      "classification": "optional_bridge_or_playback_probe",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "a1df2e43d28a2985",
+      "file": "helpers/spotify_assistant.py",
+      "line": 227,
+      "function": "SpotifyAssistant._find_windows_spotify_window",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0801",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "optional_bridge_or_playback_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "0de16281c9168d28",
+      "file": "helpers/spotify_assistant.py",
+      "line": 273,
+      "function": "SpotifyAssistant._play_search_on_windows",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0801",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "301c066a66b284b9",
+      "file": "helpers/spotify_assistant.py",
+      "line": 292,
+      "function": "SpotifyAssistant._play_search_on_windows",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0801",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "c206e2c6744fa1d3",
+      "file": "helpers/spotify_assistant.py",
+      "line": 293,
+      "function": "SpotifyAssistant._play_search_on_windows",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0801",
+      "classification": "standard_event",
+      "key": "app_target",
+      "operation": "spotify.windows.playback"
+    },
+    {
+      "site_id": "f1e5aa6f072833c6",
+      "file": "helpers/spotify_assistant.py",
+      "line": 294,
+      "function": "SpotifyAssistant._play_search_on_windows",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0801",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "4a6f09e0c197faa7",
+      "file": "helpers/spotify_linux.py",
+      "line": 16,
+      "function": "mpris",
+      "kind": "raise",
+      "suggested_code": "MAY-0801",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "64ce0ab769620570",
+      "file": "helpers/spotify_linux.py",
+      "line": 28,
+      "function": "evaluate",
+      "kind": "raise",
+      "suggested_code": "MAY-0801",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "7ed25b758fd71666",
+      "file": "helpers/spotify_linux.py",
+      "line": 62,
+      "function": "play_search",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0801",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "ec03594f1270c0b8",
+      "file": "helpers/spotify_linux.py",
+      "line": 70,
+      "function": "play_search",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0801",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "7684e2f045f1d3a9",
+      "file": "helpers/version.py",
+      "line": 83,
+      "function": "_run_git_describe",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "optional_version_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "0ac35292df5c57a0",
+      "file": "helpers/web_assistant.py",
+      "line": 110,
+      "function": "WebAssistant._open_request",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0901",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": true,
+      "risk_flags": []
+    },
+    {
+      "site_id": "9925b0d07fda2b95",
+      "file": "helpers/web_assistant.py",
+      "line": 111,
+      "function": "WebAssistant._open_request",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0901",
+      "classification": "standard_event",
+      "key": "<dynamic>",
+      "operation": "web.request"
+    },
+    {
+      "site_id": "dcf99d4f91d14469",
+      "file": "helpers/web_assistant.py",
+      "line": 113,
+      "function": "WebAssistant._open_request",
+      "kind": "raise",
+      "suggested_code": "MAY-0901",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "23cf4c206e3426e8",
+      "file": "helpers/web_assistant.py",
+      "line": 119,
+      "function": "WebAssistant._read_payload",
+      "kind": "raise",
+      "suggested_code": "MAY-0901",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "78f4f023685f3eb1",
+      "file": "helpers/web_assistant.py",
+      "line": 124,
+      "function": "WebAssistant._read_payload",
+      "kind": "raise",
+      "suggested_code": "MAY-0901",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "c5a85bb96c65b11e",
+      "file": "helpers/web_assistant.py",
+      "line": 132,
+      "function": "WebAssistant._fetch_json",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0901",
+      "exception": "(ValueError, UnicodeError)",
+      "broad_catch": false,
+      "classification": "contains_standard_report",
+      "contains_raise": true,
+      "risk_flags": []
+    },
+    {
+      "site_id": "330a1e98678cf653",
+      "file": "helpers/web_assistant.py",
+      "line": 133,
+      "function": "WebAssistant._fetch_json",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0901",
+      "classification": "standard_event",
+      "key": "web_payload",
+      "operation": "web.json.decode"
+    },
+    {
+      "site_id": "0370acbea8adc2ec",
+      "file": "helpers/web_assistant.py",
+      "line": 134,
+      "function": "WebAssistant._fetch_json",
+      "kind": "raise",
+      "suggested_code": "MAY-0901",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "a6250aad5096b947",
+      "file": "helpers/web_assistant.py",
+      "line": 186,
+      "function": "WebAssistant.get_weather_brief",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0901",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "network_fallback_boundary",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "df65093861f59be3",
+      "file": "helpers/web_assistant.py",
+      "line": 209,
+      "function": "WebAssistant.get_top_news_headlines",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0901",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "network_fallback_boundary",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "7c6a57409979bae3",
+      "file": "helpers/web_assistant.py",
+      "line": 248,
+      "function": "WebAssistant._try_spelling_suggestion",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0901",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "network_fallback_boundary",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "49046a0c3069a114",
+      "file": "helpers/web_assistant.py",
+      "line": 273,
+      "function": "WebAssistant._try_translation",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0901",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "network_fallback_boundary",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "06b6d87cb40fdedf",
+      "file": "helpers/web_assistant.py",
+      "line": 313,
+      "function": "WebAssistant._try_definition",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0901",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "network_fallback_boundary",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "83fcb5e31989f216",
+      "file": "helpers/web_assistant.py",
+      "line": 341,
+      "function": "WebAssistant._try_duckduckgo_summary",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0901",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "network_fallback_boundary",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "4a94e9deed70310e",
+      "file": "helpers/web_assistant.py",
+      "line": 373,
+      "function": "WebAssistant._try_wikipedia_summary",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0901",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "network_fallback_boundary",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "3a78344c366da156",
+      "file": "helpers/window_showcase.py",
+      "line": 50,
+      "function": "WindowShowcaseBackend.__init__",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "e422e4dcaf012832",
+      "file": "helpers/window_showcase.py",
+      "line": 61,
+      "function": "WindowShowcaseBackend.__init__",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "e3e90bd7681d4917",
+      "file": "helpers/window_showcase.py",
+      "line": 81,
+      "function": "WindowShowcaseBackend._init_windows_backend",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "de8e477ab750efbb",
+      "file": "helpers/window_showcase.py",
+      "line": 83,
+      "function": "WindowShowcaseBackend._init_windows_backend",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "4295b8e94e9c0c65",
+      "file": "helpers/window_showcase.py",
+      "line": 102,
+      "function": "WindowShowcaseBackend._init_hyprland_backend",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "724668d354ba2fe7",
+      "file": "helpers/window_showcase.py",
+      "line": 106,
+      "function": "WindowShowcaseBackend._init_hyprland_backend",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "2db963c9d8f724aa",
+      "file": "helpers/window_showcase.py",
+      "line": 116,
+      "function": "WindowShowcaseBackend._init_kwin_backend",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "b0a6dd2b957ac8e4",
+      "file": "helpers/window_showcase.py",
+      "line": 124,
+      "function": "WindowShowcaseBackend._init_kwin_backend",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "f1df98a6bc39abf7",
+      "file": "helpers/window_showcase.py",
+      "line": 126,
+      "function": "WindowShowcaseBackend._init_kwin_backend",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "4e80d8678b17887d",
+      "file": "helpers/window_showcase.py",
+      "line": 153,
+      "function": "WindowShowcaseBackend._list_windows_windows.callback",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "dd281933dddc9618",
+      "file": "helpers/window_showcase.py",
+      "line": 167,
+      "function": "WindowShowcaseBackend._list_windows_windows.callback",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "219101d10426d49e",
+      "file": "helpers/window_showcase.py",
+      "line": 185,
+      "function": "WindowShowcaseBackend._list_windows_windows.callback",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "fca75ca73b473217",
+      "file": "helpers/window_showcase.py",
+      "line": 191,
+      "function": "WindowShowcaseBackend._list_windows_windows.callback",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "325a2a8fb4c0d5c6",
+      "file": "helpers/window_showcase.py",
+      "line": 207,
+      "function": "WindowShowcaseBackend._list_windows_windows",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "446553b6cbdbb403",
+      "file": "helpers/window_showcase.py",
+      "line": 222,
+      "function": "WindowShowcaseBackend._list_kwin_windows",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "59f0a614b9aae959",
+      "file": "helpers/window_showcase.py",
+      "line": 233,
+      "function": "WindowShowcaseBackend._run_hyprctl_json",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "FileNotFoundError",
+      "broad_catch": false,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "acbb24ead5f49164",
+      "file": "helpers/window_showcase.py",
+      "line": 237,
+      "function": "WindowShowcaseBackend._run_hyprctl_json",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "subprocess.CalledProcessError",
+      "broad_catch": false,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "345f806da775e4cb",
+      "file": "helpers/window_showcase.py",
+      "line": 244,
+      "function": "WindowShowcaseBackend._run_hyprctl_json",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "json.JSONDecodeError",
+      "broad_catch": false,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "ad62fe05990a4f9e",
+      "file": "helpers/window_showcase.py",
+      "line": 329,
+      "function": "WindowShowcaseBackend._read_text_property",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "afea568d014ec50e",
+      "file": "helpers/window_showcase.py",
+      "line": 338,
+      "function": "WindowShowcaseBackend._read_window_pid",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "dcae99ce49ecc768",
+      "file": "helpers/window_showcase.py",
+      "line": 351,
+      "function": "WindowShowcaseBackend._read_window_title",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "e22e297d4eb3ae65",
+      "file": "helpers/window_showcase.py",
+      "line": 363,
+      "function": "WindowShowcaseBackend._read_window_app_name",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "e59f4494cbeb6043",
+      "file": "helpers/window_showcase.py",
+      "line": 371,
+      "function": "WindowShowcaseBackend._is_window_viewable",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "0ba8d1cf0305ed0f",
+      "file": "helpers/window_showcase.py",
+      "line": 372,
+      "function": "WindowShowcaseBackend._is_window_viewable",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "1b243468ce37da73",
+      "file": "helpers/window_showcase.py",
+      "line": 379,
+      "function": "WindowShowcaseBackend._get_active_window_id",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "efc3b1b2d587e62d",
+      "file": "helpers/window_showcase.py",
+      "line": 390,
+      "function": "WindowShowcaseBackend._get_client_window_ids",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "8f30ab57c708947b",
+      "file": "helpers/window_showcase.py",
+      "line": 419,
+      "function": "WindowShowcaseBackend.list_windows",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "015905f982ab4a10",
+      "file": "helpers/window_showcase.py",
+      "line": 457,
+      "function": "WindowShowcaseBackend.activate_window",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "0ab1fde5f6289748",
+      "file": "helpers/window_showcase.py",
+      "line": 460,
+      "function": "WindowShowcaseBackend.activate_window",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "3e203b6e9b5c6868",
+      "file": "helpers/window_showcase.py",
+      "line": 470,
+      "function": "WindowShowcaseBackend.activate_window",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "5244fece37a89cba",
+      "file": "helpers/window_showcase.py",
+      "line": 471,
+      "function": "WindowShowcaseBackend.activate_window",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0001",
+      "classification": "standard_event",
+      "key": "app_target",
+      "operation": "window_showcase.activate_window"
+    },
+    {
+      "site_id": "7b7d3cbc81c2ea0c",
+      "file": "helpers/window_showcase.py",
+      "line": 472,
+      "function": "WindowShowcaseBackend.activate_window",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "d886cd10540c3a63",
+      "file": "helpers/window_showcase.py",
+      "line": 484,
+      "function": "WindowShowcaseBackend.activate_window",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "FileNotFoundError",
+      "broad_catch": false,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "9f052830324c8da5",
+      "file": "helpers/window_showcase.py",
+      "line": 485,
+      "function": "WindowShowcaseBackend.activate_window",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0001",
+      "classification": "standard_event",
+      "key": "app_target",
+      "operation": "window_showcase.activate_window"
+    },
+    {
+      "site_id": "d7f52a8fdd3d8adb",
+      "file": "helpers/window_showcase.py",
+      "line": 488,
+      "function": "WindowShowcaseBackend.activate_window",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "e5e26acbf8c6a843",
+      "file": "helpers/window_showcase.py",
+      "line": 489,
+      "function": "WindowShowcaseBackend.activate_window",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "subprocess.CalledProcessError",
+      "broad_catch": false,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "efd3594decaed9fd",
+      "file": "helpers/window_showcase.py",
+      "line": 490,
+      "function": "WindowShowcaseBackend.activate_window",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0001",
+      "classification": "standard_event",
+      "key": "app_target",
+      "operation": "window_showcase.activate_window"
+    },
+    {
+      "site_id": "b94d82645ff36c01",
+      "file": "helpers/window_showcase.py",
+      "line": 492,
+      "function": "WindowShowcaseBackend.activate_window",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "212f408b0fb2201f",
+      "file": "helpers/window_showcase.py",
+      "line": 499,
+      "function": "WindowShowcaseBackend.activate_window",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "8ba5e72a28fe3130",
+      "file": "helpers/window_showcase.py",
+      "line": 500,
+      "function": "WindowShowcaseBackend.activate_window",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0001",
+      "classification": "standard_event",
+      "key": "app_target",
+      "operation": "window_showcase.activate_window"
+    },
+    {
+      "site_id": "71f75d19addb1ec5",
+      "file": "helpers/window_showcase.py",
+      "line": 501,
+      "function": "WindowShowcaseBackend.activate_window",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "8761cbb4a72be29f",
+      "file": "helpers/window_showcase.py",
+      "line": 518,
+      "function": "WindowShowcaseBackend.activate_window",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "7ab4cc05f3cfc6fc",
+      "file": "helpers/window_showcase.py",
+      "line": 519,
+      "function": "WindowShowcaseBackend.activate_window",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0001",
+      "classification": "standard_event",
+      "key": "app_target",
+      "operation": "window_showcase.activate_window"
+    },
+    {
+      "site_id": "161f1ee1eba10860",
+      "file": "helpers/window_showcase.py",
+      "line": 520,
+      "function": "WindowShowcaseBackend.activate_window",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "c14b13657c08ae03",
+      "file": "helpers/window_showcase.py",
+      "line": 526,
+      "function": "WindowShowcaseBackend.get_window_rect",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "30f42d46a489d4d8",
+      "file": "helpers/window_showcase.py",
+      "line": 533,
+      "function": "WindowShowcaseBackend.get_window_rect",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "a3555f5bc6b35484",
+      "file": "helpers/window_showcase.py",
+      "line": 555,
+      "function": "WindowShowcaseBackend.get_window_control_point",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "platform_or_window_probe",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "0f20b2a885fa1ef9",
+      "file": "helpers/window_showcase.py",
+      "line": 560,
+      "function": "WindowShowcaseBackend.move_window",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "983674a1013aae5d",
+      "file": "helpers/window_showcase.py",
+      "line": 578,
+      "function": "WindowShowcaseBackend.move_window",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "c3158b00545c17f7",
+      "file": "helpers/window_showcase.py",
+      "line": 579,
+      "function": "WindowShowcaseBackend.move_window",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0001",
+      "classification": "standard_event",
+      "key": "ui_position",
+      "operation": "window_showcase.move_window"
+    },
+    {
+      "site_id": "9dc7752f2980d1d3",
+      "file": "helpers/window_showcase.py",
+      "line": 580,
+      "function": "WindowShowcaseBackend.move_window",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "c82a122443d63811",
+      "file": "helpers/window_showcase.py",
+      "line": 586,
+      "function": "WindowShowcaseBackend.move_window",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "26be89ce4d408758",
+      "file": "helpers/window_showcase.py",
+      "line": 587,
+      "function": "WindowShowcaseBackend.move_window",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0001",
+      "classification": "standard_event",
+      "key": "ui_position",
+      "operation": "window_showcase.move_window"
+    },
+    {
+      "site_id": "86f616a47715b41f",
+      "file": "helpers/window_showcase.py",
+      "line": 588,
+      "function": "WindowShowcaseBackend.move_window",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "d223924fec3e3b04",
+      "file": "helpers/window_showcase.py",
+      "line": 589,
+      "function": "WindowShowcaseBackend.move_window",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "45ada1c6b0292c0d",
+      "file": "helpers/window_showcase.py",
+      "line": 593,
+      "function": "WindowShowcaseBackend.set_window_state",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "c3f00784305b0dce",
+      "file": "helpers/window_showcase.py",
+      "line": 602,
+      "function": "WindowShowcaseBackend.set_window_state",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "4cbf0243f859ab22",
+      "file": "helpers/window_showcase.py",
+      "line": 605,
+      "function": "WindowShowcaseBackend.set_window_state",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "50d6f1e679d5d4a2",
+      "file": "helpers/window_showcase.py",
+      "line": 606,
+      "function": "WindowShowcaseBackend.set_window_state",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0001",
+      "classification": "standard_event",
+      "key": "ui_runtime",
+      "operation": "window_showcase.set_window_state"
+    },
+    {
+      "site_id": "5deade157b4151ae",
+      "file": "helpers/window_showcase.py",
+      "line": 607,
+      "function": "WindowShowcaseBackend.set_window_state",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "51eb15d30dcacb09",
+      "file": "helpers/window_showcase.py",
+      "line": 611,
+      "function": "WindowShowcaseBackend.minimize_window",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "c49c9cd4816a402c",
+      "file": "helpers/window_showcase.py",
+      "line": 618,
+      "function": "WindowShowcaseBackend.minimize_window",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "decfd9b037f0174b",
+      "file": "helpers/window_showcase.py",
+      "line": 619,
+      "function": "WindowShowcaseBackend.minimize_window",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0001",
+      "classification": "standard_event",
+      "key": "ui_runtime",
+      "operation": "window_showcase.minimize_window"
+    },
+    {
+      "site_id": "7d4ccdef928fd678",
+      "file": "helpers/window_showcase.py",
+      "line": 620,
+      "function": "WindowShowcaseBackend.minimize_window",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "ad8d5c02e61c52eb",
+      "file": "helpers/window_showcase.py",
+      "line": 623,
+      "function": "WindowShowcaseBackend.minimize_window",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "8752d28c9d08c31d",
+      "file": "helpers/window_showcase.py",
+      "line": 630,
+      "function": "WindowShowcaseBackend.minimize_window",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "4c6e8c5db402d2e0",
+      "file": "helpers/window_showcase.py",
+      "line": 631,
+      "function": "WindowShowcaseBackend.minimize_window",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0001",
+      "classification": "standard_event",
+      "key": "ui_runtime",
+      "operation": "window_showcase.minimize_window"
+    },
+    {
+      "site_id": "b7177c2b1c4de883",
+      "file": "helpers/window_showcase.py",
+      "line": 632,
+      "function": "WindowShowcaseBackend.minimize_window",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "7ff623350135f64f",
+      "file": "helpers/window_showcase.py",
+      "line": 636,
+      "function": "WindowShowcaseBackend.restore_window",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "7e3a876b864ffafc",
+      "file": "helpers/window_showcase.py",
+      "line": 643,
+      "function": "WindowShowcaseBackend.restore_window",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "cb4ecaf1ce93b949",
+      "file": "helpers/window_showcase.py",
+      "line": 644,
+      "function": "WindowShowcaseBackend.restore_window",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0001",
+      "classification": "standard_event",
+      "key": "ui_runtime",
+      "operation": "window_showcase.restore_window"
+    },
+    {
+      "site_id": "bc2d0a9ed61c07da",
+      "file": "helpers/window_showcase.py",
+      "line": 645,
+      "function": "WindowShowcaseBackend.restore_window",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "519e55801a70798c",
+      "file": "helpers/window_showcase.py",
+      "line": 648,
+      "function": "WindowShowcaseBackend.restore_window",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "3b50b6fba789e06b",
+      "file": "helpers/window_showcase.py",
+      "line": 659,
+      "function": "WindowShowcaseBackend.restore_window",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "1f29515da82b548f",
+      "file": "helpers/window_showcase.py",
+      "line": 660,
+      "function": "WindowShowcaseBackend.restore_window",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0001",
+      "classification": "standard_event",
+      "key": "ui_runtime",
+      "operation": "window_showcase.restore_window"
+    },
+    {
+      "site_id": "6d63f1e262997646",
+      "file": "helpers/window_showcase.py",
+      "line": 661,
+      "function": "WindowShowcaseBackend.restore_window",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "fb00f4aec35626b2",
+      "file": "helpers/window_showcase.py",
+      "line": 673,
+      "function": "command_exists",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "6fbf6f5375835fdf",
+      "file": "input/clap_detector.py",
+      "line": 11,
+      "function": "<module>",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0304",
+      "exception": "(ImportError, OSError)",
+      "broad_catch": false,
+      "classification": "optional_dependency_guard",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "64ba826633cc0811",
+      "file": "input/clap_detector.py",
+      "line": 44,
+      "function": "ClapDetector.has_input_device",
+      "kind": "legacy_last_error",
+      "suggested_code": "MAY-0304",
+      "classification": "legacy_state"
+    },
+    {
+      "site_id": "8c0290c43b191c1f",
+      "file": "input/clap_detector.py",
+      "line": 45,
+      "function": "ClapDetector.has_input_device",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0304",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "11b4c96c952fd2a5",
+      "file": "input/clap_detector.py",
+      "line": 49,
+      "function": "ClapDetector.has_input_device",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0304",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "6bf8e2d1a1d2ba67",
+      "file": "input/clap_detector.py",
+      "line": 50,
+      "function": "ClapDetector.has_input_device",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0304",
+      "classification": "standard_event",
+      "key": "microphone_device",
+      "operation": "clap_detector.has_input_device"
+    },
+    {
+      "site_id": "2a866c7cb357eab7",
+      "file": "input/clap_detector.py",
+      "line": 51,
+      "function": "ClapDetector.has_input_device",
+      "kind": "legacy_last_error",
+      "suggested_code": "MAY-0304",
+      "classification": "legacy_state"
+    },
+    {
+      "site_id": "e57af19484e333cb",
+      "file": "input/clap_detector.py",
+      "line": 52,
+      "function": "ClapDetector.has_input_device",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0304",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "c5fc83d0f3e2dd24",
+      "file": "input/clap_detector.py",
+      "line": 58,
+      "function": "ClapDetector.has_input_device",
+      "kind": "legacy_last_error",
+      "suggested_code": "MAY-0304",
+      "classification": "legacy_state"
+    },
+    {
+      "site_id": "ec4a48ff776353de",
+      "file": "input/clap_detector.py",
+      "line": 59,
+      "function": "ClapDetector.has_input_device",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0304",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "a588753f213f82e7",
+      "file": "input/clap_detector.py",
+      "line": 68,
+      "function": "ClapDetector.audio_callback",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0304",
+      "exception": "queue.Full",
+      "broad_catch": false,
+      "classification": "bounded_queue_policy",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "a710c0be4ecaf424",
+      "file": "input/clap_detector.py",
+      "line": 75,
+      "function": "ClapDetector.detect_clap",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0304",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "b53bec6fe6b47d84",
+      "file": "input/clap_detector.py",
+      "line": 103,
+      "function": "ClapDetector.process_audio",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0304",
+      "exception": "queue.Empty",
+      "broad_catch": false,
+      "classification": "control_flow",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "4c385833136a19b4",
+      "file": "input/clap_detector.py",
+      "line": 140,
+      "function": "ClapDetector.process_audio",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0304",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "72f71c745bb02d90",
+      "file": "input/clap_detector.py",
+      "line": 141,
+      "function": "ClapDetector.process_audio",
+      "kind": "legacy_last_error",
+      "suggested_code": "MAY-0304",
+      "classification": "legacy_state"
+    },
+    {
+      "site_id": "2f61cbdd68562fc4",
+      "file": "input/clap_detector.py",
+      "line": 142,
+      "function": "ClapDetector.process_audio",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0304",
+      "classification": "standard_event",
+      "key": "voice_runtime",
+      "operation": "voice.clap.capture"
+    },
+    {
+      "site_id": "265026add13181a8",
+      "file": "input/clap_detector.py",
+      "line": 154,
+      "function": "ClapDetector.start",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0304",
+      "classification": "standard_event",
+      "key": "microphone_device",
+      "operation": "voice.clap.start"
+    },
+    {
+      "site_id": "2104020fa57caa14",
+      "file": "input/clap_detector.py",
+      "line": 155,
+      "function": "ClapDetector.start",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0304",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "66b88327b19821f5",
+      "file": "input/voice.py",
+      "line": 12,
+      "function": "<module>",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0304",
+      "exception": "(ImportError, OSError, FileNotFoundError)",
+      "broad_catch": false,
+      "classification": "optional_dependency_guard",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "2b1568a5c76a8d83",
+      "file": "input/voice.py",
+      "line": 19,
+      "function": "<module>",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0304",
+      "exception": "(ImportError, OSError)",
+      "broad_catch": false,
+      "classification": "optional_dependency_guard",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "62483cea42b7f825",
+      "file": "input/voice.py",
+      "line": 63,
+      "function": "Voice._set_audio_backend_error",
+      "kind": "legacy_last_error",
+      "suggested_code": "MAY-0304",
+      "classification": "legacy_state"
+    },
+    {
+      "site_id": "d8675951155f0d0a",
+      "file": "input/voice.py",
+      "line": 64,
+      "function": "Voice._set_audio_backend_error",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0304",
+      "classification": "standard_event",
+      "key": "microphone_dependency",
+      "operation": "voice.audio.dependency"
+    },
+    {
+      "site_id": "c04d5fc6735a60ab",
+      "file": "input/voice.py",
+      "line": 65,
+      "function": "Voice._set_audio_backend_error",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0304",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "13fa1e65e99831c4",
+      "file": "input/voice.py",
+      "line": 69,
+      "function": "Voice._set_vosk_backend_error",
+      "kind": "legacy_last_error",
+      "suggested_code": "MAY-0304",
+      "classification": "legacy_state"
+    },
+    {
+      "site_id": "24881a1bc19ba211",
+      "file": "input/voice.py",
+      "line": 70,
+      "function": "Voice._set_vosk_backend_error",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0304",
+      "classification": "standard_event",
+      "key": "microphone_dependency",
+      "operation": "voice.vosk.dependency"
+    },
+    {
+      "site_id": "9a1dc150da339080",
+      "file": "input/voice.py",
+      "line": 71,
+      "function": "Voice._set_vosk_backend_error",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0304",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "f722833719328636",
+      "file": "input/voice.py",
+      "line": 79,
+      "function": "Voice.has_input_device",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0304",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "ea3969bb3053ad9e",
+      "file": "input/voice.py",
+      "line": 80,
+      "function": "Voice.has_input_device",
+      "kind": "legacy_last_error",
+      "suggested_code": "MAY-0304",
+      "classification": "legacy_state"
+    },
+    {
+      "site_id": "c52d3b864b6bce17",
+      "file": "input/voice.py",
+      "line": 81,
+      "function": "Voice.has_input_device",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0304",
+      "classification": "standard_event",
+      "key": "microphone_device",
+      "operation": "voice.device.query"
+    },
+    {
+      "site_id": "7b2e3a066d636efa",
+      "file": "input/voice.py",
+      "line": 82,
+      "function": "Voice.has_input_device",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0304",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "af3dd7d2247bde20",
+      "file": "input/voice.py",
+      "line": 88,
+      "function": "Voice.has_input_device",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0304",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "b8f3af99807922c0",
+      "file": "input/voice.py",
+      "line": 115,
+      "function": "Voice.load_voice",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0304",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "2d04f20283f057ac",
+      "file": "input/voice.py",
+      "line": 116,
+      "function": "Voice.load_voice",
+      "kind": "legacy_last_error",
+      "suggested_code": "MAY-0304",
+      "classification": "legacy_state"
+    },
+    {
+      "site_id": "86b6022ef3ed9253",
+      "file": "input/voice.py",
+      "line": 118,
+      "function": "Voice.load_voice",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0304",
+      "classification": "standard_event",
+      "key": "voice_model",
+      "operation": "voice.vosk.load"
+    },
+    {
+      "site_id": "d9919875810b2f4a",
+      "file": "input/voice.py",
+      "line": 136,
+      "function": "Voice.audio_callback",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0304",
+      "exception": "queue.Full",
+      "broad_catch": false,
+      "classification": "bounded_queue_policy",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "bd0e2ab97e43b062",
+      "file": "input/voice.py",
+      "line": 139,
+      "function": "Voice.audio_callback",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0304",
+      "exception": "queue.Empty",
+      "broad_catch": false,
+      "classification": "control_flow",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "98f89ea1b0173194",
+      "file": "input/voice.py",
+      "line": 199,
+      "function": "Voice._listen_loop",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0304",
+      "exception": "queue.Empty",
+      "broad_catch": false,
+      "classification": "control_flow",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "ab81c1c4b05e7bb7",
+      "file": "input/voice.py",
+      "line": 247,
+      "function": "Voice._listen_loop",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0304",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "c389ae8667faba2b",
+      "file": "input/voice.py",
+      "line": 248,
+      "function": "Voice._listen_loop",
+      "kind": "legacy_last_error",
+      "suggested_code": "MAY-0304",
+      "classification": "legacy_state"
+    },
+    {
+      "site_id": "f6122b662e16d5d9",
+      "file": "input/voice.py",
+      "line": 251,
+      "function": "Voice._listen_loop",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0304",
+      "classification": "standard_event",
+      "key": "voice_runtime",
+      "operation": "voice.capture"
+    },
+    {
+      "site_id": "d91effd236fdf220",
+      "file": "input/voice.py",
+      "line": 264,
+      "function": "Voice._backend_available",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0304",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "c17382ef98b6a74c",
+      "file": "input/voice.py",
+      "line": 273,
+      "function": "Voice.start_background",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0304",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "30a74c1848d3ce4e",
+      "file": "input/voice.py",
+      "line": 278,
+      "function": "Voice.start_background",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0304",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "2825b84c4a1732d4",
+      "file": "input/voice.py",
+      "line": 282,
+      "function": "Voice.start_background",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0304",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "6d59d3a6babd28e4",
+      "file": "input/voice.py",
+      "line": 305,
+      "function": "Voice.stop",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0304",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "cleanup_best_effort",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "ceb6a42f7a467f41",
+      "file": "input/whisper_cpp.py",
+      "line": 37,
+      "function": "WhisperServer.start",
+      "kind": "raise",
+      "suggested_code": "MAY-0304",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "a61db8c9a03be02a",
+      "file": "input/whisper_cpp.py",
+      "line": 39,
+      "function": "WhisperServer.start",
+      "kind": "raise",
+      "suggested_code": "MAY-0304",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "6bb0255bc2d9722c",
+      "file": "input/whisper_cpp.py",
+      "line": 41,
+      "function": "WhisperServer.start",
+      "kind": "raise",
+      "suggested_code": "MAY-0304",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "b81f3f79bfb72fd2",
+      "file": "input/whisper_cpp.py",
+      "line": 68,
+      "function": "WhisperServer.start",
+      "kind": "raise",
+      "suggested_code": "MAY-0304",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "62b33ad3380c9f71",
+      "file": "input/whisper_cpp.py",
+      "line": 73,
+      "function": "WhisperServer.start",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0304",
+      "exception": "(OSError, ValueError)",
+      "broad_catch": false,
+      "classification": "startup_health_polling",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "caa359f6d37fddd3",
+      "file": "input/whisper_cpp.py",
+      "line": 76,
+      "function": "WhisperServer.start",
+      "kind": "raise",
+      "suggested_code": "MAY-0304",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "47de1ebb952e42fb",
+      "file": "input/whisper_cpp.py",
+      "line": 77,
+      "function": "WhisperServer.start",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0304",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "propagates",
+      "contains_raise": true,
+      "risk_flags": []
+    },
+    {
+      "site_id": "a9b48b2ef98251c9",
+      "file": "input/whisper_cpp.py",
+      "line": 79,
+      "function": "WhisperServer.start",
+      "kind": "raise",
+      "suggested_code": "MAY-0304",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "55eb288b615d4e71",
+      "file": "input/whisper_cpp.py",
+      "line": 83,
+      "function": "WhisperServer.transcribe",
+      "kind": "raise",
+      "suggested_code": "MAY-0304",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "f99d565fdd0e5ceb",
+      "file": "input/whisper_cpp.py",
+      "line": 105,
+      "function": "WhisperServer.transcribe",
+      "kind": "raise",
+      "suggested_code": "MAY-0304",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "b4c64d31cca353fe",
+      "file": "input/whisper_cpp.py",
+      "line": 115,
+      "function": "WhisperServer.stop",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0304",
+      "exception": "subprocess.TimeoutExpired",
+      "broad_catch": false,
+      "classification": "process_stop_escalation",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "23ef4c5c60ef8ec9",
+      "file": "input/whisper_cpp.py",
+      "line": 125,
+      "function": "WhisperVoice.__init__",
+      "kind": "raise",
+      "suggested_code": "MAY-0304",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "13d50f0c867431f3",
+      "file": "input/whisper_cpp.py",
+      "line": 139,
+      "function": "WhisperVoice._backend_available",
+      "kind": "legacy_last_error",
+      "suggested_code": "MAY-0304",
+      "classification": "legacy_state"
+    },
+    {
+      "site_id": "5eff0abd40765bd3",
+      "file": "input/whisper_cpp.py",
+      "line": 140,
+      "function": "WhisperVoice._backend_available",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0304",
+      "classification": "standard_event",
+      "key": "voice_model",
+      "operation": "voice.whisper.files"
+    },
+    {
+      "site_id": "ed853443449d5298",
+      "file": "input/whisper_cpp.py",
+      "line": 141,
+      "function": "WhisperVoice._backend_available",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0304",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "cf32ed64b872e33b",
+      "file": "input/whisper_cpp.py",
+      "line": 149,
+      "function": "WhisperVoice.load_voice",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0304",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "34c88bb2924d608a",
+      "file": "input/whisper_cpp.py",
+      "line": 150,
+      "function": "WhisperVoice.load_voice",
+      "kind": "legacy_last_error",
+      "suggested_code": "MAY-0304",
+      "classification": "legacy_state"
+    },
+    {
+      "site_id": "5525c13d2f9e861f",
+      "file": "input/whisper_cpp.py",
+      "line": 152,
+      "function": "WhisperVoice.load_voice",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0304",
+      "classification": "standard_event",
+      "key": "voice_server",
+      "operation": "voice.whisper.start"
+    },
+    {
+      "site_id": "5e6372d371a48cd4",
+      "file": "input/whisper_cpp.py",
+      "line": 159,
+      "function": "WhisperVoice._decode_loop",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0304",
+      "exception": "queue.Empty",
+      "broad_catch": false,
+      "classification": "control_flow",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "ff00efb6cf01b6e6",
+      "file": "input/whisper_cpp.py",
+      "line": 168,
+      "function": "WhisperVoice._decode_loop",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0304",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "bd761e09e38a312e",
+      "file": "input/whisper_cpp.py",
+      "line": 169,
+      "function": "WhisperVoice._decode_loop",
+      "kind": "legacy_last_error",
+      "suggested_code": "MAY-0304",
+      "classification": "legacy_state"
+    },
+    {
+      "site_id": "f32e1e7a5d3aa505",
+      "file": "input/whisper_cpp.py",
+      "line": 171,
+      "function": "WhisperVoice._decode_loop",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0304",
+      "classification": "standard_event",
+      "key": "<dynamic>",
+      "operation": "voice.whisper.transcribe"
+    },
+    {
+      "site_id": "4cc2642eba06de8a",
+      "file": "input/whisper_cpp.py",
+      "line": 178,
+      "function": "WhisperVoice._queue_segment",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0304",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "8061518fd474b1dd",
+      "file": "input/whisper_cpp.py",
+      "line": 182,
+      "function": "WhisperVoice._queue_segment",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0304",
+      "exception": "queue.Full",
+      "broad_catch": false,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "8ce07618bccc1da9",
+      "file": "input/whisper_cpp.py",
+      "line": 183,
+      "function": "WhisperVoice._queue_segment",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0304",
+      "classification": "standard_event",
+      "key": "voice_backpressure",
+      "operation": "voice.whisper.submit"
+    },
+    {
+      "site_id": "8e5b203189716677",
+      "file": "input/whisper_cpp.py",
+      "line": 184,
+      "function": "WhisperVoice._queue_segment",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0304",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "731c0cdca15a782b",
+      "file": "input/whisper_cpp.py",
+      "line": 204,
+      "function": "WhisperVoice._listen_loop",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0304",
+      "exception": "queue.Empty",
+      "broad_catch": false,
+      "classification": "control_flow",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "dcc1b244285bc2a9",
+      "file": "input/whisper_cpp.py",
+      "line": 225,
+      "function": "WhisperVoice._listen_loop",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0304",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "5bc967dd76bf8cfc",
+      "file": "input/whisper_cpp.py",
+      "line": 226,
+      "function": "WhisperVoice._listen_loop",
+      "kind": "legacy_last_error",
+      "suggested_code": "MAY-0304",
+      "classification": "legacy_state"
+    },
+    {
+      "site_id": "6645fb79947c5970",
+      "file": "input/whisper_cpp.py",
+      "line": 228,
+      "function": "WhisperVoice._listen_loop",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0304",
+      "classification": "standard_event",
+      "key": "voice_runtime",
+      "operation": "voice.whisper.capture"
+    },
+    {
+      "site_id": "44baa1589595feae",
+      "file": "input/whisper_cpp.py",
+      "line": 246,
+      "function": "WhisperVoice.stop",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0304",
+      "exception": "queue.Empty",
+      "broad_catch": false,
+      "classification": "control_flow",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "398a18bee7e9a94a",
+      "file": "output/renderer.py",
+      "line": 122,
+      "function": "_apply_windows_overlay_style",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0502",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "optional_platform_styling",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "2090775310121795",
+      "file": "output/renderer.py",
+      "line": 800,
+      "function": "QuickInputWidget.eventFilter",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0502",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "9724d63e9ec6a48b",
+      "file": "output/renderer.py",
+      "line": 953,
+      "function": "DevEditorWidget.open_file",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0502",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "d13dcfffa08dda32",
+      "file": "output/renderer.py",
+      "line": 954,
+      "function": "DevEditorWidget.open_file",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0502",
+      "classification": "standard_event",
+      "key": "ui_runtime",
+      "operation": "renderer.open_file"
+    },
+    {
+      "site_id": "55dc77752432ab3f",
+      "file": "output/renderer.py",
+      "line": 967,
+      "function": "DevEditorWidget.save_file",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0502",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "3b88babb6ef46531",
+      "file": "output/renderer.py",
+      "line": 968,
+      "function": "DevEditorWidget.save_file",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0502",
+      "classification": "standard_event",
+      "key": "memory_storage",
+      "operation": "renderer.save_file"
+    },
+    {
+      "site_id": "26d77d2cb73ee263",
+      "file": "output/renderer.py",
+      "line": 970,
+      "function": "DevEditorWidget.save_file",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0502",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "75c8e79681d21698",
+      "file": "output/renderer.py",
+      "line": 981,
+      "function": "DevEditorWidget.save_file_as",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0502",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "9ebaa2ad9739a01e",
+      "file": "output/renderer.py",
+      "line": 1630,
+      "function": "Renderer._set_wayland_screen",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0502",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "71ce32b739a4eff6",
+      "file": "output/renderer.py",
+      "line": 1631,
+      "function": "Renderer._set_wayland_screen",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0502",
+      "classification": "standard_event",
+      "key": "ui_screen",
+      "operation": "renderer._set_wayland_screen"
+    },
+    {
+      "site_id": "22a368d390486494",
+      "file": "output/renderer.py",
+      "line": 1716,
+      "function": "Renderer._tick_monitor_transition",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0502",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "1d13c7298ce75494",
+      "file": "output/renderer.py",
+      "line": 1748,
+      "function": "Renderer._tick_monitor_transition",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0502",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "ad206ee2166f7d94",
+      "file": "output/renderer.py",
+      "line": 1843,
+      "function": "Renderer._grab_window_preview",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0502",
+      "exception": "(TypeError, ValueError)",
+      "broad_catch": false,
+      "classification": "best_effort_preview",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "d973a6be163b7816",
+      "file": "output/renderer.py",
+      "line": 1849,
+      "function": "Renderer._grab_window_preview",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0502",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "best_effort_preview",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "c6a162cde85dbd19",
+      "file": "output/renderer.py",
+      "line": 1987,
+      "function": "Renderer.refresh_window_showcase_data",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0502",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "857b59b38f88fdf0",
+      "file": "output/speaker.py",
+      "line": 30,
+      "function": "<module>",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0402",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "voice_fallback_or_cleanup",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "74b03916d81e7098",
+      "file": "output/speaker.py",
+      "line": 35,
+      "function": "<module>",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0402",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "voice_fallback_or_cleanup",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "12809adcf0e90c46",
+      "file": "output/speaker.py",
+      "line": 40,
+      "function": "<module>",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0402",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "voice_fallback_or_cleanup",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "bead0c5c4c2d596a",
+      "file": "output/speaker.py",
+      "line": 85,
+      "function": "Speaker.use_piper",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0402",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "3658314b0a621e61",
+      "file": "output/speaker.py",
+      "line": 87,
+      "function": "Speaker.use_piper",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0402",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "7e85276ad0cbb768",
+      "file": "output/speaker.py",
+      "line": 89,
+      "function": "Speaker.use_piper",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0402",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "b3932bdc8a0fa936",
+      "file": "output/speaker.py",
+      "line": 103,
+      "function": "Speaker.use_edge_tts",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0402",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "e002482f050d65e0",
+      "file": "output/speaker.py",
+      "line": 113,
+      "function": "Speaker.use_edge_tts",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0402",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "1655d68229f97937",
+      "file": "output/speaker.py",
+      "line": 132,
+      "function": "Speaker._prepare_system_engine",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0402",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "6f4123575e079ac3",
+      "file": "output/speaker.py",
+      "line": 135,
+      "function": "Speaker._prepare_system_engine",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0402",
+      "classification": "standard_event",
+      "key": "tts_init",
+      "operation": "tts.system.prepare"
+    },
+    {
+      "site_id": "ec4ff15340d07516",
+      "file": "output/speaker.py",
+      "line": 152,
+      "function": "Speaker._speak_with_kokoro",
+      "kind": "raise",
+      "suggested_code": "MAY-0402",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "c163434f3ddd7725",
+      "file": "output/speaker.py",
+      "line": 162,
+      "function": "Speaker._speak_with_kokoro",
+      "kind": "raise",
+      "suggested_code": "MAY-0402",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "35502782b5e4ec39",
+      "file": "output/speaker.py",
+      "line": 189,
+      "function": "Speaker._get_piper_voice",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0402",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "00b2cabfb336bbb8",
+      "file": "output/speaker.py",
+      "line": 192,
+      "function": "Speaker._get_piper_voice",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0402",
+      "classification": "standard_event",
+      "key": "tts_fallback",
+      "operation": "tts.piper.load"
+    },
+    {
+      "site_id": "0f787458efe3bd98",
+      "file": "output/speaker.py",
+      "line": 199,
+      "function": "Speaker._speak_with_piper",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0402",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "b23c8f55236b5d44",
+      "file": "output/speaker.py",
+      "line": 224,
+      "function": "Speaker._style_piper_audio",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0402",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "voice_fallback_or_cleanup",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "16d16f3f47765eaf",
+      "file": "output/speaker.py",
+      "line": 277,
+      "function": "Speaker._shift_audio_pitch",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0402",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "voice_fallback_or_cleanup",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "c4efcf705edeaa16",
+      "file": "output/speaker.py",
+      "line": 282,
+      "function": "Speaker._play_audio_with_sounddevice",
+      "kind": "raise",
+      "suggested_code": "MAY-0402",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "a1d13ac5579e6063",
+      "file": "output/speaker.py",
+      "line": 301,
+      "function": "Speaker._play_audio_with_sounddevice",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0402",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "voice_fallback_or_cleanup",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "b281d759fd4a205b",
+      "file": "output/speaker.py",
+      "line": 385,
+      "function": "Speaker._speak_with_edge_tts",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0402",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "290476fe27e26e3a",
+      "file": "output/speaker.py",
+      "line": 431,
+      "function": "Speaker._speak_with_edge_tts",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0402",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "ea5bd2cb4ce8a84d",
+      "file": "output/speaker.py",
+      "line": 442,
+      "function": "Speaker._speak_with_edge_tts",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0402",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "81988d6188f3af64",
+      "file": "output/speaker.py",
+      "line": 443,
+      "function": "Speaker._speak_with_edge_tts",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0402",
+      "classification": "standard_event",
+      "key": "tts_fallback",
+      "operation": "tts.edge.speak"
+    },
+    {
+      "site_id": "8b795ef7ce694a9b",
+      "file": "output/speaker.py",
+      "line": 445,
+      "function": "Speaker._speak_with_edge_tts",
+      "kind": "failure_return",
+      "suggested_code": "MAY-0402",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "946084465d6f6535",
+      "file": "output/speaker.py",
+      "line": 449,
+      "function": "Speaker._speak_with_edge_tts",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0402",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "voice_fallback_or_cleanup",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "ba892001b8f3a0b2",
+      "file": "output/speaker.py",
+      "line": 466,
+      "function": "Speaker._apply_preferred_voice",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0402",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "voice_fallback_or_cleanup",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "66698be43e1df057",
+      "file": "output/speaker.py",
+      "line": 565,
+      "function": "Speaker._run",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0402",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "voice_fallback_or_cleanup",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "72a7523fa38b873f",
+      "file": "output/speaker.py",
+      "line": 569,
+      "function": "Speaker._run",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0402",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "4dc4874c1175613a",
+      "file": "output/speaker.py",
+      "line": 570,
+      "function": "Speaker._run",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0402",
+      "classification": "standard_event",
+      "key": "tts_runtime",
+      "operation": "tts.speak"
+    },
+    {
+      "site_id": "3f171b591776a0b4",
+      "file": "output/speaker.py",
+      "line": 579,
+      "function": "Speaker._run",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0402",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "voice_fallback_or_cleanup",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "e153fd0aec98a722",
+      "file": "output/speaker.py",
+      "line": 598,
+      "function": "Speaker.stop",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0402",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "voice_fallback_or_cleanup",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "5d2d71207e429b21",
+      "file": "output/speaker.py",
+      "line": 603,
+      "function": "Speaker.stop",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0402",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "voice_fallback_or_cleanup",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "3ca7028ac7e7cfb2",
+      "file": "output/speaker.py",
+      "line": 609,
+      "function": "Speaker.stop",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0402",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "voice_fallback_or_cleanup",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "06050d54bbc96095",
+      "file": "scripts/audit_errors.py",
+      "line": 129,
+      "function": "build_inventory",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "(SyntaxError, UnicodeError, OSError)",
+      "broad_catch": false,
+      "classification": "diagnostic_tool_input_handling",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "c1403c935724fce0",
+      "file": "scripts/audit_errors.py",
+      "line": 167,
+      "function": "<module>",
+      "kind": "raise",
+      "suggested_code": "MAY-0001",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "9f38c902be006281",
+      "file": "scripts/download_piper_models.py",
+      "line": 85,
+      "function": "main",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "contains_standard_report",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "159fbdd9fb7d285d",
+      "file": "scripts/download_piper_models.py",
+      "line": 86,
+      "function": "main",
+      "kind": "standard_report",
+      "suggested_code": "MAY-0001",
+      "classification": "standard_event",
+      "key": "voice_model",
+      "operation": "models.piper.download"
+    },
+    {
+      "site_id": "bf721bf73318d5a4",
+      "file": "scripts/download_piper_models.py",
+      "line": 93,
+      "function": "<module>",
+      "kind": "raise",
+      "suggested_code": "MAY-0001",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "6d4559afe555c7c9",
+      "file": "scripts/export_diagnostics.py",
+      "line": 26,
+      "function": "read_events",
+      "kind": "raise",
+      "suggested_code": "MAY-0001",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "522c13cbf9b0d9fd",
+      "file": "scripts/export_diagnostics.py",
+      "line": 50,
+      "function": "read_events",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-0001",
+      "exception": "(ValueError, TypeError, AttributeError)",
+      "broad_catch": false,
+      "classification": "diagnostic_tool_input_handling",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "d59239ef1cd3b276",
+      "file": "setup.py",
+      "line": 126,
+      "function": "SetupWindow.__init__",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-1001",
+      "exception": "(tk.TclError, OSError)",
+      "broad_catch": false,
+      "classification": "installer_bootstrap_review",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "f5cf652d4c96e60e",
+      "file": "setup.py",
+      "line": 291,
+      "function": "SetupWindow._pump_queue",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-1001",
+      "exception": "queue.Empty",
+      "broad_catch": false,
+      "classification": "control_flow",
+      "contains_raise": false,
+      "risk_flags": []
+    },
+    {
+      "site_id": "7925d2db3b4c11a6",
+      "file": "setup.py",
+      "line": 373,
+      "function": "create_reporter",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-1001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "installer_bootstrap_review",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "122ff3d8104ae597",
+      "file": "setup.py",
+      "line": 572,
+      "function": "update_release_notes",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-1001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "installer_bootstrap_review",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "0346cb93cc05adb3",
+      "file": "setup.py",
+      "line": 599,
+      "function": "extract_archive_into",
+      "kind": "raise",
+      "suggested_code": "MAY-1001",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "a10f2cdb72e2e95e",
+      "file": "setup.py",
+      "line": 637,
+      "function": "should_rebuild",
+      "kind": "failure_return",
+      "suggested_code": "MAY-1001",
+      "classification": "result_contract_review",
+      "reason": null
+    },
+    {
+      "site_id": "ceee45ed0f90658d",
+      "file": "setup.py",
+      "line": 661,
+      "function": "find_python_launcher",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-1001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "installer_bootstrap_review",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "375fba69cb0c2da5",
+      "file": "setup.py",
+      "line": 664,
+      "function": "find_python_launcher",
+      "kind": "raise",
+      "suggested_code": "MAY-1001",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "483d971167ac2c30",
+      "file": "setup.py",
+      "line": 726,
+      "function": "launch",
+      "kind": "raise",
+      "suggested_code": "MAY-1001",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "1fd781452a7def2e",
+      "file": "setup.py",
+      "line": 732,
+      "function": "launch",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-1001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "installer_bootstrap_review",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "be455e5c2b7e5559",
+      "file": "setup.py",
+      "line": 737,
+      "function": "launch",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-1001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "installer_bootstrap_review",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    },
+    {
+      "site_id": "2acbf0fc101fefeb",
+      "file": "setup.py",
+      "line": 741,
+      "function": "launch",
+      "kind": "raise",
+      "suggested_code": "MAY-1001",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "a48dcff0c812ded3",
+      "file": "setup.py",
+      "line": 754,
+      "function": "launch",
+      "kind": "raise",
+      "suggested_code": "MAY-1001",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "3fbd46738e887f4e",
+      "file": "setup.py",
+      "line": 781,
+      "function": "run_bootstrap",
+      "kind": "raise",
+      "suggested_code": "MAY-1001",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "ce80ea53d9891d98",
+      "file": "setup.py",
+      "line": 813,
+      "function": "main",
+      "kind": "raise",
+      "suggested_code": "MAY-1001",
+      "classification": "propagates"
+    },
+    {
+      "site_id": "79f3fb856e90ddf3",
+      "file": "setup.py",
+      "line": 827,
+      "function": "main.worker",
+      "kind": "exception_handler",
+      "suggested_code": "MAY-1001",
+      "exception": "Exception",
+      "broad_catch": true,
+      "classification": "installer_bootstrap_review",
+      "contains_raise": false,
+      "risk_flags": [
+        "silent_broad_catch"
+      ]
+    }
+  ]
+}

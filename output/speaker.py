@@ -1,3 +1,4 @@
+from helpers.diagnostics import report_error, CORRELATION_ID
 import pyttsx3
 import asyncio
 import threading
@@ -131,7 +132,7 @@ class Speaker:
         except Exception as error:
             self._prepared_engine = None
             if self.engine_preference == "system":
-                print(f"system tts prewarm unavailable: {error!r}")
+                report_error("tts_init", error, operation="tts.system.prepare", context={"engine":"system"})
         return self._prepared_engine
 
     def _take_prepared_engine(self):
@@ -188,7 +189,7 @@ class Speaker:
             except Exception as error:
                 self._piper_disabled = True
                 self._piper_error = error
-                print(f"piper disabled, falling back to system tts: {error!r}")
+                report_error("tts_fallback", error, operation="tts.piper.load", context={"engine":"piper","recovered":True}, notify=False)
                 return None
         return self._piper_voice
 
@@ -439,7 +440,7 @@ class Speaker:
             self.active_process = None
             return True
         except Exception as error:
-            print(f"edge tts unavailable, falling back: {error!r}")
+            report_error("tts_fallback", error, operation="tts.edge.speak", context={"engine":"edge","recovered":True}, notify=False)
             self.active_process = None
             return False
         finally:
@@ -520,8 +521,13 @@ class Speaker:
                 if text is None:
                     break
 
+                correlation = None
+                if isinstance(text, tuple):
+                    text, correlation = text
+                token = CORRELATION_ID.set(correlation)
                 text = text.strip()
                 if not text:
+                    CORRELATION_ID.reset(token)
                     continue
 
                 self.is_speaking = True
@@ -561,9 +567,10 @@ class Speaker:
                             if self.is_running and self.engine_preference != "kokoro" and not self.use_edge_tts and not self.use_piper:
                                 self._prepare_system_engine()
                 except Exception as e:
-                    print("tts error:", repr(e))
+                    report_error("tts_runtime", e, operation="tts.speak", context={"engine":self.engine_preference})
 
                 self.is_speaking = False
+                CORRELATION_ID.reset(token)
 
         finally:
             try:
@@ -577,7 +584,7 @@ class Speaker:
         if self.muted or not text or not text.strip():
             return
 
-        self.queue.put(text)
+        self.queue.put((text, CORRELATION_ID.get()))
 
     def set_muted(self, muted):
         self.muted = bool(muted)

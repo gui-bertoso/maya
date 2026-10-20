@@ -1,0 +1,740 @@
+{
+  "schema": "maya.error.catalog.v1",
+  "code_format": "MAY-NNNN",
+  "issue_id_format": "MAYA-NNN (separate bug tracker identity)",
+  "cause_policy": "possible_causes are hypotheses; confirmed causes belong in bug evidence.",
+  "definitions": [
+    {
+      "key": "unexpected",
+      "code": "MAY-0001",
+      "title": "Erro interno inesperado",
+      "action": "Consulte o traceback no log.",
+      "category": "general",
+      "severity": "error",
+      "retryable": false,
+      "title_en": "Unexpected internal error",
+      "action_en": "Check the diagnostic code and operation.",
+      "possible_causes": [
+        "unclassified internal failure"
+      ]
+    },
+    {
+      "key": "diagnostics_write",
+      "code": "MAY-0002",
+      "title": "Registro de diagnóstico indisponível",
+      "action": "Confira acesso à pasta de logs; a operação original não deve ser interrompida.",
+      "category": "general",
+      "severity": "warning",
+      "retryable": false,
+      "title_en": "Diagnostic log unavailable",
+      "action_en": "Check log folder access; the original operation should continue.",
+      "possible_causes": [
+        "unclassified internal failure"
+      ]
+    },
+    {
+      "key": "config_permission",
+      "code": "MAY-0101",
+      "title": "Sem acesso à configuração",
+      "action": "Feche instâncias duplicadas e verifique a pasta de dados da Maya.",
+      "category": "configuration",
+      "severity": "error",
+      "retryable": false,
+      "title_en": "Settings access denied",
+      "action_en": "Check data folder permissions and duplicate instances.",
+      "possible_causes": [
+        "invalid value",
+        "insufficient file permissions",
+        "storage unavailable"
+      ]
+    },
+    {
+      "key": "config_layout",
+      "code": "MAY-0102",
+      "title": "Estrutura de dados inválida",
+      "action": "Restaure ou recrie os arquivos locais da Maya.",
+      "category": "configuration",
+      "severity": "error",
+      "retryable": false,
+      "title_en": "Invalid local data layout",
+      "action_en": "Inspect local data and its backup before restoring files.",
+      "possible_causes": [
+        "invalid value",
+        "insufficient file permissions",
+        "storage unavailable"
+      ]
+    },
+    {
+      "key": "config_value",
+      "code": "MAY-0103",
+      "title": "Configuração inválida",
+      "action": "Corrija o valor indicado nas configurações.",
+      "category": "configuration",
+      "severity": "error",
+      "retryable": false,
+      "title_en": "Invalid setting",
+      "action_en": "Correct the indicated setting.",
+      "possible_causes": [
+        "invalid value",
+        "insufficient file permissions",
+        "storage unavailable"
+      ]
+    },
+    {
+      "key": "config_write",
+      "code": "MAY-0104",
+      "title": "Falha ao salvar configuração",
+      "action": "Confira espaço e permissões; o arquivo anterior foi preservado.",
+      "category": "configuration",
+      "severity": "error",
+      "retryable": false,
+      "title_en": "Could not save settings",
+      "action_en": "Check disk space and permissions; the previous file was preserved.",
+      "possible_causes": [
+        "invalid value",
+        "insufficient file permissions",
+        "storage unavailable"
+      ]
+    },
+    {
+      "key": "config_apply",
+      "code": "MAY-0105",
+      "title": "Configuração não aplicada completamente",
+      "action": "Confira os serviços afetados antes de tentar novamente.",
+      "category": "configuration",
+      "severity": "error",
+      "retryable": false,
+      "title_en": "Settings were not fully applied",
+      "action_en": "Check the affected services before retrying.",
+      "possible_causes": [
+        "invalid value",
+        "insufficient file permissions",
+        "storage unavailable"
+      ]
+    },
+    {
+      "key": "single_instance",
+      "code": "MAY-0201",
+      "title": "Falha na trava de instância",
+      "action": "Reinicie a Maya; se persistir, encerre as instâncias antigas.",
+      "category": "activation",
+      "severity": "error",
+      "retryable": false,
+      "title_en": "Instance lock failed",
+      "action_en": "Check for an existing Maya process before restarting.",
+      "possible_causes": [
+        "unsupported session backend",
+        "dependency unavailable",
+        "existing process state"
+      ]
+    },
+    {
+      "key": "hotkey",
+      "code": "MAY-0202",
+      "title": "Atalho global indisponível",
+      "action": "Confira permissões de teclado e o pynput.",
+      "category": "activation",
+      "severity": "warning",
+      "retryable": false,
+      "title_en": "Global shortcut unavailable",
+      "action_en": "Check keyboard permissions and the session backend.",
+      "possible_causes": [
+        "unsupported session backend",
+        "dependency unavailable",
+        "existing process state"
+      ]
+    },
+    {
+      "key": "microphone_dependency",
+      "code": "MAY-0301",
+      "title": "Dependência de áudio indisponível",
+      "action": "Reinstale as dependências de voz.",
+      "category": "speech_input",
+      "severity": "error",
+      "retryable": false,
+      "title_en": "Audio dependency unavailable",
+      "action_en": "Check the installed audio dependencies.",
+      "possible_causes": [
+        "missing model or dependency",
+        "unavailable input device",
+        "decoder or backend failure"
+      ]
+    },
+    {
+      "key": "microphone_device",
+      "code": "MAY-0302",
+      "title": "Microfone não encontrado",
+      "action": "Selecione ou conecte um dispositivo de entrada.",
+      "category": "speech_input",
+      "severity": "error",
+      "retryable": true,
+      "title_en": "Microphone unavailable",
+      "action_en": "Select or connect an input device.",
+      "possible_causes": [
+        "missing model or dependency",
+        "unavailable input device",
+        "decoder or backend failure"
+      ]
+    },
+    {
+      "key": "voice_model",
+      "code": "MAY-0303",
+      "title": "Modelo de reconhecimento indisponível",
+      "action": "Confira VOSK_MODEL_PATH e os arquivos do modelo.",
+      "category": "speech_input",
+      "severity": "error",
+      "retryable": false,
+      "title_en": "Speech model unavailable",
+      "action_en": "Check the selected model and its files.",
+      "possible_causes": [
+        "missing model or dependency",
+        "unavailable input device",
+        "decoder or backend failure"
+      ]
+    },
+    {
+      "key": "voice_runtime",
+      "code": "MAY-0304",
+      "title": "Falha no reconhecimento de voz",
+      "action": "Confira o microfone e o log de áudio.",
+      "category": "speech_input",
+      "severity": "error",
+      "retryable": true,
+      "title_en": "Speech recognition failed",
+      "action_en": "Check the microphone and speech engine.",
+      "possible_causes": [
+        "missing model or dependency",
+        "unavailable input device",
+        "decoder or backend failure"
+      ]
+    },
+    {
+      "key": "noise_suppression",
+      "code": "MAY-0305",
+      "title": "Falha no tratamento de ruído",
+      "action": "Revise os parâmetros do supressor de ruído.",
+      "category": "speech_input",
+      "severity": "error",
+      "retryable": false,
+      "title_en": "Audio noise processing failed",
+      "action_en": "Check noise suppression settings.",
+      "possible_causes": [
+        "missing model or dependency",
+        "unavailable input device",
+        "decoder or backend failure"
+      ]
+    },
+    {
+      "key": "voice_timeout",
+      "code": "MAY-0306",
+      "title": "Reconhecimento excedeu o tempo limite",
+      "action": "Tente uma frase curta e confira o servidor de voz.",
+      "category": "speech_input",
+      "severity": "error",
+      "retryable": true,
+      "title_en": "Speech recognition timed out",
+      "action_en": "Try a shorter phrase and check the local server.",
+      "possible_causes": [
+        "missing model or dependency",
+        "unavailable input device",
+        "decoder or backend failure"
+      ]
+    },
+    {
+      "key": "voice_server",
+      "code": "MAY-0307",
+      "title": "Servidor local de voz indisponível",
+      "action": "Confira o binário, modelo e backend selecionados.",
+      "category": "speech_input",
+      "severity": "error",
+      "retryable": true,
+      "title_en": "Local speech server unavailable",
+      "action_en": "Check its binary, model and selected backend.",
+      "possible_causes": [
+        "missing model or dependency",
+        "unavailable input device",
+        "decoder or backend failure"
+      ]
+    },
+    {
+      "key": "voice_backpressure",
+      "code": "MAY-0308",
+      "title": "Fila de transcrição cheia",
+      "action": "Espere a transcrição atual e repita a frase.",
+      "category": "speech_input",
+      "severity": "warning",
+      "retryable": true,
+      "title_en": "Transcription queue full",
+      "action_en": "Wait for the current transcription and repeat.",
+      "possible_causes": [
+        "missing model or dependency",
+        "unavailable input device",
+        "decoder or backend failure"
+      ]
+    },
+    {
+      "key": "tts_init",
+      "code": "MAY-0401",
+      "title": "Voz não inicializada",
+      "action": "Confira o mecanismo de voz configurado.",
+      "category": "speech_output",
+      "severity": "error",
+      "retryable": false,
+      "title_en": "Speech output could not start",
+      "action_en": "Check the selected voice engine.",
+      "possible_causes": [
+        "voice model unavailable",
+        "audio output unavailable",
+        "synthesis backend failure"
+      ]
+    },
+    {
+      "key": "tts_runtime",
+      "code": "MAY-0402",
+      "title": "Falha ao falar",
+      "action": "Tente outro mecanismo de voz e consulte o log.",
+      "category": "speech_output",
+      "severity": "error",
+      "retryable": true,
+      "title_en": "Speech playback failed",
+      "action_en": "Try another voice engine and check diagnostics.",
+      "possible_causes": [
+        "voice model unavailable",
+        "audio output unavailable",
+        "synthesis backend failure"
+      ]
+    },
+    {
+      "key": "tts_fallback",
+      "code": "MAY-0403",
+      "title": "Voz alternativa acionada",
+      "action": "Confira o motor preferido; a fala pode continuar com outro motor.",
+      "category": "speech_output",
+      "severity": "warning",
+      "retryable": false,
+      "title_en": "Alternative voice engine selected",
+      "action_en": "Check the preferred engine; speech may continue using a fallback.",
+      "possible_causes": [
+        "voice model unavailable",
+        "audio output unavailable",
+        "synthesis backend failure"
+      ]
+    },
+    {
+      "key": "ui_init",
+      "code": "MAY-0501",
+      "title": "Interface não inicializada",
+      "action": "Confira PySide6, Qt e as DLLs do pacote.",
+      "category": "interface",
+      "severity": "error",
+      "retryable": false,
+      "title_en": "Interface could not start",
+      "action_en": "Check PySide6 and the selected Qt backend.",
+      "possible_causes": [
+        "unsupported compositor operation",
+        "screen layout changed",
+        "Qt runtime failure"
+      ]
+    },
+    {
+      "key": "ui_runtime",
+      "code": "MAY-0502",
+      "title": "Falha na interface",
+      "action": "Reabra a Maya e consulte o log.",
+      "category": "interface",
+      "severity": "error",
+      "retryable": false,
+      "title_en": "Interface operation failed",
+      "action_en": "Reopen Maya and check the affected operation.",
+      "possible_causes": [
+        "unsupported compositor operation",
+        "screen layout changed",
+        "Qt runtime failure"
+      ]
+    },
+    {
+      "key": "ui_screen",
+      "code": "MAY-0503",
+      "title": "Monitor indisponível",
+      "action": "Confira o layout dos monitores e a posição da janela.",
+      "category": "interface",
+      "severity": "error",
+      "retryable": false,
+      "title_en": "Monitor unavailable",
+      "action_en": "Check the screen layout and window position.",
+      "possible_causes": [
+        "unsupported compositor operation",
+        "screen layout changed",
+        "Qt runtime failure"
+      ]
+    },
+    {
+      "key": "ui_position",
+      "code": "MAY-0504",
+      "title": "Janela não pôde ser posicionada",
+      "action": "Confira o backend gráfico e as permissões do compositor.",
+      "category": "interface",
+      "severity": "error",
+      "retryable": false,
+      "title_en": "Could not position the window",
+      "action_en": "Check the compositor and selected display backend.",
+      "possible_causes": [
+        "unsupported compositor operation",
+        "screen layout changed",
+        "Qt runtime failure"
+      ]
+    },
+    {
+      "key": "input_pipeline",
+      "code": "MAY-0601",
+      "title": "Falha ao processar entrada",
+      "action": "Repita o comando e consulte o log.",
+      "category": "commands",
+      "severity": "error",
+      "retryable": false,
+      "title_en": "Command processing failed",
+      "action_en": "Retry the command and check its diagnostic code.",
+      "possible_causes": [
+        "capacity exhausted",
+        "unsupported input",
+        "handler failed"
+      ]
+    },
+    {
+      "key": "input_busy",
+      "code": "MAY-0602",
+      "title": "Fila de comandos cheia ou encerrada",
+      "action": "Aguarde e envie novamente; o texto deve ser preservado.",
+      "category": "commands",
+      "severity": "warning",
+      "retryable": true,
+      "title_en": "Command queue full or closed",
+      "action_en": "Wait and submit again; your draft should be preserved.",
+      "possible_causes": [
+        "capacity exhausted",
+        "unsupported input",
+        "handler failed"
+      ]
+    },
+    {
+      "key": "parser",
+      "code": "MAY-0603",
+      "title": "Falha ao interpretar comando",
+      "action": "Use uma frase explícita e confira o catálogo de comandos.",
+      "category": "commands",
+      "severity": "error",
+      "retryable": false,
+      "title_en": "Could not interpret the command",
+      "action_en": "Use an explicit phrase and check supported commands.",
+      "possible_causes": [
+        "capacity exhausted",
+        "unsupported input",
+        "handler failed"
+      ]
+    },
+    {
+      "key": "dev_command",
+      "code": "MAY-0604",
+      "title": "Ferramenta de desenvolvimento falhou",
+      "action": "Confira o Git, permissões e a pasta do projeto.",
+      "category": "commands",
+      "severity": "error",
+      "retryable": false,
+      "title_en": "Development tool failed",
+      "action_en": "Check Git, project permissions and its folder.",
+      "possible_causes": [
+        "capacity exhausted",
+        "unsupported input",
+        "handler failed"
+      ]
+    },
+    {
+      "key": "memory_storage",
+      "code": "MAY-0701",
+      "title": "Memória local indisponível",
+      "action": "Confira acesso à pasta data.",
+      "category": "persistence",
+      "severity": "error",
+      "retryable": false,
+      "title_en": "Could not save local memory",
+      "action_en": "Check disk space and data folder permissions.",
+      "possible_causes": [
+        "invalid file format",
+        "permission denied",
+        "storage or backup failure"
+      ]
+    },
+    {
+      "key": "routine_storage",
+      "code": "MAY-0702",
+      "title": "Rotina local indisponível",
+      "action": "Confira data/routine.json e suas permissões.",
+      "category": "persistence",
+      "severity": "error",
+      "retryable": false,
+      "title_en": "Routine data unavailable",
+      "action_en": "Check routine file access and its backup.",
+      "possible_causes": [
+        "invalid file format",
+        "permission denied",
+        "storage or backup failure"
+      ]
+    },
+    {
+      "key": "knowledge_invalid",
+      "code": "MAY-0703",
+      "title": "Registro de conhecimento inválido",
+      "action": "Revise o formato sem apagar a base pessoal.",
+      "category": "persistence",
+      "severity": "warning",
+      "retryable": false,
+      "title_en": "Invalid knowledge record",
+      "action_en": "Check its format without deleting personal knowledge.",
+      "possible_causes": [
+        "invalid file format",
+        "permission denied",
+        "storage or backup failure"
+      ]
+    },
+    {
+      "key": "container_invalid",
+      "code": "MAY-0704",
+      "title": "Container de dados inválido",
+      "action": "Corrija o pacote indicado; os outros pacotes continuam disponíveis.",
+      "category": "persistence",
+      "severity": "warning",
+      "retryable": false,
+      "title_en": "Invalid data container",
+      "action_en": "Fix the indicated pack; other packs remain available.",
+      "possible_causes": [
+        "invalid file format",
+        "permission denied",
+        "storage or backup failure"
+      ]
+    },
+    {
+      "key": "container_reload",
+      "code": "MAY-0705",
+      "title": "Falha ao atualizar containers",
+      "action": "Confira acesso aos arquivos; o snapshot anterior foi mantido.",
+      "category": "persistence",
+      "severity": "warning",
+      "retryable": true,
+      "title_en": "Could not reload data packs",
+      "action_en": "Check file access; the previous snapshot was kept.",
+      "possible_causes": [
+        "invalid file format",
+        "permission denied",
+        "storage or backup failure"
+      ]
+    },
+    {
+      "key": "knowledge_write",
+      "code": "MAY-0706",
+      "title": "Conhecimento não pôde ser salvo",
+      "action": "Confira espaço e permissões; a alteração em memória foi revertida.",
+      "category": "persistence",
+      "severity": "error",
+      "retryable": false,
+      "title_en": "Could not save knowledge",
+      "action_en": "Check disk space and permissions; the in-memory change was rolled back.",
+      "possible_causes": [
+        "invalid file format",
+        "permission denied",
+        "storage or backup failure"
+      ]
+    },
+    {
+      "key": "storage_corrupt",
+      "code": "MAY-0707",
+      "title": "Arquivo de dados ilegível",
+      "action": "Confira o backup antes de restaurar ou editar os dados.",
+      "category": "persistence",
+      "severity": "warning",
+      "retryable": false,
+      "title_en": "Unreadable data file",
+      "action_en": "Check the backup before restoring or editing data.",
+      "possible_causes": [
+        "invalid file format",
+        "permission denied",
+        "storage or backup failure"
+      ]
+    },
+    {
+      "key": "backup_failure",
+      "code": "MAY-0708",
+      "title": "Backup não pôde ser criado",
+      "action": "Confira espaço e acesso à pasta de backups.",
+      "category": "persistence",
+      "severity": "error",
+      "retryable": false,
+      "title_en": "Could not create a backup",
+      "action_en": "Check disk space and backup folder permissions.",
+      "possible_causes": [
+        "invalid file format",
+        "permission denied",
+        "storage or backup failure"
+      ]
+    },
+    {
+      "key": "app_launch",
+      "code": "MAY-0801",
+      "title": "Aplicativo não pôde ser aberto",
+      "action": "Confira o caminho e as permissões do aplicativo.",
+      "category": "applications",
+      "severity": "error",
+      "retryable": false,
+      "title_en": "Application could not be opened",
+      "action_en": "Check its launcher and permissions.",
+      "possible_causes": [
+        "missing executable",
+        "application failed during startup",
+        "stale process state"
+      ]
+    },
+    {
+      "key": "app_missing",
+      "code": "MAY-0802",
+      "title": "Aplicativo não encontrado",
+      "action": "Confira o executável ou launcher instalado.",
+      "category": "applications",
+      "severity": "error",
+      "retryable": false,
+      "title_en": "Application not found",
+      "action_en": "Check the installed executable or desktop launcher.",
+      "possible_causes": [
+        "missing executable",
+        "application failed during startup",
+        "stale process state"
+      ]
+    },
+    {
+      "key": "app_exit",
+      "code": "MAY-0803",
+      "title": "Aplicativo encerrou durante a abertura",
+      "action": "Confira o aplicativo diretamente e seus registros de inicialização.",
+      "category": "applications",
+      "severity": "error",
+      "retryable": true,
+      "title_en": "Application exited during startup",
+      "action_en": "Open it directly and check its startup diagnostics.",
+      "possible_causes": [
+        "missing executable",
+        "application failed during startup",
+        "stale process state"
+      ]
+    },
+    {
+      "key": "app_stale_lock",
+      "code": "MAY-0804",
+      "title": "Trava órfã do aplicativo",
+      "action": "Confirme que não há instância ativa antes de guardar as travas num backup.",
+      "category": "applications",
+      "severity": "error",
+      "retryable": false,
+      "title_en": "Stale application lock",
+      "action_en": "Verify no active instance exists before backing up stale locks.",
+      "possible_causes": [
+        "missing executable",
+        "application failed during startup",
+        "stale process state"
+      ]
+    },
+    {
+      "key": "app_target",
+      "code": "MAY-0805",
+      "title": "Alvo da ação indisponível",
+      "action": "Confirme o aplicativo ou janela antes de repetir a ação.",
+      "category": "applications",
+      "severity": "error",
+      "retryable": false,
+      "title_en": "Application or window target unavailable",
+      "action_en": "Confirm the target before retrying.",
+      "possible_causes": [
+        "missing executable",
+        "application failed during startup",
+        "stale process state"
+      ]
+    },
+    {
+      "key": "web_request",
+      "code": "MAY-0901",
+      "title": "Serviço web indisponível",
+      "action": "Confira a conexão e tente novamente.",
+      "category": "network",
+      "severity": "error",
+      "retryable": true,
+      "title_en": "Web service unavailable",
+      "action_en": "Check the connection and try again.",
+      "possible_causes": [
+        "network unavailable",
+        "timeout",
+        "remote response rejected"
+      ]
+    },
+    {
+      "key": "web_timeout",
+      "code": "MAY-0902",
+      "title": "Consulta web excedeu o tempo limite",
+      "action": "Confira a conexão e tente novamente.",
+      "category": "network",
+      "severity": "error",
+      "retryable": true,
+      "title_en": "Web request timed out",
+      "action_en": "Check the connection and try again.",
+      "possible_causes": [
+        "network unavailable",
+        "timeout",
+        "remote response rejected"
+      ]
+    },
+    {
+      "key": "web_payload",
+      "code": "MAY-0903",
+      "title": "Resposta web inválida",
+      "action": "Tente outra fonte ou consulte a falha de formato registrada.",
+      "category": "network",
+      "severity": "error",
+      "retryable": false,
+      "title_en": "Invalid web response",
+      "action_en": "Try another source and check response-format diagnostics.",
+      "possible_causes": [
+        "network unavailable",
+        "timeout",
+        "remote response rejected"
+      ]
+    },
+    {
+      "key": "installer",
+      "code": "MAY-1001",
+      "title": "Falha no instalador",
+      "action": "Consulte o log do instalador.",
+      "category": "installation",
+      "severity": "error",
+      "retryable": false,
+      "title_en": "Installer failed",
+      "action_en": "Check the installer report.",
+      "possible_causes": [
+        "blocked executable",
+        "missing bundled resource",
+        "installer failure"
+      ]
+    },
+    {
+      "key": "app_control",
+      "code": "MAY-1002",
+      "title": "Executável bloqueado pelo Windows",
+      "action": "Assine o executável ou libere-o pela política de segurança.",
+      "category": "installation",
+      "severity": "error",
+      "retryable": false,
+      "title_en": "Windows blocked the executable",
+      "action_en": "Check executable signing and system application policy.",
+      "possible_causes": [
+        "blocked executable",
+        "missing bundled resource",
+        "installer failure"
+      ]
+    }
+  ]
+}

@@ -48,8 +48,9 @@ O inicializador usa XWayland para posicionar o overlay; o atalho Delete + Page U
 funciona nas janelas XWayland. Aplicativos Wayland nativos podem não repassar
 essa combinação. A chamada por voz continua disponível.
 
-A opção `app.py --show` abre a interface de texto ao iniciar. A configuração
-local `.env` seleciona português, Vosk em português e síntese offline pelo Piper.
+A opção `app.py --show` abre a interface de texto ao iniciar. A configuração local `.env` seleciona idioma, modelo Vosk e motor de voz.
+O perfil atual de responsividade mantém inglês e a voz Kokoro `af_heart`;
+consulte `docs/update-bug-hunter.md`.
 
 ## Voz feminina offline
 

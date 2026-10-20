@@ -82,250 +82,287 @@ class Reporter:
         return
 
 class SetupWindow(Reporter):
+    COLORS = {
+        "background": "#181b1e", "surface": "#1d2226", "input": "#121517",
+        "border": "#33383c", "text": "#edf0f1", "body": "#c9d0d3",
+        "muted": "#929da3", "button": "#242a2e", "hover": "#30383d",
+        "primary": "#3a4a50", "primary_hover": "#485c65", "focus": "#82999f",
+        "green": "#90c3a4", "error": "#e49191",
+    }
+    STAGES = ("verificar instalação", "preparar arquivos", "configurar a maya", "abrir a maya")
+
     def __init__(self):
         import tkinter as tk
-        from tkinter import ttk
-
-        self._tk = tk
-        self._ttk = ttk
-
-        self.root = tk.Tk()
-
-        icon_path = Path(__file__).resolve().parent / "icon.ico"
-        if icon_path.exists():
-            try:
-                self.root.iconbitmap(str(icon_path))
-            except Exception:
-                pass
-
-        self.root.title("Maya • Installer")
-        self.root.geometry("960x600")
-        self.root.minsize(820, 440)
-        self.root.configure(bg="#090b16")
-        self.root.protocol("WM_DELETE_WINDOW", self._on_close)
-        self.root.grid_columnconfigure(0, weight=1)
-        self.root.grid_rowconfigure(2, weight=1)
-
-        self.title_label = tk.Label(
-            self.root,
-            text="MAYA  ✦  INSTALLER",
-            font=("Segoe UI Semibold", 22, "bold"),
-            bg="#090b16",
-            fg="#f1efff",
-            anchor="w",
-        )
-        self.title_label.grid(row=0, column=0, sticky="ew", padx=22, pady=(18, 6))
-
-        self.status_var = tk.StringVar(value="Preparando uma Maya mais bonita e menos largada...")
-        self.status_label = tk.Label(
-            self.root,
-            textvariable=self.status_var,
-            font=("Segoe UI", 11),
-            bg="#090b16",
-            fg="#9da7c7",
-            anchor="w",
-        )
-        self.status_label.grid(row=1, column=0, sticky="ew", padx=22, pady=(0, 10))
-
-        body = tk.Frame(self.root, bg="#090b16")
-        body.grid(row=2, column=0, sticky="nsew", padx=22, pady=(0, 12))
-        body.grid_columnconfigure(0, weight=3)
-        body.grid_columnconfigure(1, weight=2)
-        body.grid_rowconfigure(0, weight=1)
-
-        log_panel = tk.Frame(body, bg="#090b16")
-        log_panel.grid(row=0, column=0, sticky="nsew", padx=(0, 12))
-        log_panel.grid_columnconfigure(0, weight=1)
-        log_panel.grid_rowconfigure(1, weight=1)
-
-        self.log_title = tk.Label(
-            log_panel,
-            text="PROGRESSO DA INSTALAÇÃO",
-            font=("Segoe UI", 11, "bold"),
-            bg="#090b16",
-            fg="#c9c3ff",
-            anchor="w",
-        )
-        self.log_title.grid(row=0, column=0, sticky="ew", pady=(0, 6))
-
-        self.log_text = tk.Text(
-            log_panel,
-            wrap="word",
-            font=("Consolas", 10),
-            bg="#101426",
-            fg="#cbd5f5",
-            insertbackground="#ffffff",
-            relief="flat",
-            padx=14,
-            pady=12,
-        )
-        self.log_text.grid(row=1, column=0, sticky="nsew")
-
-        log_scrollbar = ttk.Scrollbar(log_panel, orient="vertical", command=self.log_text.yview)
-        log_scrollbar.grid(row=1, column=1, sticky="ns")
-        self.log_text.configure(yscrollcommand=log_scrollbar.set, state="disabled")
-
-        changes_panel = tk.Frame(body, bg="#090b16")
-        changes_panel.grid(row=0, column=1, sticky="nsew")
-        changes_panel.grid_columnconfigure(0, weight=1)
-        changes_panel.grid_rowconfigure(1, weight=1)
-
-        self.changes_title = tk.Label(
-            changes_panel,
-            text="NOVIDADES DESTA VERSÃO",
-            font=("Segoe UI", 11, "bold"),
-            bg="#090b16",
-            fg="#c9c3ff",
-            anchor="w",
-        )
-        self.changes_title.grid(row=0, column=0, sticky="ew", pady=(0, 6))
-
-        self.changes_text = tk.Text(
-            changes_panel,
-            wrap="word",
-            font=("Consolas", 10),
-            bg="#101426",
-            fg="#cbd5f5",
-            insertbackground="#ffffff",
-            relief="flat",
-            padx=14,
-            pady=12,
-        )
-        self.changes_text.grid(row=1, column=0, sticky="nsew")
-
-        changes_scrollbar = ttk.Scrollbar(changes_panel, orient="vertical", command=self.changes_text.yview)
-        changes_scrollbar.grid(row=1, column=1, sticky="ns")
-        self.changes_text.configure(yscrollcommand=changes_scrollbar.set, state="disabled")
-        self._set_changes("Glow up da Maya", [
-            "Novo command center com atalhos e status ao vivo.",
-            "Rotinas A e B, XP, streak e resumo semanal.",
-            "Lembretes e agenda que se adapta quando voce acorda atrasado.",
-            "Interface refinada e totalmente integrada ao Windows.",
-        ])
-
-        footer = tk.Frame(self.root, bg="#090b16")
-        footer.grid(row=3, column=0, sticky="ew", padx=22, pady=(0, 18))
-        footer.grid_columnconfigure(0, weight=1)
-
-        self.progress = ttk.Progressbar(footer, mode="indeterminate")
-        self.progress.grid(row=0, column=0, sticky="ew", pady=(0, 10))
-        self.progress.start(10)
-
-        self.close_button = tk.Button(
-            footer,
-            text="Minimizar",
-            command=self._on_close,
-            font=("Segoe UI", 10, "bold"),
-            bg="#7c5cff",
-            fg="#ffffff",
-            activebackground="#9278ff",
-            activeforeground="#ffffff",
-            relief="flat",
-            padx=18,
-            pady=8,
-        )
-        self.close_button.grid(row=1, column=0, sticky="e")
-
+        from tkinter import ttk, font
+        self._tk, self._ttk = tk, ttk
         self._queue = queue.Queue()
         self._allow_close = False
         self._closed = False
+        self._state = "running"
+        self._stage = 0
+        self._angle = 0
+        self._details_visible = False
+        self.root = tk.Tk()
+        c = self.COLORS
+        self.root.title("maya · instalação")
+        self.root.geometry("960x650")
+        self.root.minsize(840, 590)
+        self.root.configure(bg=c["background"])
+        self.root.protocol("WM_DELETE_WINDOW", self._on_close)
+        self.root.grid_columnconfigure(0, weight=1)
+        self.root.grid_rowconfigure(2, weight=1)
+        families = {name.casefold(): name for name in font.families(self.root)}
+        self._font = next((families[name.casefold()] for name in
+            ("Segoe UI", "Noto Sans", "DejaVu Sans", "Liberation Sans")
+            if name.casefold() in families), "TkDefaultFont")
+        self._mono = next((families[name.casefold()] for name in
+            ("Cascadia Mono", "JetBrains Mono", "DejaVu Sans Mono", "Liberation Mono")
+            if name.casefold() in families), "TkFixedFont")
+        icon_path = Path(__file__).resolve().parent / "icon.png"
+        if icon_path.exists():
+            try:
+                self._icon = tk.PhotoImage(file=str(icon_path))
+                self.root.iconphoto(True, self._icon)
+            except (tk.TclError, OSError):
+                pass
+        style = ttk.Style(self.root)
+        style.theme_use("clam")
+        style.configure("Maya.TButton", background=c["button"], foreground=c["body"],
+                        bordercolor=c["border"], lightcolor=c["border"], darkcolor=c["border"],
+                        relief="flat", padding=(16, 9), font=(self._font, 10))
+        style.map("Maya.TButton", background=[("active", c["hover"]), ("pressed", c["input"])],
+                  bordercolor=[("focus", c["focus"])])
+        style.configure("Primary.Maya.TButton", background=c["primary"], foreground=c["text"])
+        style.map("Primary.Maya.TButton", background=[("active", c["primary_hover"]), ("pressed", c["input"])])
+        style.configure("Maya.Horizontal.TProgressbar", background=c["focus"], troughcolor=c["input"],
+                        bordercolor=c["input"], lightcolor=c["focus"], darkcolor=c["focus"], thickness=5)
+        style.configure("Maya.Vertical.TScrollbar", background="#4d585e", troughcolor=c["surface"],
+                        bordercolor=c["surface"], arrowcolor=c["muted"], width=9)
+        style.map("Maya.Vertical.TScrollbar", background=[("active", "#74838b")])
+
+        header = tk.Frame(self.root, bg=c["background"])
+        header.grid(row=0, column=0, sticky="ew", padx=28, pady=(25, 20))
+        header.grid_columnconfigure(1, weight=1)
+        self.ring = tk.Canvas(header, width=52, height=52, bg=c["background"], highlightthickness=0)
+        self.ring.grid(row=0, column=0, rowspan=2, padx=(0, 14))
+        self.ring.create_oval(8, 8, 44, 44, outline=c["border"], width=5)
+        self._ring_arc = self.ring.create_arc(8, 8, 44, 44, start=30, extent=260, style="arc", outline=c["green"], width=5)
+        self.ring.create_oval(23, 23, 29, 29, fill=c["text"], outline="")
+        self.title_label = self._label(header, "maya", size=25, color=c["text"])
+        self.title_label.grid(row=0, column=1, sticky="sw")
+        self._label(header, "instalação e atualização", color=c["muted"]).grid(row=1, column=1, sticky="nw", pady=(2, 0))
+        self.badge = self._label(header, "em andamento", color=c["green"], background=c["surface"], padx=12, pady=7)
+        self.badge.grid(row=0, column=2, rowspan=2, sticky="e")
+
+        status = tk.Frame(self.root, bg=c["background"])
+        status.grid(row=1, column=0, sticky="ew", padx=28, pady=(0, 23))
+        status.grid_columnconfigure(0, weight=1)
+        self.status_var = tk.StringVar(value="preparando a maya")
+        self.status_label = self._label(status, variable=self.status_var, size=19, color=c["text"], wraplength=860)
+        self.status_label.grid(row=0, column=0, sticky="ew")
+        self.subtitle_var = tk.StringVar(value="verificando o que precisa ser instalado neste computador.")
+        self._label(status, variable=self.subtitle_var, color=c["muted"], wraplength=860).grid(row=1, column=0, sticky="ew", pady=(8, 16))
+        self.progress = ttk.Progressbar(status, mode="indeterminate", style="Maya.Horizontal.TProgressbar")
+        self.progress.grid(row=2, column=0, sticky="ew")
+        self.progress.start(16)
+
+        body = tk.Frame(self.root, bg=c["background"])
+        body.grid(row=2, column=0, sticky="nsew", padx=28)
+        body.grid_columnconfigure(0, weight=3, uniform="body")
+        body.grid_columnconfigure(1, weight=2, uniform="body")
+        body.grid_rowconfigure(0, weight=1)
+        steps = tk.Frame(body, bg=c["background"])
+        steps.grid(row=0, column=0, sticky="nsew", padx=(0, 26))
+        self._label(steps, "instalação", color=c["body"], bold=True).pack(anchor="w", pady=(0, 12))
+        self._step_widgets = []
+        for index, title in enumerate(self.STAGES):
+            row = tk.Frame(steps, bg=c["background"], highlightbackground=c["border"], highlightthickness=1)
+            row.pack(fill="x", pady=(0, 8), ipady=8)
+            number = self._label(row, f"{index+1:02}", color=c["muted"], padx=12)
+            number.pack(side="left")
+            name = self._label(row, title, color=c["muted"])
+            name.pack(side="left", fill="x", expand=True)
+            indicator = self._label(row, "", color=c["muted"], padx=12)
+            indicator.pack(side="right")
+            self._step_widgets.append((row, number, name, indicator))
+
+        notes = tk.Frame(body, bg=c["surface"], highlightbackground=c["border"], highlightthickness=1)
+        notes.grid(row=0, column=1, sticky="nsew", pady=(0, 8))
+        notes.grid_columnconfigure(0, weight=1)
+        notes.grid_rowconfigure(1, weight=1)
+        self.changes_title = self._label(notes, "com a maya", color=c["body"], bold=True, background=c["surface"], wraplength=290)
+        self.changes_title.grid(row=0, column=0, sticky="ew", padx=18, pady=(16, 12))
+        self.changes_text = tk.Text(notes, wrap="word", font=(self._font, 10), bg=c["surface"],
+                                    fg=c["body"], relief="flat", borderwidth=0, padx=0, pady=0,
+                                    highlightthickness=0, selectbackground="#415d65", cursor="arrow", width=26, height=8)
+        self.changes_text.grid(row=1, column=0, sticky="nsew", padx=(18, 8), pady=(0, 16))
+        notes_scroll = ttk.Scrollbar(notes, orient="vertical", command=self.changes_text.yview, style="Maya.Vertical.TScrollbar")
+        notes_scroll.grid(row=1, column=1, sticky="ns", pady=(0, 16), padx=(0, 6))
+        self.changes_text.configure(yscrollcommand=notes_scroll.set, state="disabled")
+        self._set_changes("com a maya", ["converse por voz ou texto.", "tenha a maya por perto numa interface flutuante.",
+                                            "ajuste voz, aparência e comportamento nas configurações."])
+
+        details = tk.Frame(self.root, bg=c["background"])
+        details.grid(row=3, column=0, sticky="ew", padx=28, pady=(10, 0))
+        details.grid_columnconfigure(0, weight=1)
+        self.details_button = tk.Button(details, text="+ mostrar detalhes", command=self._toggle_details,
+            bg=c["background"], fg=c["muted"], activebackground=c["background"], activeforeground=c["text"],
+            font=(self._font, 10), relief="flat", borderwidth=0, cursor="hand2", anchor="w", padx=0, pady=5)
+        self.details_button.grid(row=0, column=0, sticky="w")
+        self.details_frame = tk.Frame(details, bg=c["input"], highlightbackground=c["border"], highlightthickness=1)
+        self.details_frame.grid(row=1, column=0, sticky="ew", pady=(7, 0))
+        self.details_frame.grid_columnconfigure(0, weight=1)
+        self.log_text = tk.Text(self.details_frame, wrap="word", height=7, bg=c["input"], fg=c["muted"],
+            font=(self._mono, 9), relief="flat", highlightthickness=0, padx=12, pady=10, selectbackground="#415d65")
+        self.log_text.grid(row=0, column=0, sticky="ew")
+        scroll = ttk.Scrollbar(self.details_frame, orient="vertical", command=self.log_text.yview, style="Maya.Vertical.TScrollbar")
+        scroll.grid(row=0, column=1, sticky="ns")
+        self.log_text.configure(yscrollcommand=scroll.set, state="disabled")
+        self.details_frame.grid_remove()
+
+        footer = tk.Frame(self.root, bg=c["background"], highlightbackground=c["border"], highlightthickness=0)
+        footer.grid(row=4, column=0, sticky="ew", padx=28, pady=(18, 22))
+        footer.grid_columnconfigure(0, weight=1)
+        self.footer_var = tk.StringVar(value="você pode minimizar enquanto a maya é preparada.")
+        self._label(footer, variable=self.footer_var, color=c["muted"], wraplength=620).grid(row=0, column=0, sticky="w", padx=(0, 16))
+        self.close_button = ttk.Button(footer, text="minimizar", command=self._on_close, style="Primary.Maya.TButton")
+        self.close_button.grid(row=0, column=1, sticky="e")
+        self._update_steps()
+        self.root.after(40, self._animate_ring)
+
+    def _label(self, parent, text="", variable=None, size=10, color=None, background=None, bold=False, **kwargs):
+        return self._tk.Label(parent, text=text, textvariable=variable, bg=background or self.COLORS["background"],
+            fg=color or self.COLORS["body"], font=(self._font, size, "bold" if bold else "normal"),
+            anchor="w", justify="left", borderwidth=0, **kwargs)
+
+    @staticmethod
+    def stage_for(message):
+        text = str(message).lower()
+        if any(word in text for word in ("launching", "iniciando", "atalhos criados")): return 3
+        if any(word in text for word in ("runtime", "virtual environment", "building", "already built")): return 2
+        if any(word in text for word in ("downloading", "up to date", "instalando")): return 1
+        return 0
+
+    def _animate_ring(self):
+        if self._closed: return
+        if self._state == "running":
+            self._angle = (self._angle + 4) % 360
+            self.ring.itemconfigure(self._ring_arc, start=self._angle)
+            self.root.after(40, self._animate_ring)
+
+    def _update_steps(self):
+        c = self.COLORS
+        for index, (row, number, name, indicator) in enumerate(self._step_widgets):
+            completed = self._state == "success" or index < self._stage
+            active = self._state == "running" and index == self._stage
+            failed = self._state == "error" and index == self._stage
+            color = c["error"] if failed else c["green"] if completed else c["text"] if active else c["muted"]
+            row.configure(highlightbackground=c["focus"] if active else c["border"])
+            number.configure(fg=color, text="✓" if completed else f"{index+1:02}")
+            name.configure(fg=color)
+            indicator.configure(text="parou aqui" if failed else "em curso" if active else "feito" if completed else "", fg=color)
+
+    def _toggle_details(self):
+        self._details_visible = not self._details_visible
+        if self._details_visible:
+            self.details_frame.grid()
+            self.details_button.configure(text="− ocultar detalhes")
+            if self.root.winfo_height() < 760:
+                self.root.geometry(f"{self.root.winfo_width()}x760")
+        else:
+            self.details_frame.grid_remove()
+            self.details_button.configure(text="+ mostrar detalhes")
 
     def start(self, worker):
         threading.Thread(target=worker, daemon=True).start()
         self.root.after(100, self._pump_queue)
         self.root.mainloop()
 
-    def info(self, message):
-        self._queue.put(("info", message))
-
-    def detail(self, message):
-        self._queue.put(("detail", message))
-
-    def error(self, message):
-        self._queue.put(("error", message))
-
-    def release_notes(self, title, items):
-        self._queue.put(("release_notes", {"title": title, "items": list(items or [])}))
-
-    def close_success(self):
-        self._queue.put(("close_success", "Maya started."))
-
-    def close_error(self):
-        self._queue.put(("close_error", "Setup failed."))
+    def info(self, message): self._queue.put(("info", message))
+    def detail(self, message): self._queue.put(("detail", message))
+    def error(self, message): self._queue.put(("error", message))
+    def release_notes(self, title, items): self._queue.put(("release_notes", {"title": title, "items": list(items or [])}))
+    def close_success(self): self._queue.put(("close_success", ""))
+    def close_error(self): self._queue.put(("close_error", ""))
 
     def _pump_queue(self):
-        while True:
-            try:
-                kind, message = self._queue.get_nowait()
-            except queue.Empty:
-                break
+        while not self._closed:
+            try: kind, message = self._queue.get_nowait()
+            except queue.Empty: break
             self._handle_event(kind, message)
-
-        if not self._closed:
-            self.root.after(100, self._pump_queue)
+        if not self._closed: self.root.after(100, self._pump_queue)
 
     def _handle_event(self, kind, message):
-        if kind == "info":
-            self.status_var.set(message)
+        c = self.COLORS
+        if kind in ("info", "detail"):
             self._append(message)
+            if kind == "info" and self._state == "running":
+                self._stage = max(self._stage, self.stage_for(message))
+                titles = ("verificando sua instalação", "preparando os arquivos", "configurando a maya", "quase lá")
+                descriptions = ("conferindo o que já está disponível neste computador.",
+                    "obtendo os arquivos necessários para esta instalação.",
+                    "deixando tudo pronto para a maya funcionar.", "finalizando os últimos passos para abrir a maya.")
+                self.status_var.set(titles[self._stage]);self.subtitle_var.set(descriptions[self._stage])
+                self._update_steps()
             return
-
-        if kind == "detail":
-            self._append(message)
-            return
-
-        if kind == "error":
-            self.status_var.set(message)
-            self._append(f"ERROR: {message}")
-            self.progress.stop()
-            self.close_button.configure(text="Fechar")
-            self._allow_close = True
-            return
-
         if kind == "release_notes":
-            payload = message or {}
-            title = payload.get("title") or "What's New"
-            items = payload.get("items") or []
-            self._set_changes(title, items)
+            payload = message or {};self._set_changes(payload.get("title") or "novidades", payload.get("items") or [])
             return
-
-        if kind == "close_success":
-            self.status_var.set(message)
-            self.progress.stop()
-            self._allow_close = True
-            self._closed = True
-            self.root.after(600, self.root.destroy)
+        if kind in ("error", "close_error"):
+            self._state = "error";self._allow_close = True
+            self._append(f"[MAY-1001] {message}" if message else "[MAY-1001] instalação interrompida")
+            self.status_var.set("a instalação precisa de atenção")
+            self.subtitle_var.set("[MAY-1001] não foi possível concluir. consulte os detalhes antes de tentar novamente.")
+            self.badge.configure(text="precisa de atenção", fg=c["error"])
+            self.progress.stop();self.progress.configure(mode="determinate", value=0)
+            self.ring.itemconfigure(self._ring_arc, outline=c["error"])
+            self.close_button.configure(text="fechar")
+            self.footer_var.set("seus detalhes de instalação continuam disponíveis nesta janela.")
+            self._update_steps()
             return
-
-        if kind == "close_error":
-            self.status_var.set(message)
-            self.progress.stop()
-            self.close_button.configure(text="Fechar")
-            self._allow_close = True
+        if kind == "close_success" and self._state != "error":
+            self._state = "success";self._allow_close = True
+            self.status_var.set("a maya está pronta")
+            self.subtitle_var.set("instalação concluída. você já pode usar a maya.")
+            self.badge.configure(text="concluído", fg=c["green"])
+            self.progress.stop();self.progress.configure(mode="determinate", value=100)
+            self.ring.itemconfigure(self._ring_arc, extent=359, outline=c["green"])
+            self.close_button.configure(text="fechar")
+            self.footer_var.set("tudo pronto. esta janela já pode ser fechada.")
+            self._update_steps()
 
     def _append(self, message):
         self.log_text.configure(state="normal")
         self.log_text.insert("end", f"{message}\n")
-        self.log_text.see("end")
-        self.log_text.configure(state="disabled")
+        # Bound long package-manager output without losing the current status.
+        if int(self.log_text.index("end-1c").split(".")[0]) > 600:
+            self.log_text.delete("1.0", "101.0")
+        self.log_text.see("end");self.log_text.configure(state="disabled")
 
     def _set_changes(self, title, items=None):
         self.changes_title.configure(text=title)
-        self.changes_text.configure(state="normal")
-        self.changes_text.delete("1.0", "end")
+        self.changes_text.configure(state="normal");self.changes_text.delete("1.0", "end")
         if items:
-            for item in items:
-                self.changes_text.insert("end", f"- {item}\n\n")
+            for item in items: self.changes_text.insert("end", f"{item}\n\n")
         else:
-            self.changes_text.insert("end", "No release notes available for this update.")
+            self.changes_text.insert("end", "nenhuma nota disponível para esta versão.")
         self.changes_text.configure(state="disabled")
 
     def _on_close(self):
         if self._allow_close:
-            self._closed = True
-            self.root.destroy()
-        else:
-            self.root.iconify()
+            self._closed = True;self.root.destroy()
+        else: self.root.iconify()
+
+    def preview(self, state="running"):
+        """Visual-only preview: never starts download, build or installation workers."""
+        self._allow_close = True
+        self.root.title("maya · prévia do instalador")
+        self._handle_event("info", "Preparing Maya runtime...")
+        self._set_changes("nesta atualização", ["reconhecimento local com whisper.cpp.",
+            "respostas e controles mais consistentes.", "diagnósticos com códigos de erro."])
+        if state == "success": self._handle_event("close_success", "")
+        elif state == "error": self._handle_event("error", "exemplo visual de falha; nenhuma instalação foi executada.")
+        self.root.mainloop()
 
 
 def create_reporter():
@@ -769,6 +806,13 @@ def run_bootstrap(reporter):
 
 
 def main():
+    if "--preview" in sys.argv:
+        index = sys.argv.index("--preview")
+        state = sys.argv[index+1] if index+1 < len(sys.argv) else "running"
+        if state not in ("running", "success", "error"):
+            raise SystemExit("preview state must be running, success or error")
+        SetupWindow().preview(state)
+        return
     # The bootstrap can launch the application executable after installation.
     # If an incorrectly packaged/old build points that launch back to this
     # executable, refuse to create another setup window/process.

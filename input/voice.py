@@ -4,6 +4,7 @@ import threading
 import math
 import numpy as np
 from helpers.config import get_env
+from helpers.diagnostics import report_error
 
 try:
     import vosk
@@ -41,6 +42,7 @@ class Voice:
         self.last_block_has_speech = False
 
         self.thread = None
+        self._stop_requested = threading.Event()
         # Bound the backlog so an overloaded recognizer never answers old audio.
         self.audio_queue = queue.Queue(maxsize=16)
 
@@ -59,11 +61,13 @@ class Voice:
     def _set_audio_backend_error(self, reason=None):
         base_reason = reason or _SOUNDDEVICE_IMPORT_ERROR
         self.last_error = str(base_reason) if base_reason else "sounddevice is unavailable"
+        report_error("microphone_dependency", base_reason, operation="voice.audio.dependency")
         return False
 
     def _set_vosk_backend_error(self, reason=None):
         base_reason = reason or _VOSK_IMPORT_ERROR
         self.last_error = str(base_reason) if base_reason else "vosk is unavailable"
+        report_error("microphone_dependency", base_reason, operation="voice.vosk.dependency")
         return False
 
     def has_input_device(self):
@@ -74,6 +78,7 @@ class Voice:
             devices = sd.query_devices()
         except Exception as error:
             self.last_error = str(error)
+            report_error("microphone_device", error, operation="voice.device.query")
             return False
 
         for device in devices:
@@ -104,14 +109,13 @@ class Voice:
             self.model = vosk.Model(self.model_path)
             self.recognizer = vosk.KaldiRecognizer(self.model, self.sample_rate)
             self.is_loaded = True
-            self.set_status("ready", on_status_change)
             if self.DEBUG_MODE:
                 print("vosk loaded")
 
         except Exception as error:
             self.last_error = str(error)
             self.set_status("error", on_status_change)
-            print("voice load error:", repr(error))
+            report_error("voice_model", error, operation="voice.vosk.load", context={"engine":"vosk"})
 
     def audio_callback(self, indata, frames, time, status):
         if status:
@@ -170,7 +174,7 @@ class Voice:
     def _listen_loop(self, on_final_text=None, on_partial_text=None, on_status_change=None):
         self.load_voice(on_status_change)
 
-        if not self.is_loaded:
+        if not self.is_loaded or self._stop_requested.is_set():
             return
 
         self.is_listening = True
@@ -183,13 +187,17 @@ class Voice:
                 channels=1,
                 callback=self.audio_callback
             ):
+                self.set_status("ready", on_status_change)
                 if self.DEBUG_MODE:
                     print("voice listening...")
 
                 silent_blocks = 0
                 latest_partial = ""
-                while self.is_listening:
-                    packet = self.audio_queue.get()
+                while self.is_listening and not self._stop_requested.is_set():
+                    try:
+                        packet = self.audio_queue.get(timeout=0.2)
+                    except queue.Empty:
+                        continue
                     if isinstance(packet, tuple):
                         data, block_has_speech = packet
                     else:
@@ -240,22 +248,27 @@ class Voice:
             self.last_error = str(error)
             self.set_status("error", on_status_change)
 
-            print("voice runtime error:", error)
+            report_error("voice_runtime", error, operation="voice.capture", context={"engine":"vosk"})
 
         finally:
             self.is_listening = False
             if self.status != "error":
-                self.set_status("ready", on_status_change)
+                self.set_status("idle", on_status_change)
 
             if self.DEBUG_MODE:
                 print("voice stopped")
 
-    def start_background(self, on_final_text=None, on_partial_text=None, on_status_change=None):
-        if self.thread and self.thread.is_alive():
-            return True
-
+    def _backend_available(self):
         if vosk is None:
             self._set_vosk_backend_error()
+            return False
+        return True
+
+    def start_background(self, on_final_text=None, on_partial_text=None, on_status_change=None):
+        if self.thread and self.thread.is_alive():
+            return not self._stop_requested.is_set()
+
+        if not self._backend_available():
             self.set_status("unavailable", on_status_change)
             return False
 
@@ -268,6 +281,8 @@ class Voice:
             self.set_status("unavailable", on_status_change)
             return False
 
+        self._stop_requested.clear()
+        self.last_error = None
         self.thread = threading.Thread(
             target=self._listen_loop,
             kwargs={
@@ -281,6 +296,7 @@ class Voice:
         return True
 
     def stop(self):
+        self._stop_requested.set()
         self.is_listening = False
 
         while not self.audio_queue.empty():

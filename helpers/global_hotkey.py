@@ -1,3 +1,4 @@
+from helpers.diagnostics import report_error
 import threading
 import sys
 import time
@@ -55,6 +56,7 @@ class GlobalHotkeyListener:
             listener.join()
             return
         except Exception as error:
+            report_error("hotkey", error, operation="global_hotkey._run_windows_hotkey_listener", notify=False)
             self.last_error = f"pynput hotkey unavailable: {error}"
             self._listener = None
 
@@ -86,6 +88,7 @@ class GlobalHotkeyListener:
 
                 time.sleep(0.03)
         except Exception as error:
+            report_error("hotkey", error, operation="global_hotkey._run_windows_hotkey_listener", notify=False)
             self.last_error = str(error)
             startup_event.set()
         finally:
@@ -101,6 +104,7 @@ class GlobalHotkeyListener:
         try:
             from pynput import keyboard
         except Exception as error:
+            report_error("hotkey", error, operation="global_hotkey._run_delete_pgup_listener", notify=False)
             self.last_error = f"pynput is unavailable: {error}"
             self.is_running = False
             startup_event.set()
@@ -136,6 +140,7 @@ class GlobalHotkeyListener:
             startup_event.set()
             listener.join()
         except Exception as error:
+            report_error("hotkey", error, operation="global_hotkey._run_delete_pgup_listener", notify=False)
             self.last_error = str(error)
             startup_event.set()
         finally:

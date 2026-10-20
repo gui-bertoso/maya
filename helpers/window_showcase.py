@@ -1,3 +1,4 @@
+from helpers.diagnostics import report_error
 import json
 import os
 import subprocess
@@ -467,6 +468,7 @@ class WindowShowcaseBackend:
                 win32gui.SetForegroundWindow(target_id)
                 return True, ""
             except Exception as error:
+                report_error("app_target", error, operation="window_showcase.activate_window", notify=False)
                 return False, f"could not focus the selected window: {error}"
 
         if self.backend_name == "hyprland":
@@ -479,11 +481,13 @@ class WindowShowcaseBackend:
                     text=True,
                 )
                 return True, ""
-            except FileNotFoundError:
+            except FileNotFoundError as diagnostic_error:
+                report_error("app_target", diagnostic_error, operation="window_showcase.activate_window", notify=False)
                 self.available = False
                 self.reason = "the `hyprctl` command is not available anymore."
                 return False, self.reason
             except subprocess.CalledProcessError as error:
+                report_error("app_target", error, operation="window_showcase.activate_window", notify=False)
                 stderr = (error.stderr or "").strip()
                 return False, stderr or "could not focus the selected Hyprland window."
 
@@ -493,6 +497,7 @@ class WindowShowcaseBackend:
                 self.kwin_control.window(target_id, "w.minimized = false; workspace.activeWindow = w;")
                 return True, ""
             except Exception as error:
+                report_error("app_target", error, operation="window_showcase.activate_window", notify=False)
                 return False, f"could not focus the selected KDE window: {error}"
 
         try:
@@ -511,6 +516,7 @@ class WindowShowcaseBackend:
             self.display.sync()
             return True, ""
         except Exception as error:
+            report_error("app_target", error, operation="window_showcase.activate_window", notify=False)
             return False, f"could not focus the selected window: {error}"
 
     def get_window_rect(self, window_id):
@@ -570,6 +576,7 @@ class WindowShowcaseBackend:
                 win32gui.SetWindowPos(target_id, 0, int(x), int(y), width, height, flags)
                 return True, ""
             except Exception as error:
+                report_error("ui_position", error, operation="window_showcase.move_window", notify=False)
                 return False, f"could not move the selected window: {error}"
 
         if self.backend_name == "kwin":
@@ -577,6 +584,7 @@ class WindowShowcaseBackend:
                 self.kwin_control.move(window_id, x, y)
                 return True, ""
             except Exception as error:
+                report_error("ui_position", error, operation="window_showcase.move_window", notify=False)
                 return False, str(error)
         return False, "moving external windows is unavailable in this session."
 
@@ -595,6 +603,7 @@ class WindowShowcaseBackend:
             self.win32["gui"].ShowWindow(target_id, command)
             return True, ""
         except Exception as error:
+            report_error("ui_runtime", error, operation="window_showcase.set_window_state", notify=False)
             return False, f"could not change the selected window state: {error}"
 
     def minimize_window(self, window_id):
@@ -606,7 +615,8 @@ class WindowShowcaseBackend:
                 target_id = int(str(window_id), 0)
                 self.win32["gui"].ShowWindow(target_id, self.win32["con"].SW_MINIMIZE)
                 return True
-            except Exception:
+            except Exception as diagnostic_error:
+                report_error("ui_runtime", diagnostic_error, operation="window_showcase.minimize_window", notify=False)
                 return False
 
         if self.backend_name in {"hyprland", "kwin"}:
@@ -617,7 +627,8 @@ class WindowShowcaseBackend:
             target_window.iconify()
             self.display.sync()
             return True
-        except Exception:
+        except Exception as diagnostic_error:
+            report_error("ui_runtime", diagnostic_error, operation="window_showcase.minimize_window", notify=False)
             return False
 
     def restore_window(self, window_id):
@@ -629,7 +640,8 @@ class WindowShowcaseBackend:
                 target_id = int(str(window_id), 0)
                 self.win32["gui"].ShowWindow(target_id, self.win32["con"].SW_RESTORE)
                 return True
-            except Exception:
+            except Exception as diagnostic_error:
+                report_error("ui_runtime", diagnostic_error, operation="window_showcase.restore_window", notify=False)
                 return False
 
         if self.backend_name == "hyprland":
@@ -644,7 +656,8 @@ class WindowShowcaseBackend:
             target_window.map()
             self.display.sync()
             return True
-        except Exception:
+        except Exception as diagnostic_error:
+            report_error("ui_runtime", diagnostic_error, operation="window_showcase.restore_window", notify=False)
             return False
 
 

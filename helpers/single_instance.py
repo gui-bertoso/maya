@@ -1,3 +1,4 @@
+from helpers.diagnostics import report_error
 import ctypes
 import sys
 
@@ -41,5 +42,6 @@ class SingleInstance:
             user32.ShowWindow(window, 9)
             user32.SetForegroundWindow(window)
             return True
-        except Exception:
+        except Exception as error:
+            report_error("ui_runtime", error, operation="activation.show_existing", notify=False)
             return False

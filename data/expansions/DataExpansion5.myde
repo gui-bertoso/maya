@@ -1,0 +1,350 @@
+{
+  "format": "maya-data-expansion",
+  "format_version": 1,
+  "name": "godot-foundations",
+  "version": 1,
+  "language": "en",
+  "description": "Authored concise reference answers; exact question aliases; source links retained. No executable actions.",
+  "knowledge": [
+    {
+      "questions": [
+        "godot node",
+        "what is godot node",
+        "what is a godot node",
+        "explain godot node",
+        "tell me about godot node",
+        "define godot node"
+      ],
+      "answer": "A node is a building block that provides behavior in a scene.",
+      "sources": [
+        {
+          "title": "Godot nodes and scenes",
+          "url": "https://docs.godotengine.org/en/stable/getting_started/step_by_step/nodes_and_scenes.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "godot scene",
+        "what is godot scene",
+        "what is a godot scene",
+        "explain godot scene",
+        "tell me about godot scene",
+        "define godot scene"
+      ],
+      "answer": "A scene is a reusable tree of nodes with one root.",
+      "sources": [
+        {
+          "title": "Godot nodes and scenes",
+          "url": "https://docs.godotengine.org/en/stable/getting_started/step_by_step/nodes_and_scenes.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "godot scene tree",
+        "what is godot scene tree",
+        "what is a godot scene tree",
+        "explain godot scene tree",
+        "tell me about godot scene tree",
+        "define godot scene tree"
+      ],
+      "answer": "The scene tree organizes the nodes currently running in a game.",
+      "sources": [
+        {
+          "title": "Godot nodes and scenes",
+          "url": "https://docs.godotengine.org/en/stable/getting_started/step_by_step/nodes_and_scenes.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "godot root node",
+        "what is godot root node",
+        "what is a godot root node",
+        "explain godot root node",
+        "tell me about godot root node",
+        "define godot root node"
+      ],
+      "answer": "The root is the top node of a scene's hierarchy.",
+      "sources": [
+        {
+          "title": "Godot nodes and scenes",
+          "url": "https://docs.godotengine.org/en/stable/getting_started/step_by_step/nodes_and_scenes.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "godot child node",
+        "what is godot child node",
+        "what is a godot child node",
+        "explain godot child node",
+        "tell me about godot child node",
+        "define godot child node"
+      ],
+      "answer": "A child node belongs beneath a parent in the node hierarchy.",
+      "sources": [
+        {
+          "title": "Godot nodes and scenes",
+          "url": "https://docs.godotengine.org/en/stable/getting_started/step_by_step/nodes_and_scenes.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "godot scene instance",
+        "what is godot scene instance",
+        "what is a godot scene instance",
+        "explain godot scene instance",
+        "tell me about godot scene instance",
+        "define godot scene instance"
+      ],
+      "answer": "Instancing a saved scene creates a reusable copy of its node structure.",
+      "sources": [
+        {
+          "title": "Godot nodes and scenes",
+          "url": "https://docs.godotengine.org/en/stable/getting_started/step_by_step/nodes_and_scenes.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "godot main scene",
+        "what is godot main scene",
+        "what is a godot main scene",
+        "explain godot main scene",
+        "tell me about godot main scene",
+        "define godot main scene"
+      ],
+      "answer": "The main scene is the scene selected to start the project.",
+      "sources": [
+        {
+          "title": "Godot nodes and scenes",
+          "url": "https://docs.godotengine.org/en/stable/getting_started/step_by_step/nodes_and_scenes.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "godot node properties",
+        "what is godot node properties",
+        "what is a godot node properties",
+        "explain godot node properties",
+        "tell me about godot node properties",
+        "define godot node properties"
+      ],
+      "answer": "Node properties configure behavior and can be edited in the Inspector.",
+      "sources": [
+        {
+          "title": "Godot nodes and scenes",
+          "url": "https://docs.godotengine.org/en/stable/getting_started/step_by_step/nodes_and_scenes.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "godot scene composition",
+        "what is godot scene composition",
+        "what is a godot scene composition",
+        "explain godot scene composition",
+        "tell me about godot scene composition",
+        "define godot scene composition"
+      ],
+      "answer": "Composition builds larger scenes by combining smaller reusable scenes.",
+      "sources": [
+        {
+          "title": "Godot nodes and scenes",
+          "url": "https://docs.godotengine.org/en/stable/getting_started/step_by_step/nodes_and_scenes.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "godot scene hierarchy",
+        "what is godot scene hierarchy",
+        "what is a godot scene hierarchy",
+        "explain godot scene hierarchy",
+        "tell me about godot scene hierarchy",
+        "define godot scene hierarchy"
+      ],
+      "answer": "A scene hierarchy describes parent and child relationships between nodes.",
+      "sources": [
+        {
+          "title": "Godot nodes and scenes",
+          "url": "https://docs.godotengine.org/en/stable/getting_started/step_by_step/nodes_and_scenes.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "godot signal",
+        "what is godot signal",
+        "what is a godot signal",
+        "explain godot signal",
+        "tell me about godot signal",
+        "define godot signal"
+      ],
+      "answer": "A signal announces an event so connected code can react.",
+      "sources": [
+        {
+          "title": "Godot signals",
+          "url": "https://docs.godotengine.org/en/stable/getting_started/step_by_step/signals.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "godot signal connection",
+        "what is godot signal connection",
+        "what is a godot signal connection",
+        "explain godot signal connection",
+        "tell me about godot signal connection",
+        "define godot signal connection"
+      ],
+      "answer": "A connection links an emitted signal to a callable receiving that event.",
+      "sources": [
+        {
+          "title": "Godot signals",
+          "url": "https://docs.godotengine.org/en/stable/getting_started/step_by_step/signals.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "godot custom signal",
+        "what is godot custom signal",
+        "what is a godot custom signal",
+        "explain godot custom signal",
+        "tell me about godot custom signal",
+        "define godot custom signal"
+      ],
+      "answer": "A custom signal defines an event specific to your script.",
+      "sources": [
+        {
+          "title": "Godot signals",
+          "url": "https://docs.godotengine.org/en/stable/getting_started/step_by_step/signals.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "godot signal arguments",
+        "what is godot signal arguments",
+        "what is a godot signal arguments",
+        "explain godot signal arguments",
+        "tell me about godot signal arguments",
+        "define godot signal arguments"
+      ],
+      "answer": "Signal arguments carry event data to connected callables.",
+      "sources": [
+        {
+          "title": "Godot signals",
+          "url": "https://docs.godotengine.org/en/stable/getting_started/step_by_step/signals.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "godot timer timeout",
+        "what is godot timer timeout",
+        "what is a godot timer timeout",
+        "explain godot timer timeout",
+        "tell me about godot timer timeout",
+        "define godot timer timeout"
+      ],
+      "answer": "A Timer emits its timeout signal after its configured waiting interval.",
+      "sources": [
+        {
+          "title": "Godot signals",
+          "url": "https://docs.godotengine.org/en/stable/getting_started/step_by_step/signals.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "godot process callback",
+        "what is godot process callback",
+        "what is a godot process callback",
+        "explain godot process callback",
+        "tell me about godot process callback",
+        "define godot process callback"
+      ],
+      "answer": "The process callback runs during idle processing, usually once per rendered frame.",
+      "sources": [
+        {
+          "title": "Godot processing",
+          "url": "https://docs.godotengine.org/en/stable/tutorials/scripting/idle_and_physics_processing.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "godot physics callback",
+        "what is godot physics callback",
+        "what is a godot physics callback",
+        "explain godot physics callback",
+        "tell me about godot physics callback",
+        "define godot physics callback"
+      ],
+      "answer": "The physics process callback runs at a fixed rate for physics-related behavior.",
+      "sources": [
+        {
+          "title": "Godot processing",
+          "url": "https://docs.godotengine.org/en/stable/tutorials/scripting/idle_and_physics_processing.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "godot delta time",
+        "what is godot delta time",
+        "what is a godot delta time",
+        "explain godot delta time",
+        "tell me about godot delta time",
+        "define godot delta time"
+      ],
+      "answer": "Delta is elapsed time since the preceding corresponding processing callback.",
+      "sources": [
+        {
+          "title": "Godot processing",
+          "url": "https://docs.godotengine.org/en/stable/tutorials/scripting/idle_and_physics_processing.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "godot frame independent movement",
+        "what is godot frame independent movement",
+        "what is a godot frame independent movement",
+        "explain godot frame independent movement",
+        "tell me about godot frame independent movement",
+        "define godot frame independent movement"
+      ],
+      "answer": "Multiplying speed by delta makes movement account for elapsed time.",
+      "sources": [
+        {
+          "title": "Godot processing",
+          "url": "https://docs.godotengine.org/en/stable/tutorials/scripting/idle_and_physics_processing.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "godot physics tick",
+        "what is godot physics tick",
+        "what is a godot physics tick",
+        "explain godot physics tick",
+        "tell me about godot physics tick",
+        "define godot physics tick"
+      ],
+      "answer": "A physics tick is one step of the fixed-rate physics update cycle.",
+      "sources": [
+        {
+          "title": "Godot processing",
+          "url": "https://docs.godotengine.org/en/stable/tutorials/scripting/idle_and_physics_processing.html"
+        }
+      ]
+    }
+  ]
+}

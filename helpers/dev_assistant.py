@@ -1,3 +1,4 @@
+from helpers.diagnostics import report_error
 import json
 import re
 import subprocess
@@ -119,7 +120,8 @@ class DevAssistant:
                 text=True,
             )
             return True
-        except Exception:
+        except Exception as error:
+            report_error("dev_command", error, operation="devtools.git", notify=False)
             return False
 
     def _create_initial_commit(self, project_path):

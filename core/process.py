@@ -9,6 +9,7 @@ import unicodedata
 from core import vocabulary_manager
 from core.knowledge_base import KnowledgeBase
 from core.memory import Memory
+from core.dialogue import DialogueEngine
 from core.routine_manager import RoutineManager
 from helpers.config import get_env, get_path
 from helpers.data_expansions import DataExpansionLoader, load_legacy_expansions
@@ -2634,7 +2635,7 @@ class Process:
             patterns["app_alias"] = None
 
         launch_match = re.search(
-            r"\b(?:open|launch|start|run|abre|abrir|inicia|iniciar|roda|rodar)\s+([a-zA-Z0-9 .+-]+?)(?:\s+(?:for me|please|pra mim|por favor))?$",
+            r"^(?:(?:please|can you|could you|would you|maya|maia|por favor|voce pode|você pode|pode)\s+)*(?:open|launch|start|run|abre|abrir|inicia|iniciar|roda|rodar)\s+([a-zA-Z0-9 .+-]+?)(?:\s+(?:for me|please|pra mim|por favor))?$",
             text_lower
         )
         if launch_match and not patterns["web_action"] and not patterns["spotify_action"] and not patterns["media_action"] and not patterns["dev_project_action"] and not patterns["subapp_action"]:
@@ -2642,7 +2643,7 @@ class Process:
             patterns["app_alias"] = launch_match.group(1).strip()
 
         close_match = re.search(
-            r"\b(?:close|quit|exit|stop|fecha|fechar|encerra|encerrar)\s+([a-zA-Z0-9 .+-]+?)(?:\s+(?:for me|please|pra mim|por favor))?$",
+            r"^(?:(?:please|can you|could you|would you|maya|maia|por favor|voce pode|você pode|pode)\s+)*(?:close|quit|exit|stop|fecha|fechar|encerra|encerrar)\s+([a-zA-Z0-9 .+-]+?)(?:\s+(?:for me|please|pra mim|por favor))?$",
             text_lower
         )
         if close_match and not patterns["exit_self"] and not patterns["web_action"] and not patterns["spotify_action"] and not patterns["media_action"] and not patterns["dev_project_action"]:
@@ -2650,7 +2651,7 @@ class Process:
             patterns["app_alias"] = close_match.group(1).strip()
 
         text_search_match = re.search(
-            r"\b(?:search for|look up|google|search|procura|pesquisa|pesquise|busca|buscar)\s+(.+)$",
+            r"^(?:(?:please|can you|could you|would you|maya|maia|por favor|voce pode|você pode|pode)\s+)*(?:search for|look up|google|search|procura|pesquisa|pesquise|busca|buscar)\s+(.+)$",
             text_lower
         )
         if text_search_match and not patterns["web_action"]:
@@ -2703,6 +2704,11 @@ class Process:
         )
 
         self.apply_command_aliases(text_lower, patterns)
+        # An explanation mentioning "run", "open" or "search" is not an action request.
+        if (self.is_knowledge_request(text_lower)
+                or self.starts_with_any(text_lower, ("o que e ", "explique ", "defina ", "me fale sobre "))):
+            for action in DialogueEngine.ACTIONS:
+                patterns[action] = False
 
         if (
             not any([

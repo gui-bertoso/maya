@@ -7,6 +7,7 @@ from collections import Counter
 from difflib import SequenceMatcher
 from pathlib import Path
 from helpers.config import get_env, get_resource_path
+from core.conversation import ConversationPolicy
 
 
 def normalize(text):
@@ -116,18 +117,23 @@ class DialogueEngine:
             details = '; '.join(entity['details'])
             return f"você me disse que seu {entity['kind']} se chama {entity['name']}." + (f' também disse: {details}.' if details else '')
         if clean in {'resume nossa conversa', 'resuma nossa conversa', 'o que conversamos', 'resuma o contexto'}:
-            notes = frame['notes'][-6:]
+            personal = frame.get('conversation', {}).get('turns', [])[-3:]
+            notes = frame['notes'][-3:] + [f"você disse: {turn['text']}" for turn in personal]
             topic = self.by_id.get(frame.get('topic'))
             pieces = ([f"o assunto mais recente foi {topic['title']}"] if topic else []) + notes
             return ('até aqui: ' + '; '.join(pieces) + '.') if pieces else 'ainda não tenho contexto suficiente pra resumir. me conta o que você está fazendo.'
         # Retrieve only actual saved user facts, retaining their provenance.
         if re.search(r'\b(lembra|lembre|recorda)\b.*\b(sobre|de|do|da)\b', clean):
             query = tokens(clean) - {'lembra', 'lembre', 'recorda'}
-            facts = [*frame['notes'], *memory.get_known_facts()]
+            personal = frame.get('conversation', {}).get('turns', [])
+            facts = [*frame['notes'], *memory.get_known_facts(), *(turn['text'] for turn in personal)]
             matches = [(len(tokens(fact) & query), fact) for fact in facts]
             matches = sorted((m for m in matches if m[0]), reverse=True)
             if matches:
                 return 'você me contou: ' + '; '.join(f for _, f in matches[:3]) + '.'
+        conversational = ConversationPolicy().reply(text, clean, frame)
+        if conversational is not None:
+            return conversational
         ranked = self.ranked_topics(text)
         pending = frame.get('pending_topics', [])
         if pending:
@@ -160,6 +166,9 @@ class DialogueEngine:
         kind = self.kind(text)
         if followup and kind == 'intro':
             kind = 'how' if frame.get('last_kind') != 'how' else 'example'
+        if 'conversation' in frame:
+            frame['conversation']['topic'] = None
+            frame['conversation']['mode'] = None
         interaction = topic['replies'][kind]
         key = topic['id'] + ':' + kind
         frame['topic'], frame['last_kind'] = topic['id'], kind

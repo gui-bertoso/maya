@@ -1,0 +1,350 @@
+{
+  "format": "maya-data-expansion",
+  "format_version": 1,
+  "name": "linux-files-and-paths",
+  "version": 1,
+  "language": "en",
+  "description": "Authored concise reference answers; exact question aliases; source links retained. No executable actions.",
+  "knowledge": [
+    {
+      "questions": [
+        "linux absolute path",
+        "what is linux absolute path",
+        "what is a linux absolute path",
+        "explain linux absolute path",
+        "tell me about linux absolute path",
+        "define linux absolute path"
+      ],
+      "answer": "An absolute path begins at the root directory.",
+      "sources": [
+        {
+          "title": "Linux pathname resolution",
+          "url": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "linux relative path",
+        "what is linux relative path",
+        "what is a linux relative path",
+        "explain linux relative path",
+        "tell me about linux relative path",
+        "define linux relative path"
+      ],
+      "answer": "A relative path is interpreted from a starting directory, commonly the current directory.",
+      "sources": [
+        {
+          "title": "Linux pathname resolution",
+          "url": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "linux root directory",
+        "what is linux root directory",
+        "what is a linux root directory",
+        "explain linux root directory",
+        "tell me about linux root directory",
+        "define linux root directory"
+      ],
+      "answer": "The root directory is the starting point of an absolute pathname.",
+      "sources": [
+        {
+          "title": "Linux pathname resolution",
+          "url": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "linux current directory",
+        "what is linux current directory",
+        "what is a linux current directory",
+        "explain linux current directory",
+        "tell me about linux current directory",
+        "define linux current directory"
+      ],
+      "answer": "The current working directory supplies the starting point for ordinary relative paths.",
+      "sources": [
+        {
+          "title": "Linux pathname resolution",
+          "url": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "linux parent directory",
+        "what is linux parent directory",
+        "what is a linux parent directory",
+        "explain linux parent directory",
+        "tell me about linux parent directory",
+        "define linux parent directory"
+      ],
+      "answer": "The dot-dot component refers to a directory's parent, bounded by the process root.",
+      "sources": [
+        {
+          "title": "Linux pathname resolution",
+          "url": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "linux dot path",
+        "what is linux dot path",
+        "what is a linux dot path",
+        "explain linux dot path",
+        "tell me about linux dot path",
+        "define linux dot path"
+      ],
+      "answer": "A single dot path component refers to the current directory.",
+      "sources": [
+        {
+          "title": "Linux pathname resolution",
+          "url": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "linux symbolic link",
+        "what is linux symbolic link",
+        "what is a linux symbolic link",
+        "explain linux symbolic link",
+        "tell me about linux symbolic link",
+        "define linux symbolic link"
+      ],
+      "answer": "A symbolic link contains a pathname that pathname resolution may follow.",
+      "sources": [
+        {
+          "title": "Linux pathname resolution",
+          "url": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "linux symlink loop",
+        "what is linux symlink loop",
+        "what is a linux symlink loop",
+        "explain linux symlink loop",
+        "tell me about linux symlink loop",
+        "define linux symlink loop"
+      ],
+      "answer": "Following too many symbolic links causes pathname resolution to fail.",
+      "sources": [
+        {
+          "title": "Linux pathname resolution",
+          "url": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "linux directory search permission",
+        "what is linux directory search permission",
+        "what is a linux directory search permission",
+        "explain linux directory search permission",
+        "tell me about linux directory search permission",
+        "define linux directory search permission"
+      ],
+      "answer": "Directory search permission is needed to traverse that directory during pathname resolution.",
+      "sources": [
+        {
+          "title": "Linux pathname resolution",
+          "url": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "linux mount point",
+        "what is linux mount point",
+        "what is a linux mount point",
+        "explain linux mount point",
+        "tell me about linux mount point",
+        "define linux mount point"
+      ],
+      "answer": "A mount point makes another filesystem accessible at a directory in the pathname hierarchy.",
+      "sources": [
+        {
+          "title": "Linux pathname resolution",
+          "url": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "linux inode",
+        "what is linux inode",
+        "what is a linux inode",
+        "explain linux inode",
+        "tell me about linux inode",
+        "define linux inode"
+      ],
+      "answer": "An inode stores filesystem metadata for an object, rather than its filename.",
+      "sources": [
+        {
+          "title": "Linux inode manual",
+          "url": "https://man7.org/linux/man-pages/man7/inode.7.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "linux file owner",
+        "what is linux file owner",
+        "what is a linux file owner",
+        "explain linux file owner",
+        "tell me about linux file owner",
+        "define linux file owner"
+      ],
+      "answer": "File metadata includes an owning user identifier and group identifier.",
+      "sources": [
+        {
+          "title": "Linux inode manual",
+          "url": "https://man7.org/linux/man-pages/man7/inode.7.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "linux file permissions",
+        "what is linux file permissions",
+        "what is a linux file permissions",
+        "explain linux file permissions",
+        "tell me about linux file permissions",
+        "define linux file permissions"
+      ],
+      "answer": "Permission bits control access for the owner, group and other users.",
+      "sources": [
+        {
+          "title": "Linux inode manual",
+          "url": "https://man7.org/linux/man-pages/man7/inode.7.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "linux regular file",
+        "what is linux regular file",
+        "what is a linux regular file",
+        "explain linux regular file",
+        "tell me about linux regular file",
+        "define linux regular file"
+      ],
+      "answer": "A regular file stores data, unlike directories or special device files.",
+      "sources": [
+        {
+          "title": "Linux inode manual",
+          "url": "https://man7.org/linux/man-pages/man7/inode.7.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "linux directory",
+        "what is linux directory",
+        "what is a linux directory",
+        "explain linux directory",
+        "tell me about linux directory",
+        "define linux directory"
+      ],
+      "answer": "A directory associates names with filesystem objects.",
+      "sources": [
+        {
+          "title": "Linux inode manual",
+          "url": "https://man7.org/linux/man-pages/man7/inode.7.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "linux hard link",
+        "what is linux hard link",
+        "what is a linux hard link",
+        "explain linux hard link",
+        "tell me about linux hard link",
+        "define linux hard link"
+      ],
+      "answer": "Hard links are multiple names referring to the same inode within a filesystem.",
+      "sources": [
+        {
+          "title": "Linux inode manual",
+          "url": "https://man7.org/linux/man-pages/man7/inode.7.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "linux link count",
+        "what is linux link count",
+        "what is a linux link count",
+        "explain linux link count",
+        "tell me about linux link count",
+        "define linux link count"
+      ],
+      "answer": "The link count records how many hard links refer to an inode.",
+      "sources": [
+        {
+          "title": "Linux inode manual",
+          "url": "https://man7.org/linux/man-pages/man7/inode.7.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "linux fifo",
+        "what is linux fifo",
+        "what is a linux fifo",
+        "explain linux fifo",
+        "tell me about linux fifo",
+        "define linux fifo"
+      ],
+      "answer": "A FIFO is a named pipe used for communication between processes.",
+      "sources": [
+        {
+          "title": "Linux inode manual",
+          "url": "https://man7.org/linux/man-pages/man7/inode.7.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "linux device file",
+        "what is linux device file",
+        "what is a linux device file",
+        "explain linux device file",
+        "tell me about linux device file",
+        "define linux device file"
+      ],
+      "answer": "A device file represents access to a character or block device.",
+      "sources": [
+        {
+          "title": "Linux inode manual",
+          "url": "https://man7.org/linux/man-pages/man7/inode.7.html"
+        }
+      ]
+    },
+    {
+      "questions": [
+        "linux file timestamps",
+        "what is linux file timestamps",
+        "what is a linux file timestamps",
+        "explain linux file timestamps",
+        "tell me about linux file timestamps",
+        "define linux file timestamps"
+      ],
+      "answer": "Metadata tracks times such as last access, data modification and metadata change.",
+      "sources": [
+        {
+          "title": "Linux inode manual",
+          "url": "https://man7.org/linux/man-pages/man7/inode.7.html"
+        }
+      ]
+    }
+  ]
+}
