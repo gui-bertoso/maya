@@ -34,7 +34,9 @@ class LinuxInstallerTests(unittest.TestCase):
                      io.BytesIO(archive({'maya-' + revision + '/scripts/install_linux.py': '# backend'}))]
         with tempfile.TemporaryDirectory() as folder, patch.dict('os.environ', {'XDG_DATA_HOME': folder}), \
              patch.object(setup.urllib.request, 'urlopen', side_effect=responses) as fetch:
-            result = setup.download_linux_source(Reporter())
+            reporter = Reporter()
+            result = setup.download_linux_source(reporter)
+            self.assertEqual(reporter.linux_revision, revision)
             self.assertTrue((result / 'scripts/install_linux.py').is_file())
             self.assertIn('feature%2Fvoice', fetch.call_args_list[0].args[0].full_url)
             self.assertIn(revision + '.zip', fetch.call_args_list[1].args[0])
@@ -90,6 +92,28 @@ class LinuxInstallerTests(unittest.TestCase):
             entry = (data / 'applications/maya.desktop').read_text()
             self.assertIn('Exec=/bin/bash "', entry)
             self.assertIn('maya with spaces/scripts/start_maya.sh"', entry)
+
+    def test_windows_bundled_installer_does_not_depend_on_linux_revision(self):
+        with tempfile.TemporaryDirectory() as folder:
+            install = Path(folder) / 'installed'
+            payload = Path(folder) / 'Maya.exe'
+            payload.write_bytes(b'fixture')
+            with patch.object(setup, 'local_install_dir', return_value=install), \
+                 patch.object(setup, 'create_windows_shortcuts'), \
+                 patch.object(setup, 'is_windows', return_value=False), \
+                 patch.object(setup.subprocess, 'Popen'):
+                setup.install_bundled_app(payload)
+            self.assertEqual((install / 'Maya.exe').read_bytes(), b'fixture')
+
+    def test_update_command_is_explicit_and_does_not_use_learning(self):
+        from core.process import Process
+        process = Process.__new__(Process)
+        process.parent = None
+        with patch('helpers.linux_update.open_updater') as updater:
+            response = process.handle_input('update maya')
+        updater.assert_called_once_with()
+        self.assertEqual(process.last_route, 'explicit_update')
+        self.assertIn('updater', response.lower())
 
     def test_voice_archive_rejects_path_traversal(self):
         payload = archive({'../escape': 'bad'})
