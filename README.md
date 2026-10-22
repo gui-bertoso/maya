@@ -16,6 +16,30 @@ Assistente pessoal local-first para Windows, feita em Python. A Maya escuta coma
 - automações para aplicativos, web, Spotify e ambientes de trabalho;
 - instalador gráfico e inicialização automática.
 
+## Instalação visual no Linux
+
+Baixe `setup.sh` da branch `IA_Improvementes` e execute:
+
+```bash
+bash setup.sh
+```
+
+A janela permite escolher a branch do GitHub, baixar a voz offline e abrir a Maya ao terminar. O arquivo inicial é pequeno: código, dependências, Python compatível (se necessário) e modelos são baixados durante a instalação. O repositório precisa estar público para instalação e atualização sem autenticação.
+
+No Fedora, prepare os componentes do sistema:
+
+```bash
+sudo dnf install python3 python3-tkinter portaudio espeak-ng xcb-util-cursor xorg-x11-server-Xwayland
+```
+
+No Ubuntu/Mint: `sudo apt install python3 python3-tk python3-venv libportaudio2 espeak-ng libxcb-cursor0 xwayland`.
+
+A instalação usa `~/.local/share/maya/versions/`, cria um atalho no menu e o comando `~/.local/bin/maya`. Em Wayland, é necessário XWayland. O reconhecimento inicial é Vosk em inglês, com voz Kokoro `af_heart`; nenhum modelo de conversação é baixado ou ativado.
+
+Para atualizar, rode `setup.sh` novamente, use **Atualizar Maya…** no menu da bandeja ou envie `update maya`, `atualizar maya` ou `!update`. O instalador lembra a branch. Feche a Maya pela bandeja **antes de clicar em instalar**: a versão nova recebe uma cópia das configurações e dos dados pessoais, reaproveita os modelos e mantém a pasta anterior. A troca do atalho ocorre somente depois de preparar a instalação. Se uma branch antiga não tiver o backend Linux, o instalador informa isso.
+
+Executar `bash setup.sh --local-source` instala a cópia local, sem baixar o código do GitHub (voltado a desenvolvimento). Instalações existentes mantêm suas opções de voz.
+
 ## Início rápido no Windows
 
 Pressione **Delete + Page Up** para mostrar a Maya de qualquer lugar. Se ela já estiver aberta, iniciar o programa novamente apenas traz a janela existente para frente.

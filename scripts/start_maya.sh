@@ -5,9 +5,14 @@ cd "$ROOT_DIR"
 # XWayland supports Maya's floating overlay positioning and keyboard listener.
 export QT_QPA_PLATFORM=xcb
 if [[ -z "${XAUTHORITY:-}" ]]; then
-    session_auth="$(systemctl --user show-environment | sed -n 's/^XAUTHORITY=//p')"
+    session_auth="$(systemctl --user show-environment 2>/dev/null | sed -n 's/^XAUTHORITY=//p' || true)"
     if [[ -n "$session_auth" ]]; then export XAUTHORITY="$session_auth"; fi
 fi
-export XAUTHORITY="$(.venv/bin/python scripts/prepare_linux_session.py)"
+if [[ -z "${XAUTHORITY:-}" && -f "$HOME/.Xauthority" ]]; then
+    export XAUTHORITY="$HOME/.Xauthority"
+fi
+if [[ -n "${XAUTHORITY:-}" && -f "$XAUTHORITY" && -n "${XDG_RUNTIME_DIR:-}" ]]; then
+    export XAUTHORITY="$(.venv/bin/python scripts/prepare_linux_session.py)"
+fi
 mkdir -p logs
 exec .venv/bin/python -u app.py --show "$@" >> logs/session.log 2>&1
