@@ -516,7 +516,6 @@ def install_bundled_app(payload, reporter=None):
             check=False,
             **windows_subprocess_kwargs(),
         )
-    reporter.linux_revision = revision
     if target.exists():
         shutil.copy2(target, install_dir / "Maya.previous.exe")
     shutil.copy2(payload, target)
@@ -876,6 +875,7 @@ def download_linux_source(reporter):
         raise RuntimeError("revisão do github inválida; abra o setup.sh novamente.")
     root = Path(os.getenv("XDG_DATA_HOME") or Path.home() / ".local/share") / "maya" / "versions"
     target = root / revision
+    reporter.linux_revision = revision
     if target.exists():
         if not (target / "scripts/install_linux.py").is_file():
             raise RuntimeError(f"instalação incompleta em {target}; mova essa pasta e tente novamente.")
