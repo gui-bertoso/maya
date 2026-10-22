@@ -1641,6 +1641,23 @@ class Process:
         if self.parent is not None:
             self.parent.send_event("input_text", my_input)
 
+        # Match the original explicit command before aliases or generated dialogue.
+        if sys.platform.startswith("linux") and self.normalize_text(my_input) in {
+            "atualizar maya", "atualize a maya", "atualiza a maya", "update maya", "!update"
+        }:
+            from helpers.linux_update import open_updater
+            try:
+                open_updater()
+                response = ("abri o atualizador. feche a maya pela bandeja antes de instalar a nova versão."
+                            if is_portuguese() else
+                            "I opened the updater. Quit Maya from the tray before installing the new version.")
+            except Exception as error:
+                response = str(error)
+            self.last_route = "explicit_update"
+            if self.parent is not None:
+                self.parent.send_event("response_text", response)
+            return response
+
         from core.learning import LearningEngine
         handled, learned_response, learned_command = LearningEngine().handle(my_input, self)
         if handled and learned_response is not None:

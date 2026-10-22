@@ -8,6 +8,7 @@ import tempfile
 import threading
 import urllib.request
 import zipfile
+import urllib.parse
 from pathlib import Path
 
 REPO_OWNER = "gui-bertoso"
@@ -207,7 +208,7 @@ class SetupWindow(Reporter):
         details.grid_columnconfigure(0, weight=1)
         self.details_button = tk.Button(details, text="+ mostrar detalhes", command=self._toggle_details,
             bg=c["background"], fg=c["muted"], activebackground=c["background"], activeforeground=c["text"],
-            font=(self._font, 10), relief="flat", borderwidth=0, cursor="hand2", anchor="w", padx=0, pady=5)
+            font=(self._font, 10), relief="flat", borderwidth=0, highlightthickness=0, cursor="hand2", anchor="w", padx=0, pady=5)
         self.details_button.grid(row=0, column=0, sticky="w")
         self.details_frame = tk.Frame(details, bg=c["input"], highlightbackground=c["border"], highlightthickness=1)
         self.details_frame.grid(row=1, column=0, sticky="ew", pady=(7, 0))
@@ -273,6 +274,89 @@ class SetupWindow(Reporter):
             self.details_frame.grid_remove()
             self.details_button.configure(text="+ mostrar detalhes")
 
+    def welcome_linux(self, worker):
+        self._state = "ready"
+        self._allow_close = True
+        self.progress.stop()
+        self.progress.configure(mode="determinate", value=0)
+        self.root.geometry("960x760")
+        self.root.minsize(840, 720)
+        self.badge.configure(text="linux", fg=self.COLORS["green"])
+        self.status_var.set("a maya vai morar por aqui")
+        self.subtitle_var.set("instalação local, sem senha de administrador. os arquivos são baixados quando você começar.")
+        self.footer_var.set("internet necessária · 2 GB livres · feche a maya antes de atualizar")
+        self._set_changes("do seu jeito", ["interface flutuante, voz e texto.",
+            "código baixado do github; modelos de voz baixados separadamente.",
+            "atalho no menu de aplicativos, com o ícone da maya."])
+        self.close_button.master.grid_configure(row=8)
+        saved_branch = "IA_Improvementes"
+        try:
+            record_path = Path(os.getenv("XDG_DATA_HOME") or Path.home() / ".local/share") / "maya/installation.json"
+            saved_branch = json.loads(record_path.read_text()).get("branch", saved_branch)
+        except (OSError, ValueError):
+            pass
+        self.branch_var = self._tk.StringVar(value=os.getenv("MAYA_INSTALL_REF", saved_branch))
+        style = self._ttk.Style(self.root)
+        style.configure("Maya.TCombobox", fieldbackground=self.COLORS["input"],
+            background=self.COLORS["button"], foreground=self.COLORS["text"],
+            arrowcolor=self.COLORS["body"], bordercolor=self.COLORS["border"], padding=6)
+        style.map("Maya.TCombobox", fieldbackground=[("readonly", self.COLORS["input"])],
+            foreground=[("readonly", self.COLORS["text"])])
+        self.root.option_add("*TCombobox*Listbox.background", self.COLORS["input"])
+        self.root.option_add("*TCombobox*Listbox.foreground", self.COLORS["text"])
+        branch_frame = self._tk.Frame(self.root, bg=self.COLORS["background"])
+        branch_frame.grid(row=5, column=0, sticky="ew", padx=28, pady=(8, 10))
+        self._label(branch_frame, "branch do github").pack(side="left", padx=(0, 12))
+        self.branch_combo = self._ttk.Combobox(branch_frame, textvariable=self.branch_var, width=32,
+                                              values=[self.branch_var.get()], style="Maya.TCombobox")
+        self.branch_combo.pack(side="left")
+        self.branch_status = self._label(branch_frame, "buscando branches…", color=self.COLORS["muted"])
+        self.branch_status.pack(side="left", padx=12)
+        def fetch_branches():
+            try:
+                names = []
+                for page in range(1, 11):
+                    url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/branches?per_page=100&page={page}"
+                    request = urllib.request.Request(url, headers={"User-Agent": "Maya-Linux-Setup"})
+                    with urllib.request.urlopen(request, timeout=15) as response:
+                        entries = json.load(response)
+                    names.extend(entry["name"] for entry in entries)
+                    if len(entries) < 100: break
+                self._queue.put(("linux_branches", names))
+            except Exception:
+                self._queue.put(("linux_branches", []))
+        threading.Thread(target=fetch_branches, daemon=True).start()
+        self.voice_option = self._tk.BooleanVar(value=True)
+        self.open_option = self._tk.BooleanVar(value=True)
+        for row, (text, variable) in enumerate((("baixar voz offline (~400 MB)", self.voice_option),
+                                              ("abrir a maya ao terminar", self.open_option)), start=4):
+            self._tk.Checkbutton(self.root, text=text, variable=variable,
+                bg=self.COLORS["background"], fg=self.COLORS["body"],
+                activebackground=self.COLORS["background"], activeforeground=self.COLORS["text"],
+                selectcolor=self.COLORS["input"], font=(self._font, 10),
+                highlightthickness=0, borderwidth=0,
+                command=lambda: None).grid(row=row+2, column=0, sticky="w", padx=28, pady=(0, 8))
+        def begin():
+            self.linux_branch = self.branch_var.get().strip()
+            if not self.linux_branch:
+                self.branch_status.configure(text="escolha uma branch")
+                return
+            self.branch_combo.configure(state="disabled")
+            self.linux_voice = self.voice_option.get()
+            self.linux_open = self.open_option.get()
+            self._state = "running"
+            self._allow_close = False
+            self.badge.configure(text="em andamento")
+            self.close_button.configure(text="minimizar", command=self._on_close)
+            self.progress.configure(mode="indeterminate")
+            self.progress.start(16)
+            threading.Thread(target=worker, daemon=True).start()
+            self._animate_ring()
+        self.close_button.configure(text="instalar maya", command=begin)
+        self._update_steps()
+        self.root.after(100, self._pump_queue)
+        self.root.mainloop()
+
     def start(self, worker):
         threading.Thread(target=worker, daemon=True).start()
         self.root.after(100, self._pump_queue)
@@ -294,6 +378,10 @@ class SetupWindow(Reporter):
 
     def _handle_event(self, kind, message):
         c = self.COLORS
+        if kind == "linux_branches":
+            self.branch_combo.configure(values=message or [self.branch_var.get()])
+            self.branch_status.configure(text="" if message else "offline/privado: digite a branch")
+            return
         if kind in ("info", "detail"):
             self._append(message)
             if kind == "info" and self._state == "running":
@@ -428,6 +516,7 @@ def install_bundled_app(payload, reporter=None):
             check=False,
             **windows_subprocess_kwargs(),
         )
+    reporter.linux_revision = revision
     if target.exists():
         shutil.copy2(target, install_dir / "Maya.previous.exe")
     shutil.copy2(payload, target)
@@ -771,6 +860,54 @@ def sync_repo(project_dir, reporter=None):
         print(message)
 
 
+def download_linux_source(reporter):
+    # Install into a fresh, versioned folder: never delete an existing install or its state.
+    branch = getattr(reporter, "linux_branch", os.getenv("MAYA_INSTALL_REF", "IA_Improvementes"))
+    reporter.info(f"verificando atualizações da branch {branch}")
+    request = urllib.request.Request(
+        f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/commits/{urllib.parse.quote(branch, safe='')}",
+        headers={"User-Agent": "Maya-Linux-Setup"})
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:
+            revision = json.load(response)["sha"]
+    except Exception as error:
+        raise RuntimeError("não foi possível acessar a branch; confira a internet e se o github está público.") from error
+    if len(revision) != 40 or any(c not in "0123456789abcdef" for c in revision):
+        raise RuntimeError("revisão do github inválida; abra o setup.sh novamente.")
+    root = Path(os.getenv("XDG_DATA_HOME") or Path.home() / ".local/share") / "maya" / "versions"
+    target = root / revision
+    if target.exists():
+        if not (target / "scripts/install_linux.py").is_file():
+            raise RuntimeError(f"instalação incompleta em {target}; mova essa pasta e tente novamente.")
+        return target
+    root.mkdir(parents=True, exist_ok=True)
+    reporter.info("Downloading: baixando a maya do github")
+    with tempfile.TemporaryDirectory(prefix=".download-", dir=root) as temporary:
+        stage = Path(temporary)
+        archive_path = stage / "maya.zip"
+        url = f"https://github.com/{REPO_OWNER}/{REPO_NAME}/archive/{revision}.zip"
+        with urllib.request.urlopen(url, timeout=60) as response, archive_path.open("wb") as output:
+            received = 0
+            while chunk := response.read(1024 * 1024):
+                received += len(chunk)
+                if received > 100 * 1024 ** 2:
+                    raise RuntimeError("o pacote de código excedeu 100 MB.")
+                output.write(chunk)
+        with zipfile.ZipFile(archive_path) as archive:
+            if sum(item.file_size for item in archive.infolist()) > 300 * 1024 ** 2:
+                raise RuntimeError("pacote descompactado maior que o esperado.")
+            for item in archive.infolist():
+                if not (stage / item.filename).resolve().is_relative_to(stage.resolve()):
+                    raise RuntimeError("caminho inválido no pacote do github.")
+            archive.extractall(stage)
+        candidates = [p for p in stage.iterdir() if p.is_dir()]
+        if len(candidates) != 1 or not (candidates[0] / "scripts/install_linux.py").is_file():
+            raise RuntimeError("esta revisão ainda não contém o instalador Linux.")
+        shutil.move(str(candidates[0]), str(target))
+    reporter.detail(f"código instalado em {target}")
+    return target
+
+
 def run_bootstrap(reporter):
     if os.getenv("MAYA_SETUP_COMPLETED") == "1":
         if reporter:
@@ -789,6 +926,20 @@ def run_bootstrap(reporter):
         ])
         install_bundled_app(payload, reporter=reporter)
         reporter.close_success()
+        return
+
+    if is_linux():
+        source = Path(__file__).resolve().parent
+        if "--local-source" not in sys.argv:
+            source = download_linux_source(reporter)
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("maya_install_linux", source / "scripts/install_linux.py")
+        backend = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(backend)
+        backend.install(reporter, voice=getattr(reporter, "linux_voice", True),
+                        open_app=getattr(reporter, "linux_open", True),
+                        branch=getattr(reporter, "linux_branch", "IA_Improvementes"),
+                        revision=getattr(reporter, "linux_revision", None))
         return
 
     project_dir = repo_dir()
@@ -827,12 +978,18 @@ def main():
         except Exception as error:
             reporter.error(str(error))
             reporter.close_error()
+            return False
+        return True
 
     if isinstance(reporter, SetupWindow):
+        if is_linux():
+            reporter.welcome_linux(worker)
+            return
         reporter.start(worker)
         return
 
-    worker()
+    if worker() is False:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

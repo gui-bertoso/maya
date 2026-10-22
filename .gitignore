@@ -31,3 +31,6 @@ data/routine.json
 
 # Local speech engine sources and binaries.
 .runtime/
+
+# Isolated installer tooling; downloaded on demand.
+.installer/

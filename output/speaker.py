@@ -154,7 +154,10 @@ class Speaker:
             options.intra_op_num_threads = 4
             options.inter_op_num_threads = 1
             session = ort.InferenceSession(str(model_path), sess_options=options, providers=["CPUExecutionProvider"])
-            self._kokoro_voice = Kokoro.from_session(session, str(voices_path))
+            from helpers.linux_speech import kokoro_espeak_config
+            self._kokoro_voice = Kokoro.from_session(
+                session, str(voices_path), espeak_config=kokoro_espeak_config()
+            )
 
         portuguese = self.language.replace("_", "-").startswith("pt")
         voice = self.voice_id or ("pf_dora" if portuguese else "af_heart")

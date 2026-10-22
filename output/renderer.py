@@ -1324,6 +1324,9 @@ class Renderer:
         self.is_linux = sys.platform.startswith("linux")
         self.is_windows = sys.platform.startswith("win")
         self.app = QApplication.instance() or QApplication(sys.argv)
+        self.app.setApplicationName("Maya")
+        self.app.setDesktopFileName("maya")
+        self.app.setWindowIcon(QIcon(str(get_resource_path("icon.png"))))
         self.window_positioning_limited = self.is_linux and self.app.platformName().lower().startswith("wayland")
         self.app.setQuitOnLastWindowClosed(False)
 
@@ -1407,7 +1410,7 @@ class Renderer:
         self._connect_screen_signals()
 
     def _create_tray_icon(self):
-        self.tray_icon = QSystemTrayIcon(QIcon(str(get_resource_path("icon.ico"))), self.app)
+        self.tray_icon = QSystemTrayIcon(self.app.windowIcon(), self.app)
         self.tray_icon.setToolTip("Maya — clique para chamar")
 
         tray_menu = QMenu()
@@ -1419,6 +1422,11 @@ class Renderer:
         quit_action.triggered.connect(self.app.quit)
         tray_menu.addAction(call_action)
         tray_menu.addAction(settings_action)
+        if self.is_linux:
+            update_action = QAction("Atualizar Maya…", tray_menu)
+            from helpers.linux_update import open_updater
+            update_action.triggered.connect(lambda checked=False: open_updater())
+            tray_menu.addAction(update_action)
         tray_menu.addSeparator()
         tray_menu.addAction(quit_action)
         self.tray_icon.setContextMenu(tray_menu)
