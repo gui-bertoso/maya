@@ -61,18 +61,18 @@ class LinuxInstallerTests(unittest.TestCase):
 
     def test_fedora_installs_missing_packages_with_graphical_authorization(self):
         def installed(command, **kwargs):
-            return subprocess.CompletedProcess(command, int(command[-1] == 'gcc'), stdout='')
+            return subprocess.CompletedProcess(command, int(command[-1] == 'portaudio'), stdout='')
         with patch.object(backend.platform, 'freedesktop_os_release', return_value={'ID': 'fedora'}), \
              patch.object(backend.shutil, 'which', side_effect=lambda name: '/usr/bin/' + name), \
              patch.object(backend.subprocess, 'run', side_effect=installed), \
              patch.object(backend, 'run') as install:
             backend.install_system_dependencies(Reporter(), voice=True)
         self.assertEqual(install.call_args.args[0], [
-            '/usr/bin/pkexec', '--disable-internal-agent', '/usr/bin/dnf', 'install', '-y', 'gcc'])
+            '/usr/bin/pkexec', '--disable-internal-agent', '/usr/bin/dnf', 'install', '-y', 'portaudio'])
 
     def test_debian_detects_uninstalled_packages_despite_successful_query(self):
         def installed(command, **kwargs):
-            status = 'deinstall ok config-files' if command[-1] == 'linux-libc-dev' else 'install ok installed'
+            status = 'deinstall ok config-files' if command[-1] == 'libportaudio2' else 'install ok installed'
             return subprocess.CompletedProcess(command, 0, stdout=status)
         with patch.object(backend.platform, 'freedesktop_os_release', return_value={'ID': 'linuxmint', 'ID_LIKE': 'ubuntu debian'}), \
              patch.object(backend.shutil, 'which', side_effect=lambda name: '/usr/bin/' + name), \
@@ -80,7 +80,7 @@ class LinuxInstallerTests(unittest.TestCase):
              patch.object(backend, 'run') as install:
             backend.install_system_dependencies(Reporter(), voice=False)
         self.assertEqual(install.call_args.args[0], [
-            '/usr/bin/pkexec', '--disable-internal-agent', '/usr/bin/apt-get', 'install', '-y', 'linux-libc-dev'])
+            '/usr/bin/pkexec', '--disable-internal-agent', '/usr/bin/apt-get', 'install', '-y', 'libportaudio2'])
 
     def test_existing_system_dependencies_do_not_request_authorization(self):
         with patch.object(backend.platform, 'freedesktop_os_release', return_value={'ID': 'fedora'}), \
@@ -111,40 +111,16 @@ class LinuxInstallerTests(unittest.TestCase):
                 backend.install_system_dependencies(Reporter(), voice=False)
         install.assert_not_called()
 
-    def test_evdev_build_checks_headers_of_selected_python(self):
-        runtime = subprocess.CompletedProcess([], 0, stdout=json.dumps({
-            'version': '3.11', 'includes': ['/isolated/include/python3.11'] }))
-        compiled = subprocess.CompletedProcess([], 0, stderr='')
-        with patch.object(backend.shutil, 'which', return_value='/usr/bin/cc'), \
-             patch.object(backend.subprocess, 'run', side_effect=[runtime, compiled]) as run:
-            backend.check_evdev_build(Path('/isolated/bin/python'), Reporter())
-        self.assertEqual(run.call_args_list[0].args[0][0], '/isolated/bin/python')
-        self.assertIn('-I/isolated/include/python3.11', run.call_args_list[1].args[0])
-        self.assertIn('#include <linux/input-event-codes.h>', run.call_args.kwargs['input'])
-
-    def test_evdev_missing_compiler_explains_validation_failure(self):
-        runtime = subprocess.CompletedProcess([], 0, stdout=json.dumps({
-            'version': '3.11', 'includes': ['/isolated/include/python3.11']}))
-        with patch.object(backend.shutil, 'which', return_value=None), \
-             patch.object(backend.subprocess, 'run', return_value=runtime) as run:
-            with self.assertRaisesRegex(RuntimeError, 'não foi possível validar'):
-                backend.check_evdev_build(Path('/isolated/bin/python'), Reporter())
-        self.assertEqual(run.call_count, 1)
-
-    def test_evdev_missing_headers_stops_before_dependency_install(self):
-        runtime = subprocess.CompletedProcess([], 0, stdout=json.dumps({
-            'version': '3.11', 'includes': ['/isolated/include/python3.11']}))
-        failed = subprocess.CompletedProcess([], 1, stderr='fatal error: linux/input.h: missing')
-        with patch.object(backend.shutil, 'which', return_value='/usr/bin/cc'), \
-             patch.object(backend.subprocess, 'run', side_effect=[runtime, failed]), \
-             patch.object(backend, 'preflight'), patch.object(backend, 'previous_install', return_value={}), \
-             patch.object(backend, 'install_system_dependencies'), \
-             patch.object(backend, 'require_closed'), patch.object(backend, 'migrate_state'), \
-             patch.object(backend, 'ensure_environment', return_value=Path('/isolated/bin/python')), \
-             patch.object(backend, 'run') as install_command:
-            with self.assertRaisesRegex(RuntimeError, 'não foi possível validar'):
-                backend.install(Reporter(), voice=False, open_app=False)
-        install_command.assert_not_called()
+    def test_linux_requirements_exclude_evdev_and_pynput(self):
+        from packaging.requirements import Requirement
+        requirements = [Requirement(line) for line in (ROOT / 'requirements.txt').read_text().splitlines()
+                        if line.strip() and not line.startswith('#')]
+        linux = [r.name for r in requirements if not r.marker or r.marker.evaluate({'sys_platform': 'linux'})]
+        windows = [r.name for r in requirements if not r.marker or r.marker.evaluate({'sys_platform': 'win32'})]
+        self.assertNotIn('pynput', linux)
+        self.assertNotIn('evdev', linux)
+        self.assertIn('python-xlib', linux)
+        self.assertIn('pynput', windows)
 
     def test_branch_resolves_to_immutable_revision(self):
         revision = 'a' * 40

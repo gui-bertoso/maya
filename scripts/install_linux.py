@@ -37,13 +37,12 @@ def install_system_dependencies(reporter, voice):
     distro = {release.get('ID', ''), *release.get('ID_LIKE', '').split()}
     if distro & {'fedora'}:
         manager, query = shutil.which('dnf'), shutil.which('rpm')
-        packages = ['gcc', 'python3-devel', 'kernel-headers', 'portaudio',
+        packages = ['portaudio',
                     'xcb-util-cursor', 'xorg-x11-server-Xwayland']
         query_args = ['-q']
     elif distro & {'debian', 'ubuntu', 'linuxmint'}:
         manager, query = shutil.which('apt-get'), shutil.which('dpkg-query')
-        packages = ['build-essential', 'python3-dev', 'linux-libc-dev',
-                    'libportaudio2', 'libxcb-cursor0', 'xwayland']
+        packages = ['libportaudio2', 'libxcb-cursor0', 'xwayland']
         query_args = ['-W', '-f=${Status}']
     else:
         return
@@ -173,32 +172,6 @@ def ensure_environment(reporter):
     return python
 
 
-def check_evdev_build(python, reporter):
-    """Check native headers against the selected runtime (which may be uv's Python)."""
-    compiler = shutil.which('cc') or shutil.which('gcc') or shutil.which('clang')
-    runtime = subprocess.run([str(python), '-c',
-        'import json, sys, sysconfig; print(json.dumps(dict('
-        'version="%d.%d" % sys.version_info[:2], '
-        'includes=[sysconfig.get_path("include"), sysconfig.get_path("platinclude")])))'],
-        check=True, capture_output=True, text=True)
-    config = json.loads(runtime.stdout)
-    if compiler:
-        includes = list(dict.fromkeys(path for path in config['includes'] if path))
-        probe = subprocess.run(
-            [compiler, *['-I' + path for path in includes], '-x', 'c', '-fsyntax-only', '-'],
-            input='#include <Python.h>\n#include <linux/input.h>\n#include <linux/input-event-codes.h>\n',
-            capture_output=True, text=True)
-        if probe.returncode == 0:
-            return
-        reporter.detail(probe.stderr.strip())
-    raise RuntimeError(
-        'o evdev (dependência do atalho global) precisa de compilador e headers de desenvolvimento. '
-        'não foi possível validar esses componentes após preparar o sistema. '
-        f'o Python selecionado é {config["version"]}; se ele foi instalado separadamente, '
-        'os headers Python.h precisam corresponder a essa versão. '
-        'o Python isolado do uv já inclui seus próprios headers.')
-
-
 def install_record_path():
     return Path(os.environ.get('XDG_DATA_HOME') or Path.home() / '.local/share') / 'maya/installation.json'
 
@@ -253,7 +226,6 @@ def install(reporter, voice=True, open_app=True, branch='IA_Improvementes', revi
     migrate_state(previous)
     reporter.info('Preparing runtime: instalando as dependências')
     python = ensure_environment(reporter)
-    check_evdev_build(python, reporter)
     run([python, '-m', 'pip', 'install', '--upgrade', 'pip'], reporter)
     run([python, '-m', 'pip', 'install', '-r', ROOT / 'requirements.txt'], reporter)
     run([python, '-m', 'pip', 'check'], reporter)

@@ -12,6 +12,7 @@ class GlobalHotkeyListener:
         self.last_error = None
         self._listener = None
         self._startup_success = False
+        self._stop_event = threading.Event()
 
     def start_delete_pgup(self, callback):
         if self.thread and self.thread.is_alive():
@@ -19,6 +20,7 @@ class GlobalHotkeyListener:
 
         self.last_error = None
         self._startup_success = False
+        self._stop_event.clear()
         startup_event = threading.Event()
         self.thread = threading.Thread(
             target=self._run_delete_pgup_listener,
@@ -100,6 +102,9 @@ class GlobalHotkeyListener:
         if sys.platform.startswith("win"):
             self._run_windows_hotkey_listener(callback, startup_event)
             return
+        if sys.platform.startswith("linux"):
+            self._run_linux_hotkey_listener(callback, startup_event)
+            return
 
         try:
             from pynput import keyboard
@@ -149,8 +154,50 @@ class GlobalHotkeyListener:
             self._startup_success = False
             self._listener = None
 
+    def _run_linux_hotkey_listener(self, callback, startup_event):
+        # Query X11/XWayland directly: no evdev extension or /dev/input access.
+        connection = None
+        try:
+            from Xlib import XK, display
+
+            connection = display.Display()
+            codes = [connection.keysym_to_keycode(XK.string_to_keysym(name))
+                     for name in ("Delete", "Prior")]
+            if not all(codes):
+                raise RuntimeError("Delete/Page Up are not available in the X11 keyboard map")
+            keys = connection.query_keymap()
+            self.is_running = True
+            self.hotkey_registered = True
+            self._startup_success = True
+            startup_event.set()
+            pending = False
+            while not self._stop_event.is_set():
+                pressed = [bool(keys[code // 8] & (1 << (code % 8))) for code in codes]
+                if all(pressed):
+                    pending = True
+                elif pending and not any(pressed):
+                    pending = False
+                    callback()
+                if self._stop_event.wait(0.02):
+                    break
+                keys = connection.query_keymap()
+        except Exception as error:
+            report_error("hotkey", error, operation="global_hotkey._run_linux_hotkey_listener", notify=False)
+            self.last_error = f"X11/XWayland hotkey unavailable: {error}"
+        finally:
+            if connection is not None:
+                try:
+                    connection.close()
+                except Exception:
+                    pass
+            self.hotkey_registered = False
+            self.is_running = False
+            self._startup_success = False
+            startup_event.set()
+
     def stop(self):
         self.is_running = False
+        self._stop_event.set()
         if self._listener is not None:
             try:
                 self._listener.stop()
