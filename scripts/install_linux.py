@@ -19,6 +19,12 @@ VOSK_NAME = 'vosk-model-small-en-us-0.15'
 VOSK_URL = f'https://alphacephei.com/vosk/models/{VOSK_NAME}.zip'
 
 
+class InstallerStepError(RuntimeError):
+    def __init__(self, message, returncode):
+        super().__init__(message)
+        self.returncode = returncode
+
+
 def run(command, reporter, cwd=ROOT, env=None, failure_message=None):
     description = shlex.join(map(str, command))
     reporter.detail(description)
@@ -50,7 +56,7 @@ def run(command, reporter, cwd=ROOT, env=None, failure_message=None):
             if details:
                 message += '\n' + details
             log.write(message + '\n')
-            raise RuntimeError(message)
+            raise InstallerStepError(message, code)
 
 
 def qt_environment(open_app):
@@ -65,10 +71,26 @@ def qt_environment(open_app):
 
 def validate_runtime(python, reporter, open_app):
     env = qt_environment(open_app)
-    for module in ('sounddevice', 'vosk', 'kokoro_onnx'):
+    for module in ('sounddevice', 'vosk', 'numpy', 'onnxruntime', 'espeakng_loader', 'phonemizer', 'kokoro_onnx'):
         reporter.info(f'verificando o módulo {module}')
-        run([python, '-I', '-c', f'import {module}; print("{module}: ok", flush=True)'],
-            reporter, env=env, failure_message=f'não foi possível carregar {module}')
+        command = [python, '-I', '-c', f'import {module}; print("{module}: ok", flush=True)']
+        try:
+            run(command, reporter, env=env, failure_message=f'não foi possível carregar {module}')
+        except InstallerStepError as error:
+            if error.returncode != -signal.SIGILL or module != 'onnxruntime' or platform.machine() != 'x86_64':
+                raise
+            # Kokoro 0.6.1 supports ORT >=1.20.1. Try its minimum supported
+            # runtime once, without changing the voice or catching a native crash in-process.
+            version = subprocess.run([str(python), '-I', '-c',
+                'from importlib.metadata import version; print(version("onnxruntime"))'],
+                check=True, capture_output=True, text=True).stdout.strip()
+            if version == '1.20.1':
+                raise
+            reporter.info('a biblioteca de voz encontrou uma instrução inválida; testando um runtime alternativo')
+            run([python, '-m', 'pip', 'install', 'onnxruntime==1.20.1'], reporter)
+            run([python, '-m', 'pip', 'check'], reporter)
+            run(command, reporter, env=env,
+                failure_message='o runtime alternativo de voz também não carregou neste processador')
     reporter.info('verificando a interface gráfica')
     env['QT_DEBUG_PLUGINS'] = '1'
     run([python, '-I', '-c',

@@ -67,7 +67,45 @@ class LinuxInstallerTests(unittest.TestCase):
         with patch.object(backend, 'run', side_effect=run) as commands:
             with self.assertRaisesRegex(RuntimeError, 'kokoro_onnx'):
                 backend.validate_runtime(Path('/runtime/python'), Reporter(), open_app=True)
-        self.assertEqual(commands.call_count, 3)
+        self.assertEqual(commands.call_count, 7)
+
+    def test_onnx_sigill_tries_compatible_runtime_once(self):
+        imports = 0
+        def run(command, reporter, **kwargs):
+            nonlocal imports
+            if 'import onnxruntime;' in command[-1]:
+                imports += 1
+                if imports == 1:
+                    raise backend.InstallerStepError('native crash', -4)
+        metadata = subprocess.CompletedProcess([], 0, stdout='1.31.0\n')
+        with patch.object(backend, 'run', side_effect=run) as commands, \
+             patch.object(backend.platform, 'machine', return_value='x86_64'), \
+             patch.object(backend.subprocess, 'run', return_value=metadata):
+            backend.validate_runtime(Path('/runtime/python'), Reporter(), open_app=False)
+        self.assertEqual(imports, 2)
+        self.assertTrue(any('onnxruntime==1.20.1' in call.args[0] for call in commands.call_args_list))
+
+    def test_onnx_runtime_repair_does_not_loop_on_repeated_sigill(self):
+        def run(command, reporter, **kwargs):
+            if 'import onnxruntime;' in command[-1]:
+                raise backend.InstallerStepError('native crash', -4)
+        metadata = subprocess.CompletedProcess([], 0, stdout='1.31.0\n')
+        with patch.object(backend, 'run', side_effect=run) as commands, \
+             patch.object(backend.platform, 'machine', return_value='x86_64'), \
+             patch.object(backend.subprocess, 'run', return_value=metadata):
+            with self.assertRaises(backend.InstallerStepError):
+                backend.validate_runtime(Path('/runtime/python'), Reporter(), open_app=False)
+        repairs = [c for c in commands.call_args_list if 'onnxruntime==1.20.1' in c.args[0]]
+        self.assertEqual(len(repairs), 1)
+
+    def test_non_sigill_onnx_failures_do_not_change_dependencies(self):
+        def run(command, reporter, **kwargs):
+            if 'import onnxruntime;' in command[-1]:
+                raise backend.InstallerStepError('missing library', 1)
+        with patch.object(backend, 'run', side_effect=run) as commands:
+            with self.assertRaises(backend.InstallerStepError):
+                backend.validate_runtime(Path('/runtime/python'), Reporter(), open_app=False)
+        self.assertFalse(any('onnxruntime==1.20.1' in c.args[0] for c in commands.call_args_list))
 
     def test_bootstrap_prepares_gui_without_manual_commands(self):
         for manager, denied in [('dnf', False), ('apt-get', False), ('dnf', True)]:
