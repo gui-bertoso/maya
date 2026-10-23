@@ -5,9 +5,10 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -31,6 +32,43 @@ def archive(files):
 
 
 class LinuxInstallerTests(unittest.TestCase):
+    def test_failed_step_preserves_output_and_exit_code_in_log(self):
+        with tempfile.TemporaryDirectory() as folder, patch.object(backend, 'ROOT', Path(folder)):
+            with self.assertRaisesRegex(RuntimeError, 'código 7') as error:
+                backend.run([sys.executable, '-c', 'print("missing test library"); raise SystemExit(7)'],
+                            Reporter(), cwd=folder, failure_message='falha no módulo de teste')
+            self.assertIn('missing test library', str(error.exception))
+            log = Path(folder) / 'logs/installer.log'
+            self.assertIn('missing test library', log.read_text())
+            self.assertEqual(log.stat().st_mode & 0o777, 0o600)
+
+    def test_native_crash_reports_signal_even_without_output(self):
+        process = Mock(stdout=iter(()))
+        process.wait.return_value = -4
+        with tempfile.TemporaryDirectory() as folder, patch.object(backend, 'ROOT', Path(folder)), \
+             patch.object(backend.subprocess, 'Popen') as spawn:
+            spawn.return_value.__enter__.return_value = process
+            with self.assertRaisesRegex(RuntimeError, 'SIGILL'):
+                backend.run(['python', '-c', 'import example'], Reporter())
+
+    def test_qt_probe_clears_host_plugin_paths(self):
+        with patch.dict('os.environ', {'QT_PLUGIN_PATH': '/host/qt', 'QT_QPA_PLATFORM_PLUGIN_PATH': '/host/platforms',
+                                     'QT_STYLE_OVERRIDE': 'host-style', 'DISPLAY': ':0'}):
+            env = backend.qt_environment(True)
+        self.assertNotIn('QT_PLUGIN_PATH', env)
+        self.assertNotIn('QT_QPA_PLATFORM_PLUGIN_PATH', env)
+        self.assertNotIn('QT_STYLE_OVERRIDE', env)
+        self.assertEqual(env['QT_QPA_PLATFORM'], 'xcb')
+
+    def test_runtime_probes_identify_audio_failure_before_qt(self):
+        def run(command, reporter, **kwargs):
+            if 'import kokoro_onnx' in command[-1]:
+                raise RuntimeError(kwargs['failure_message'])
+        with patch.object(backend, 'run', side_effect=run) as commands:
+            with self.assertRaisesRegex(RuntimeError, 'kokoro_onnx'):
+                backend.validate_runtime(Path('/runtime/python'), Reporter(), open_app=True)
+        self.assertEqual(commands.call_count, 3)
+
     def test_bootstrap_prepares_gui_without_manual_commands(self):
         for manager, denied in [('dnf', False), ('apt-get', False), ('dnf', True)]:
             with self.subTest(manager=manager, denied=denied), tempfile.TemporaryDirectory() as folder:

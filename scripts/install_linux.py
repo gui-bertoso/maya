@@ -1,11 +1,13 @@
 """Linux installer; elevate only the system package manager through polkit."""
 import ctypes.util
+from collections import deque
 import json
 import os
 import platform
 from pathlib import Path
 import shlex
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -18,14 +20,61 @@ VOSK_URL = f'https://alphacephei.com/vosk/models/{VOSK_NAME}.zip'
 
 
 def run(command, reporter, cwd=ROOT, env=None, failure_message=None):
-    reporter.detail(shlex.join(map(str, command)))
-    with subprocess.Popen(list(map(str, command)), cwd=cwd, env=env,
+    description = shlex.join(map(str, command))
+    reporter.detail(description)
+    logs = ROOT / 'logs'
+    logs.mkdir(exist_ok=True)
+    logpath = logs / 'installer.log'
+    fd = os.open(logpath, os.O_CREAT | os.O_WRONLY | os.O_APPEND, 0o600)
+    os.fchmod(fd, 0o600)
+    tail = deque(maxlen=12)
+    with os.fdopen(fd, 'a', encoding='utf-8') as log, subprocess.Popen(list(map(str, command)), cwd=cwd, env=env,
                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                           text=True, errors='replace', bufsize=1) as process:
+        log.write(description + '\n'); log.flush()
         for line in process.stdout:
             reporter.detail(line.rstrip())
-        if process.wait():
-            raise RuntimeError(failure_message or 'esta etapa falhou; consulte a saída acima e execute novamente.')
+            tail.append(line.rstrip())
+            log.write(line); log.flush()
+        code = process.wait()
+        if code:
+            status = f'código {code}'
+            if code < 0:
+                try:
+                    status += ' / ' + signal.Signals(-code).name
+                except ValueError:
+                    pass
+            message = failure_message or 'esta etapa falhou'
+            details = '\n'.join(tail)[-2000:]
+            message += f' ({status}). log: {logpath}'
+            if details:
+                message += '\n' + details
+            log.write(message + '\n')
+            raise RuntimeError(message)
+
+
+def qt_environment(open_app):
+    env = os.environ.copy()
+    # Host Qt plugins can have a different ABI from the bundled PySide6 Qt.
+    for name in ('QT_PLUGIN_PATH', 'QT_QPA_PLATFORM_PLUGIN_PATH', 'QT_STYLE_OVERRIDE',
+                 'QML2_IMPORT_PATH', 'QML_IMPORT_PATH'):
+        env.pop(name, None)
+    env['QT_QPA_PLATFORM'] = 'xcb' if open_app and env.get('DISPLAY') else 'offscreen'
+    return env
+
+
+def validate_runtime(python, reporter, open_app):
+    env = qt_environment(open_app)
+    for module in ('sounddevice', 'vosk', 'kokoro_onnx'):
+        reporter.info(f'verificando o módulo {module}')
+        run([python, '-I', '-c', f'import {module}; print("{module}: ok", flush=True)'],
+            reporter, env=env, failure_message=f'não foi possível carregar {module}')
+    reporter.info('verificando a interface gráfica')
+    env['QT_DEBUG_PLUGINS'] = '1'
+    run([python, '-I', '-c',
+         'from PySide6.QtWidgets import QApplication; a=QApplication([]); '
+         'print("interface gráfica: ok", flush=True)'], reporter, env=env,
+        failure_message='não foi possível iniciar a interface gráfica Qt')
 
 
 def install_system_dependencies(reporter, voice):
@@ -37,12 +86,15 @@ def install_system_dependencies(reporter, voice):
     distro = {release.get('ID', ''), *release.get('ID_LIKE', '').split()}
     if distro & {'fedora'}:
         manager, query = shutil.which('dnf'), shutil.which('rpm')
-        packages = ['portaudio',
-                    'xcb-util-cursor', 'xorg-x11-server-Xwayland']
+        packages = ['portaudio', 'xcb-util-cursor', 'xorg-x11-server-Xwayland',
+                    'libxkbcommon-x11', 'xcb-util-wm', 'xcb-util-image', 'xcb-util-keysyms',
+                    'xcb-util-renderutil', 'mesa-libGL', 'mesa-libEGL']
         query_args = ['-q']
     elif distro & {'debian', 'ubuntu', 'linuxmint'}:
         manager, query = shutil.which('apt-get'), shutil.which('dpkg-query')
-        packages = ['libportaudio2', 'libxcb-cursor0', 'xwayland']
+        packages = ['libportaudio2', 'libxcb-cursor0', 'xwayland', 'libxkbcommon-x11-0',
+                    'libxcb-icccm4', 'libxcb-image0', 'libxcb-keysyms1',
+                    'libxcb-render-util0', 'libgl1', 'libegl1']
         query_args = ['-W', '-f=${Status}']
     else:
         return
@@ -229,11 +281,7 @@ def install(reporter, voice=True, open_app=True, branch='IA_Improvementes', revi
     run([python, '-m', 'pip', 'install', '--upgrade', 'pip'], reporter)
     run([python, '-m', 'pip', 'install', '-r', ROOT / 'requirements.txt'], reporter)
     run([python, '-m', 'pip', 'check'], reporter)
-    # A separate process detects missing Qt platform libraries without killing the installer.
-    env = os.environ.copy()
-    env['QT_QPA_PLATFORM'] = 'xcb' if open_app and env.get('DISPLAY') else 'offscreen'
-    run([python, '-c', 'from PySide6.QtWidgets import QApplication; a=QApplication([]); '
-         'import sounddevice, vosk, kokoro_onnx; print("interface e módulos carregados")'], reporter, env=env)
+    validate_runtime(python, reporter, open_app)
     if voice:
         reporter.info('Preparing runtime: baixando os modelos de voz')
         download_vosk(reporter)
@@ -264,6 +312,7 @@ def install(reporter, voice=True, open_app=True, branch='IA_Improvementes', revi
         with (logdir / 'session.log').open('a') as log:
             process = subprocess.Popen(['/bin/bash', str(ROOT / 'scripts/start_maya.sh')],
                                        cwd=ROOT, stdout=log, stderr=subprocess.STDOUT,
+                                       env=qt_environment(True),
                                        start_new_session=True)
         try:
             code = process.wait(timeout=5)
