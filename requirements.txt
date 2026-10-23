@@ -1,6 +1,6 @@
 numpy
 psutil
-pynput
+pynput; sys_platform != "linux"
 PySide6==6.8.3
 piper-tts
 edge-tts

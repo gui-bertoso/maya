@@ -20,7 +20,7 @@ ERRORS = {
     "config_layout": ErrorDefinition("MAY-0102", "Estrutura de dados inválida", "Restaure ou recrie os arquivos locais da Maya."),
     "config_value": ErrorDefinition("MAY-0103", "Configuração inválida", "Corrija o valor indicado nas configurações."),
     "single_instance": ErrorDefinition("MAY-0201", "Falha na trava de instância", "Reinicie a Maya; se persistir, encerre as instâncias antigas."),
-    "hotkey": ErrorDefinition("MAY-0202", "Atalho global indisponível", "Confira permissões de teclado e o pynput."),
+    "hotkey": ErrorDefinition("MAY-0202", "Atalho global indisponível", "Confira as permissões de teclado e a sessão gráfica."),
     "microphone_dependency": ErrorDefinition("MAY-0301", "Dependência de áudio indisponível", "Reinstale as dependências de voz."),
     "microphone_device": ErrorDefinition("MAY-0302", "Microfone não encontrado", "Selecione ou conecte um dispositivo de entrada."),
     "voice_model": ErrorDefinition("MAY-0303", "Modelo de reconhecimento indisponível", "Confira VOSK_MODEL_PATH e os arquivos do modelo."),
