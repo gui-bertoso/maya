@@ -4,6 +4,7 @@ ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 # XWayland supports Maya's floating overlay positioning and keyboard listener.
 export QT_QPA_PLATFORM=xcb
+unset QT_PLUGIN_PATH QT_QPA_PLATFORM_PLUGIN_PATH QT_STYLE_OVERRIDE QML2_IMPORT_PATH QML_IMPORT_PATH
 if [[ -z "${XAUTHORITY:-}" ]]; then
     session_auth="$(systemctl --user show-environment 2>/dev/null | sed -n 's/^XAUTHORITY=//p' || true)"
     if [[ -n "$session_auth" ]]; then export XAUTHORITY="$session_auth"; fi
