@@ -1,7 +1,10 @@
 import importlib.util
 import io
 import json
+import os
 from pathlib import Path
+import shutil
+import subprocess
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -28,6 +31,121 @@ def archive(files):
 
 
 class LinuxInstallerTests(unittest.TestCase):
+    def test_bootstrap_prepares_gui_without_manual_commands(self):
+        for manager, denied in [('dnf', False), ('apt-get', False), ('dnf', True)]:
+            with self.subTest(manager=manager, denied=denied), tempfile.TemporaryDirectory() as folder:
+                fake = Path(folder)
+                programs = {
+                    'python3': '#!/bin/sh\nif [ "$1" = "-c" ]; then test -f "$MAYA_TEST_STATE"; '
+                               'else printf "%s\\n" "$@" > "$MAYA_TEST_LAUNCH"; fi\n',
+                    'pkexec': '#!/bin/sh\nprintf "%s\\n" "$@" > "$MAYA_TEST_AUTH"\n'
+                              '[ "$MAYA_TEST_DENY" = 1 ] && exit 126\nshift\nexec "$@"\n',
+                    manager: '#!/bin/sh\n: > "$MAYA_TEST_STATE"\n',
+                }
+                for name, source in programs.items():
+                    (fake / name).write_text(source)
+                    (fake / name).chmod(0o755)
+                (fake / 'dirname').symlink_to(shutil.which('dirname'))
+                env = dict(os.environ, PATH=folder, MAYA_TEST_STATE=str(fake / 'ready'),
+                           MAYA_TEST_LAUNCH=str(fake / 'launch'), MAYA_TEST_AUTH=str(fake / 'auth'),
+                           MAYA_TEST_DENY=str(int(denied)))
+                result = subprocess.run(['/bin/bash', str(ROOT / 'setup.sh'), '--local-source'],
+                                        env=env, capture_output=True, text=True)
+                self.assertEqual(result.returncode, int(denied), result.stderr)
+                self.assertEqual((fake / 'launch').exists(), not denied)
+                auth = (fake / 'auth').read_text()
+                self.assertIn('--disable-internal-agent', auth)
+                self.assertIn('python3-tkinter' if manager == 'dnf' else 'python3-tk', auth)
+                if not denied:
+                    self.assertIn('--local-source', (fake / 'launch').read_text())
+
+    def test_fedora_installs_missing_packages_with_graphical_authorization(self):
+        def installed(command, **kwargs):
+            return subprocess.CompletedProcess(command, int(command[-1] == 'gcc'), stdout='')
+        with patch.object(backend.platform, 'freedesktop_os_release', return_value={'ID': 'fedora'}), \
+             patch.object(backend.shutil, 'which', side_effect=lambda name: '/usr/bin/' + name), \
+             patch.object(backend.subprocess, 'run', side_effect=installed), \
+             patch.object(backend, 'run') as install:
+            backend.install_system_dependencies(Reporter(), voice=True)
+        self.assertEqual(install.call_args.args[0], [
+            '/usr/bin/pkexec', '--disable-internal-agent', '/usr/bin/dnf', 'install', '-y', 'gcc'])
+
+    def test_debian_detects_uninstalled_packages_despite_successful_query(self):
+        def installed(command, **kwargs):
+            status = 'deinstall ok config-files' if command[-1] == 'linux-libc-dev' else 'install ok installed'
+            return subprocess.CompletedProcess(command, 0, stdout=status)
+        with patch.object(backend.platform, 'freedesktop_os_release', return_value={'ID': 'linuxmint', 'ID_LIKE': 'ubuntu debian'}), \
+             patch.object(backend.shutil, 'which', side_effect=lambda name: '/usr/bin/' + name), \
+             patch.object(backend.subprocess, 'run', side_effect=installed), \
+             patch.object(backend, 'run') as install:
+            backend.install_system_dependencies(Reporter(), voice=False)
+        self.assertEqual(install.call_args.args[0], [
+            '/usr/bin/pkexec', '--disable-internal-agent', '/usr/bin/apt-get', 'install', '-y', 'linux-libc-dev'])
+
+    def test_existing_system_dependencies_do_not_request_authorization(self):
+        with patch.object(backend.platform, 'freedesktop_os_release', return_value={'ID': 'fedora'}), \
+             patch.object(backend.shutil, 'which', side_effect=lambda name: '/usr/bin/' + name) as which, \
+             patch.object(backend.subprocess, 'run', return_value=subprocess.CompletedProcess([], 0, stdout='')), \
+             patch.object(backend, 'run') as install:
+            backend.install_system_dependencies(Reporter(), voice=False)
+        install.assert_not_called()
+        self.assertNotIn(('pkexec',), [call.args for call in which.call_args_list])
+
+    def test_cancelled_system_install_stops_before_python_and_shortcuts(self):
+        with patch.object(backend, 'previous_install', return_value={}), \
+             patch.object(backend, 'require_closed'), \
+             patch.object(backend, 'install_system_dependencies', side_effect=RuntimeError('autorização cancelada')), \
+             patch.object(backend, 'ensure_environment') as environment, \
+             patch.object(backend, 'shortcuts') as shortcuts:
+            with self.assertRaisesRegex(RuntimeError, 'autorização cancelada'):
+                backend.install(Reporter())
+        environment.assert_not_called()
+        shortcuts.assert_not_called()
+
+    def test_missing_polkit_reports_desktop_authentication_problem(self):
+        with patch.object(backend.platform, 'freedesktop_os_release', return_value={'ID': 'fedora'}), \
+             patch.object(backend.shutil, 'which', side_effect=lambda name: None if name == 'pkexec' else '/usr/bin/' + name), \
+             patch.object(backend.subprocess, 'run', return_value=subprocess.CompletedProcess([], 1, stdout='')), \
+             patch.object(backend, 'run') as install:
+            with self.assertRaisesRegex(RuntimeError, 'polkit/pkexec'):
+                backend.install_system_dependencies(Reporter(), voice=False)
+        install.assert_not_called()
+
+    def test_evdev_build_checks_headers_of_selected_python(self):
+        runtime = subprocess.CompletedProcess([], 0, stdout=json.dumps({
+            'version': '3.11', 'includes': ['/isolated/include/python3.11'] }))
+        compiled = subprocess.CompletedProcess([], 0, stderr='')
+        with patch.object(backend.shutil, 'which', return_value='/usr/bin/cc'), \
+             patch.object(backend.subprocess, 'run', side_effect=[runtime, compiled]) as run:
+            backend.check_evdev_build(Path('/isolated/bin/python'), Reporter())
+        self.assertEqual(run.call_args_list[0].args[0][0], '/isolated/bin/python')
+        self.assertIn('-I/isolated/include/python3.11', run.call_args_list[1].args[0])
+        self.assertIn('#include <linux/input-event-codes.h>', run.call_args.kwargs['input'])
+
+    def test_evdev_missing_compiler_explains_validation_failure(self):
+        runtime = subprocess.CompletedProcess([], 0, stdout=json.dumps({
+            'version': '3.11', 'includes': ['/isolated/include/python3.11']}))
+        with patch.object(backend.shutil, 'which', return_value=None), \
+             patch.object(backend.subprocess, 'run', return_value=runtime) as run:
+            with self.assertRaisesRegex(RuntimeError, 'não foi possível validar'):
+                backend.check_evdev_build(Path('/isolated/bin/python'), Reporter())
+        self.assertEqual(run.call_count, 1)
+
+    def test_evdev_missing_headers_stops_before_dependency_install(self):
+        runtime = subprocess.CompletedProcess([], 0, stdout=json.dumps({
+            'version': '3.11', 'includes': ['/isolated/include/python3.11']}))
+        failed = subprocess.CompletedProcess([], 1, stderr='fatal error: linux/input.h: missing')
+        with patch.object(backend.shutil, 'which', return_value='/usr/bin/cc'), \
+             patch.object(backend.subprocess, 'run', side_effect=[runtime, failed]), \
+             patch.object(backend, 'preflight'), patch.object(backend, 'previous_install', return_value={}), \
+             patch.object(backend, 'install_system_dependencies'), \
+             patch.object(backend, 'require_closed'), patch.object(backend, 'migrate_state'), \
+             patch.object(backend, 'ensure_environment', return_value=Path('/isolated/bin/python')), \
+             patch.object(backend, 'run') as install_command:
+            with self.assertRaisesRegex(RuntimeError, 'não foi possível validar'):
+                backend.install(Reporter(), voice=False, open_app=False)
+        install_command.assert_not_called()
+
     def test_branch_resolves_to_immutable_revision(self):
         revision = 'a' * 40
         responses = [io.BytesIO(json.dumps({'sha': revision}).encode()),

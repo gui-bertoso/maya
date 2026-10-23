@@ -26,13 +26,9 @@ bash setup.sh
 
 A janela permite escolher a branch do GitHub, baixar a voz offline e abrir a Maya ao terminar. O arquivo inicial é pequeno: código, dependências, Python compatível (se necessário) e modelos são baixados durante a instalação. O repositório precisa estar público para instalação e atualização sem autenticação.
 
-No Fedora, prepare os componentes do sistema:
+No Fedora e Ubuntu/Debian/Mint, o setup prepara os componentes do sistema automaticamente, incluindo a interface do instalador, as bibliotecas de áudio e os componentes necessários para compilar `evdev` (dependência do atalho global). Quando necessário, o Linux abre sua janela de autorização: informe a senha ali e a instalação continua, sem comandos adicionais. É necessário um desktop com polkit/pkexec e um agente gráfico de autenticação ativo. Se você cancelar a autorização, basta iniciar a instalação novamente.
 
-```bash
-sudo dnf install python3 python3-tkinter portaudio espeak-ng xcb-util-cursor xorg-x11-server-Xwayland
-```
-
-No Ubuntu/Mint: `sudo apt install python3 python3-tk python3-venv libportaudio2 espeak-ng libxcb-cursor0 xwayland`.
+Somente o gerenciador de pacotes recebe privilégios de administrador; o instalador, o ambiente Python e a Maya continuam como seu usuário. Pacotes já instalados não são reinstalados. Os headers são validados contra o Python escolhido para o ambiente, inclusive quando ele é baixado pelo `uv`. Em outras distribuições, os componentes do sistema precisam estar disponíveis previamente.
 
 A instalação usa `~/.local/share/maya/versions/`, cria um atalho no menu e o comando `~/.local/bin/maya`. Em Wayland, é necessário XWayland. O reconhecimento inicial é Vosk em inglês, com voz Kokoro `af_heart`; nenhum modelo de conversação é baixado ou ativado.
 

@@ -283,7 +283,7 @@ class SetupWindow(Reporter):
         self.root.minsize(840, 720)
         self.badge.configure(text="linux", fg=self.COLORS["green"])
         self.status_var.set("a maya vai morar por aqui")
-        self.subtitle_var.set("instalação local, sem senha de administrador. os arquivos são baixados quando você começar.")
+        self.subtitle_var.set("os arquivos são baixados quando você começar. se faltarem componentes do sistema, o Linux pedirá autorização.")
         self.footer_var.set("internet necessária · 2 GB livres · feche a maya antes de atualizar")
         self._set_changes("do seu jeito", ["interface flutuante, voz e texto.",
             "código baixado do github; modelos de voz baixados separadamente.",
