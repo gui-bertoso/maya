@@ -18,6 +18,14 @@ Assistente pessoal local-first para Windows, feita em Python. A Maya escuta coma
 
 ## Instalação visual no Linux
 
+Para instalar sem preparar Python, baixe **Maya-Setup-x86_64.AppImage** nas [releases](https://github.com/gui-bertoso/maya/releases). Nas propriedades do arquivo, permita executá-lo como programa e abra com dois cliques. O pacote inclui Python e a interface do setup; a Maya e os modelos são baixados durante a instalação. Disponível para Linux x86_64.
+
+O setup guarda seu runtime em `~/.local/share/maya/setup-runtimes/` (ou `$XDG_DATA_HOME/maya/setup-runtimes/`). Assim, o ambiente instalado continua funcionando quando o AppImage é fechado, movido ou apagado. Para verificar o pacote em um desktop, execute-o com `--self-test`: o teste abre a interface e verifica um ambiente Python novo, os headers e os certificados HTTPS.
+
+Para gerar o pacote a partir do código, use Python 3.12 ou mais novo: `python3 scripts/build_setup_appimage.py`. O build baixa versões fixas do Python standalone e das ferramentas AppImage, verifica SHA256 e grava o AppImage, seu checksum e o manifesto em `dist/`. Não inclui modelos de voz nem dados pessoais.
+
+Alternativamente, use o bootstrap pequeno:
+
 Baixe `setup.sh` da branch `IA_Improvementes` e execute:
 
 ```bash
