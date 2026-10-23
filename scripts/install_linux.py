@@ -1,7 +1,8 @@
-"""Linux backend for the graphical bootstrap. Never installs system packages."""
+"""Linux installer; elevate only the system package manager through polkit."""
 import ctypes.util
 import json
 import os
+import platform
 from pathlib import Path
 import shlex
 import shutil
@@ -16,7 +17,7 @@ VOSK_NAME = 'vosk-model-small-en-us-0.15'
 VOSK_URL = f'https://alphacephei.com/vosk/models/{VOSK_NAME}.zip'
 
 
-def run(command, reporter, cwd=ROOT, env=None):
+def run(command, reporter, cwd=ROOT, env=None, failure_message=None):
     reporter.detail(shlex.join(map(str, command)))
     with subprocess.Popen(list(map(str, command)), cwd=cwd, env=env,
                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
@@ -24,7 +25,52 @@ def run(command, reporter, cwd=ROOT, env=None):
         for line in process.stdout:
             reporter.detail(line.rstrip())
         if process.wait():
-            raise RuntimeError('esta etapa falhou; consulte a saída acima e execute novamente.')
+            raise RuntimeError(failure_message or 'esta etapa falhou; consulte a saída acima e execute novamente.')
+
+
+def install_system_dependencies(reporter, voice):
+    """Install missing packages with desktop authentication, never sudo the app."""
+    try:
+        release = platform.freedesktop_os_release()
+    except OSError:
+        return  # Other distributions can still use a preconfigured environment.
+    distro = {release.get('ID', ''), *release.get('ID_LIKE', '').split()}
+    if distro & {'fedora'}:
+        manager, query = shutil.which('dnf'), shutil.which('rpm')
+        packages = ['gcc', 'python3-devel', 'kernel-headers', 'portaudio',
+                    'xcb-util-cursor', 'xorg-x11-server-Xwayland']
+        query_args = ['-q']
+    elif distro & {'debian', 'ubuntu', 'linuxmint'}:
+        manager, query = shutil.which('apt-get'), shutil.which('dpkg-query')
+        packages = ['build-essential', 'python3-dev', 'linux-libc-dev',
+                    'libportaudio2', 'libxcb-cursor0', 'xwayland']
+        query_args = ['-W', '-f=${Status}']
+    else:
+        return
+    if voice:
+        packages.append('espeak-ng')
+    if not manager or not query:
+        raise RuntimeError('o gerenciador de pacotes do sistema não está disponível neste ambiente.')
+    missing = []
+    for package in packages:
+        result = subprocess.run([query, *query_args, package], capture_output=True, text=True)
+        installed = result.returncode == 0
+        if 'debian' in distro or distro & {'ubuntu', 'linuxmint'}:
+            installed = installed and result.stdout.strip() == 'install ok installed'
+        if not installed:
+            missing.append(package)
+    if not missing:
+        return
+    pkexec = shutil.which('pkexec')
+    if not pkexec:
+        raise RuntimeError('a instalação precisa da autorização do sistema, mas o serviço '
+                           'de autorização (polkit/pkexec) não está disponível neste desktop.')
+    reporter.info('instalando componentes do sistema; autorize na janela de senha do Linux')
+    reporter.detail('componentes necessários: ' + ', '.join(missing))
+    run([pkexec, '--disable-internal-agent', manager, 'install', '-y', *missing], reporter,
+        failure_message='não foi possível instalar os componentes do sistema. '
+        'se a autorização foi cancelada, clique em instalar novamente e autorize na janela do Linux. '
+        'caso contrário, confira a conexão e os detalhes acima.')
 
 
 def preflight(voice):
@@ -127,6 +173,32 @@ def ensure_environment(reporter):
     return python
 
 
+def check_evdev_build(python, reporter):
+    """Check native headers against the selected runtime (which may be uv's Python)."""
+    compiler = shutil.which('cc') or shutil.which('gcc') or shutil.which('clang')
+    runtime = subprocess.run([str(python), '-c',
+        'import json, sys, sysconfig; print(json.dumps(dict('
+        'version="%d.%d" % sys.version_info[:2], '
+        'includes=[sysconfig.get_path("include"), sysconfig.get_path("platinclude")])))'],
+        check=True, capture_output=True, text=True)
+    config = json.loads(runtime.stdout)
+    if compiler:
+        includes = list(dict.fromkeys(path for path in config['includes'] if path))
+        probe = subprocess.run(
+            [compiler, *['-I' + path for path in includes], '-x', 'c', '-fsyntax-only', '-'],
+            input='#include <Python.h>\n#include <linux/input.h>\n#include <linux/input-event-codes.h>\n',
+            capture_output=True, text=True)
+        if probe.returncode == 0:
+            return
+        reporter.detail(probe.stderr.strip())
+    raise RuntimeError(
+        'o evdev (dependência do atalho global) precisa de compilador e headers de desenvolvimento. '
+        'não foi possível validar esses componentes após preparar o sistema. '
+        f'o Python selecionado é {config["version"]}; se ele foi instalado separadamente, '
+        'os headers Python.h precisam corresponder a essa versão. '
+        'o Python isolado do uv já inclui seus próprios headers.')
+
+
 def install_record_path():
     return Path(os.environ.get('XDG_DATA_HOME') or Path.home() / '.local/share') / 'maya/installation.json'
 
@@ -174,12 +246,14 @@ def migrate_state(previous):
 
 def install(reporter, voice=True, open_app=True, branch='IA_Improvementes', revision=None):
     reporter.info('verificando a instalação Linux')
-    preflight(voice)
     previous = previous_install()
     require_closed({ROOT, Path(previous.get('path', str(ROOT)))})
+    install_system_dependencies(reporter, voice)
+    preflight(voice)
     migrate_state(previous)
     reporter.info('Preparing runtime: instalando as dependências')
     python = ensure_environment(reporter)
+    check_evdev_build(python, reporter)
     run([python, '-m', 'pip', 'install', '--upgrade', 'pip'], reporter)
     run([python, '-m', 'pip', 'install', '-r', ROOT / 'requirements.txt'], reporter)
     run([python, '-m', 'pip', 'check'], reporter)
