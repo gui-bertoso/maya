@@ -1,4 +1,6 @@
-numpy
+# NumPy 2.4 raises the x86 baseline to x86-64-v2; retain older Linux CPUs.
+numpy>=2.0.2,<2.4; sys_platform == "linux"
+numpy; sys_platform != "linux"
 psutil
 pynput; sys_platform != "linux"
 PySide6==6.8.3

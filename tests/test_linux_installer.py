@@ -198,6 +198,18 @@ class LinuxInstallerTests(unittest.TestCase):
         self.assertIn('python-xlib', linux)
         self.assertIn('pynput', windows)
 
+    def test_linux_numpy_constraint_excludes_new_cpu_baseline(self):
+        from packaging.requirements import Requirement
+        requirements = [Requirement(line) for line in (ROOT / 'requirements.txt').read_text().splitlines()
+                        if line.strip() and not line.startswith('#')]
+        linux = [r for r in requirements if r.name == 'numpy' and
+                 (not r.marker or r.marker.evaluate({'sys_platform': 'linux'}))]
+        self.assertEqual(len(linux), 1)
+        self.assertIn('2.0.2', linux[0].specifier)
+        self.assertIn('2.3.5', linux[0].specifier)
+        self.assertNotIn('2.4.0', linux[0].specifier)
+        self.assertNotIn('2.4.6', linux[0].specifier)
+
     def test_branch_resolves_to_immutable_revision(self):
         revision = 'a' * 40
         responses = [io.BytesIO(json.dumps({'sha': revision}).encode()),
