@@ -15,3 +15,22 @@ generated_projects/*
 # Piper models are downloaded locally because GitHub rejects the larger ONNX files.
 models/piper/
 models/piper/en_US-lessac-high.onnx
+
+# Local tooling
+.codex
+.ai/
+.claude/
+.cursor/
+.cline/
+.roo/
+.clinerules
+.cursorrules
+.windsurfrules
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+
+__pycache__/
+*.egg-info/
+.idea/
+.vs/

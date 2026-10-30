@@ -1,43 +1,52 @@
 # Roadmap
 
-O mapa visual detalhado está no [Miro](https://miro.com/app/board/uXjVHr5wgpk=/).
+The detailed visual map is available on [Miro](https://miro.com/app/board/uXjVHr5wgpk=/).
 
-## Próximos três
+## Next priorities
 
-1. Telemetria real de latência por etapa.
-2. Barge-in robusto: parar a resposta quando o usuário começar a falar.
-3. Diagnóstico e calibração de áudio.
+1. Measure latency at each processing stage.
+2. Implement robust barge-in that stops a response when the user starts speaking.
+3. Improve audio diagnostics and calibration.
 
-## Fases
+## Phases
 
-### 0 — Fundação e estabilidade
+### 0 — Foundation and stability
 
-Health checks, logs estruturados com privacidade, recuperação de crashes, validação de configuração e organização contínua do repositório. Meta: 99% dos startups sem erro.
+Health checks, privacy-aware structured logs, crash recovery, configuration
+validation and continued repository organization. Target: 99% error-free startups.
 
-### 1 — Voz em tempo real
+### 1 — Real-time voice
 
-Streaming ASR/TTS, cancelamento de eco, seleção automática de microfone e benchmark. Metas: p50 abaixo de 500 ms e p95 abaixo de 900 ms.
+Streaming ASR/TTS, echo cancellation, automatic microphone selection and
+benchmarks. Targets: p50 below 500 ms and p95 below 900 ms.
 
-### 2 — Cérebro modular
+### 2 — Modular processing
 
-Registro de comandos/plugins, roteamento por confiança, contexto com expiração, fallback inteligente e testes amplos de intenção em português.
+Command/plugin registry, confidence-based routing, expiring context, intelligent
+fallback and broad intent tests, including Portuguese support.
 
 ### 3 — Life OS
 
-Calendário, planejamento adaptativo, pomodoro, quiet hours, dashboard semanal, exportação e sugestões proativas controláveis.
+Calendar, adaptive planning, pomodoro, quiet hours, weekly dashboard, exports and
+controllable proactive suggestions.
 
-### 4 — Experiência
+### 4 — Experience
 
-Onboarding, ícone na bandeja, painel de diagnóstico, acessibilidade, temas e controles visuais de voz/microfone.
+Onboarding, tray icon, diagnostics panel, accessibility, themes and visual
+voice/microphone controls.
 
-### 5 — Produto e distribuição
+### 5 — Product and distribution
 
-CI, assinatura digital, instalação em máquina limpa, atualização com rollback, release notes, documentação de privacidade, backup e restauração.
+CI, digital signing, clean-machine installation, rollback-capable updates,
+release notes, privacy documentation, backup and restoration.
 
-## Qualidade transversal
+## Cross-cutting quality
 
-Testes unitários e de integração, soak test de áudio, limites de threads/filas, tratamento de permissões e nenhuma gravação de áudio por padrão.
+Unit and integration tests, audio soak tests, thread/queue limits, permission
+handling and no audio recording by default.
 
-## Pesquisa futura
+## Future research
 
-Wake word neural customizada, diarização, visão de tela opcional, automações por plugins, modelo local pequeno, sincronização entre dispositivos e aplicativo móvel companheiro.
+Custom neural wake words, diarization, optional screen vision, plugin automation,
+small local models, cross-device synchronization and a mobile companion.
+These are research topics rather than enabled runtime integrations.

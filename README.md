@@ -1,26 +1,32 @@
 # Maya
 
-Assistente pessoal local-first para Windows, feita em Python. A Maya escuta comandos em português, automatiza o desktop, acompanha sua rotina e responde por uma interface flutuante ou por voz.
+A local-first personal desktop assistant written in Python. Maya supports natural
+English and Portuguese commands, desktop automation, routines, a floating interface
+and spoken responses. The default branch contains the Windows implementation;
+Linux development and its graphical installer are available on
+[IA_Improvementes](https://github.com/gui-bertoso/maya/tree/IA_Improvementes).
 
-> Projeto funcional e experimental. O foco atual é baixa latência, privacidade local e evolução incremental com testes.
+> Functional and experimental. Current priorities are low latency, local privacy
+> and incremental improvements backed by tests.
 
-## Destaques
+## Highlights
 
-- reconhecimento offline com Vosk e wake words `Maya` / `Maia`;
-- supressão adaptativa de ruído e encerramento rápido de fala;
-- pipeline assíncrono com filas limitadas e semáforos;
-- TTS do Windows pré-aquecido, com Piper e Edge opcionais;
-- rotinas A/B, recálculo por atraso, lembretes, XP e streak;
-- overlay PySide6, quick input, notificações e configurações;
-- memória, vocabulário e respostas persistidos localmente;
-- automações para aplicativos, web, Spotify e ambientes de trabalho;
-- instalador gráfico e inicialização automática.
+- Offline Vosk recognition with the `Maya` / `Maia` wake words.
+- Adaptive noise suppression and fast speech endpoint detection.
+- Asynchronous processing with bounded queues and semaphores.
+- Prewarmed Windows TTS, with optional Piper and Edge engines.
+- A/B routines, late-start rescheduling, reminders, XP and streaks.
+- PySide6 overlay, quick input, notifications and settings.
+- Locally persisted memory, vocabulary and responses.
+- Application, web, Spotify and workspace automation.
+- Graphical installer and automatic startup.
 
-## Início rápido no Windows
+## Windows quick start
 
-Pressione **End + Page Down** para mostrar a Maya de qualquer lugar. Se ela já estiver aberta, iniciar o programa novamente apenas traz a janela existente para frente.
+Press **End + Page Down** to show Maya from anywhere. Starting a second instance
+brings the existing window to the front.
 
-Requisitos: Python 3.11, Git e um microfone funcional.
+Requirements: Python 3.11, Git and a working microphone.
 
 ```powershell
 py -3.11 -m venv .venv
@@ -28,62 +34,62 @@ py -3.11 -m venv .venv
 .\.venv\Scripts\python.exe app.py
 ```
 
-Com `uv`:
+With `uv`:
 
 ```powershell
 uv run --python 3.11 --with-requirements requirements-windows.txt python app.py
 ```
 
-Para baixar vozes neurais opcionais:
+Optional Portuguese neural voices:
 
 ```powershell
 .\.venv\Scripts\python.exe scripts\download_piper_models.py --model pt
 ```
 
-## Comandos de rotina
+## Routine commands
 
-| Comando | Função |
+| Command | Action |
 |---|---|
-| `!today` | Mostra o plano de hoje |
-| `!done <atividade>` | Conclui uma atividade e concede XP |
-| `!skip <atividade>` | Ignora uma atividade |
-| `!routine a` / `b` | Alterna entre treino às 06:00 ou 14:00 |
-| `!status` | Exibe progresso, XP e streak |
-| `!week` | Resume a semana |
-| `!awake HH:MM` | Recalcula o dia após acordar atrasado |
+| `!today` | Show today's plan |
+| `!done <activity>` | Complete an activity and award XP |
+| `!skip <activity>` | Skip an activity |
+| `!routine a` / `b` | Choose the 06:00 or 14:00 workout routine |
+| `!status` | Show progress, XP and streak |
+| `!week` | Summarize the week |
+| `!awake HH:MM` | Reschedule the day after waking up late |
 
-## Estrutura
+## Structure
 
 ```text
 maya/
-├── app.py          # composição e ciclo de vida
-├── core/           # processamento, memória, rotina e concorrência
-├── input/          # microfone, Vosk, ruído e palmas
-├── output/         # interface e síntese de voz
-├── helpers/        # integrações e utilitários
-├── data/           # conteúdo e estado local em JSON
-├── models/         # modelos locais de voz
-├── scripts/        # execução, downloads e builds
-├── tests/          # testes automatizados
-└── docs/           # documentação por assunto
+├── app.py          # composition and lifecycle
+├── core/           # processing, memory, routines and concurrency
+├── input/          # microphone, Vosk, noise suppression and claps
+├── output/         # interface and speech synthesis
+├── helpers/        # integrations and utilities
+├── data/           # JSON content and local state
+├── models/         # local speech models
+├── scripts/        # launchers, downloads and builds
+├── tests/          # automated tests
+└── docs/           # topic-based documentation
 ```
 
-## Documentação
+## Documentation
 
-- [Visão geral em português](docs/overview.pt-BR.md)
-- [Overview in English](docs/overview.en.md)
-- [Arquitetura](docs/architecture.md)
-- [Pipeline de voz](docs/voice-pipeline.md)
-- [Rotinas pessoais](docs/routines.md)
-- [Desenvolvimento e testes](docs/development.md)
-- [Códigos de erro](docs/error-codes.md)
-- [Comandos e exemplos](docs/commands.md)
-- [Containers DataExpansion](docs/data-expansions.md)
+- [Overview](docs/overview.en.md)
+- [Architecture](docs/architecture.md)
+- [Voice pipeline](docs/voice-pipeline.md)
+- [Personal routines](docs/routines.md)
+- [Development and tests](docs/development.md)
+- [Error codes](docs/error-codes.md)
+- [Commands and examples](docs/commands.md)
+- [Data Expansion containers](docs/data-expansions.md)
 - [Roadmap](docs/roadmap.md)
+- [Additional Portuguese overview](docs/overview.pt-BR.md)
 
-Mapa visual: [Maya — Arquitetura, Fluxos e Roadmap](https://miro.com/app/board/uXjVHr5wgpk=/)
+Visual map: [Maya — Architecture, Flows and Roadmap](https://miro.com/app/board/uXjVHr5wgpk=/).
 
-## Testes
+## Tests
 
 ```powershell
 uv run --python 3.11 --with-requirements requirements-windows.txt python -m unittest discover -s tests -v
@@ -96,15 +102,18 @@ uv run --python 3.11 --with-requirements requirements-windows.txt python -m unit
 .\scripts\build_setup_windows.ps1
 ```
 
-Artefatos como `setup.exe`, `build/`, `dist/`, logs e caches não pertencem ao Git. Gere-os localmente ou publique-os em uma release.
+Generated installers, `build/`, `dist/`, logs and caches do not belong in Git.
+Build them locally or distribute them as release assets.
 
-## Privacidade
+## Privacy
 
-O reconhecimento Vosk e os dados pessoais funcionam localmente. Áudio não é gravado por padrão. Motores e integrações online são opcionais e devem ser ativados conscientemente.
+Vosk recognition and personal data remain local. Audio is not recorded by default.
+Online engines and integrations are optional and require deliberate configuration.
 
-## Estado atual
+## Current status
 
-A base já é utilizável, mas ainda precisa de telemetria real de latência, diagnóstico de áudio, barge-in robusto, assinatura do instalador e testes em máquina limpa. Consulte o [roadmap](docs/roadmap.md).
+The base is usable. Remaining work includes measured latency, audio diagnostics,
+robust barge-in, installer signing and clean-machine tests. See the [roadmap](docs/roadmap.md).
 
 ## License
 

@@ -1,49 +1,50 @@
-# Códigos de erro da Maya
+# Maya error codes
 
-Todo erro conhecido usa `MAY-NNNN`. Erros ainda não classificados recebem `MAY-0001`, então nenhum traceback fica sem identificador.
+Known errors use `MAY-NNNN`. Unclassified errors receive `MAY-0001` so that every
+traceback has an identifier.
 
-| Código | Área | Significado | Primeira ação |
+| Code | Area | Meaning | First action |
 |---|---|---|---|
-| MAY-0001 | Geral | Erro interno inesperado | Consultar o traceback no log |
-| MAY-0101 | Configuração | Sem acesso ao `.env` | Fechar duplicatas e conferir permissões |
-| MAY-0102 | Configuração | Estrutura local inválida | Restaurar os arquivos locais |
-| MAY-0103 | Configuração | Valor inválido | Corrigir o campo indicado |
-| MAY-0201 | Processo | Trava de instância falhou | Encerrar instâncias antigas |
-| MAY-0202 | Atalho | Atalho global indisponível | Conferir permissões e `pynput` |
-| MAY-0301 | Voz | Dependência de áudio ausente | Reinstalar dependências |
-| MAY-0302 | Voz | Microfone não encontrado | Selecionar um dispositivo de entrada |
-| MAY-0303 | Voz | Modelo Vosk indisponível | Conferir o modelo e seu caminho |
-| MAY-0304 | Voz | Reconhecimento falhou | Conferir microfone e log |
-| MAY-0305 | Voz | Supressão de ruído falhou | Revisar os parâmetros de áudio |
-| MAY-0401 | Fala | Motor TTS não iniciou | Trocar ou reinstalar o motor |
-| MAY-0402 | Fala | Reprodução da voz falhou | Tentar outro motor de voz |
-| MAY-0501 | Interface | Qt não iniciou | Conferir PySide6 e DLLs |
-| MAY-0502 | Interface | Interface falhou em execução | Reabrir e consultar o log |
-| MAY-0601 | Entrada | Pipeline de comando falhou | Repetir o comando |
-| MAY-0701 | Dados | Memória não pôde ser salva | Conferir a pasta `data` |
-| MAY-0702 | Dados | Rotina não pôde ser salva | Conferir `routine.json` |
-| MAY-0801 | Apps | Aplicativo não abriu | Conferir caminho e permissão |
-| MAY-0901 | Web | Serviço externo indisponível | Conferir conexão |
-| MAY-1001 | Instalação | Instalador falhou | Consultar o log do instalador |
-| MAY-1002 | Instalação | Windows bloqueou o executável | Assinar ou liberar pela política |
+| MAY-0001 | General | Unexpected internal error | Inspect the traceback in the log |
+| MAY-0101 | Configuration | Cannot access `.env` | Close duplicate instances and check permissions |
+| MAY-0102 | Configuration | Invalid local structure | Restore local files |
+| MAY-0103 | Configuration | Invalid value | Correct the indicated field |
+| MAY-0201 | Process | Instance lock failed | Stop older instances |
+| MAY-0202 | Hotkey | Global shortcut unavailable | Check permissions and `pynput` |
+| MAY-0301 | Voice input | Missing audio dependency | Reinstall dependencies |
+| MAY-0302 | Voice input | Microphone not found | Select an input device |
+| MAY-0303 | Voice input | Vosk model unavailable | Check the model and its path |
+| MAY-0304 | Voice input | Recognition failed | Check the microphone and log |
+| MAY-0305 | Voice input | Noise suppression failed | Review audio settings |
+| MAY-0401 | Speech | TTS engine did not start | Switch or reinstall the engine |
+| MAY-0402 | Speech | Voice playback failed | Try a different speech engine |
+| MAY-0501 | Interface | Qt did not start | Check PySide6 and DLLs |
+| MAY-0502 | Interface | Runtime interface failure | Reopen it and inspect the log |
+| MAY-0601 | Input | Command pipeline failed | Repeat the command |
+| MAY-0701 | Data | Memory could not be saved | Check the `data` folder |
+| MAY-0702 | Data | Routine could not be saved | Check `routine.json` |
+| MAY-0801 | Applications | Application did not open | Check its path and permissions |
+| MAY-0901 | Web | External service unavailable | Check the connection |
+| MAY-1001 | Installation | Installer failed | Inspect the installer log |
+| MAY-1002 | Installation | Windows blocked the executable | Use signing or the applicable execution policy |
 
-## Regra para novos erros
+## New errors
 
-1. Reutilize um código quando causa e ação forem as mesmas.
-2. Crie o código em `helpers/errors.py` antes de usá-lo.
-3. Registre contexto técnico no log, mas mostre ao usuário código, resumo e ação.
-4. Nunca exponha apenas `PermissionError`, `OSError` ou um traceback sem código.
+1. Reuse an existing code when the cause and action are the same.
+2. Add new codes to `helpers/errors.py` before using them.
+3. Log technical context, but show the user a code, summary and recovery action.
+4. Never expose only `PermissionError`, `OSError` or an uncoded traceback.
 
-## Faixas reservadas
+## Reserved ranges
 
-- `0000`: falhas gerais
-- `0100`: configuração
-- `0200`: processo e ativação
-- `0300`: entrada de voz
-- `0400`: saída de voz
-- `0500`: interface
-- `0600`: processamento de comandos
-- `0700`: persistência
-- `0800`: aplicativos locais
-- `0900`: rede
-- `1000`: instalação e atualização
+- `0000`: general failures.
+- `0100`: configuration.
+- `0200`: processes and activation.
+- `0300`: voice input.
+- `0400`: voice output.
+- `0500`: interface.
+- `0600`: command processing.
+- `0700`: persistence.
+- `0800`: local applications.
+- `0900`: networking.
+- `1000`: installation and updates.

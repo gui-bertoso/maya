@@ -1,30 +1,33 @@
 # Data Expansions
 
-Os containers `data/expansions/DataExpansionN.myde` ampliam a Maya sem alterar o processador principal. `.myde` significa **Maya Data Expansion**: é um arquivo UTF-8 com JSON por dentro, então continua fácil de ler e editar.
+Containers in `data/expansions/DataExpansionN.myde` extend Maya without changing
+the main processor. `.myde` means **Maya Data Expansion**: a UTF-8 file containing
+JSON, designed to remain readable and editable.
 
 ```json
 {
   "format": "maya-data-expansion",
   "format_version": 1,
-  "name": "nome-do-pacote",
+  "name": "package-name",
   "version": 1,
   "commands": {
-    "asks_joke": ["nova forma de pedir uma piada"]
+    "asks_joke": ["another way to ask for a joke"]
   },
   "responses": {
-    "asks_joke_pt": ["nova resposta"]
+    "asks_joke_en": ["an additional response"]
   }
 }
 ```
 
-## Funcionamento
+## Behavior
 
-- Os arquivos são descobertos automaticamente e carregados pela ordem numérica: `0`, `1`, `2`…
-- Todo `.myde` precisa declarar `format` e `format_version`; versões desconhecidas são recusadas com segurança.
-- Containers `.json` antigos continuam aceitos para compatibilidade, mas novos pacotes devem usar `.myde`.
-- Comandos e respostas repetidos são removidos durante a união.
-- Um container inválido é ignorado sem derrubar os demais.
-- Mudanças são detectadas durante o uso, no máximo um segundo depois de salvar o arquivo.
-- Não é necessário editar `core/process.py` para adicionar conteúdo a uma intenção existente.
+- Files are discovered automatically and loaded in numeric order: `0`, `1`, `2`, and so on.
+- Each `.myde` must declare `format` and `format_version`; unknown versions are safely rejected.
+- Older `.json` containers remain supported, but new packages should use `.myde`.
+- Duplicate commands and responses are removed during merging.
+- An invalid container is skipped without preventing others from loading.
+- Changes are detected during use, at most one second after a file is saved.
+- Adding content to an existing intent does not require editing `core/process.py`.
 
-O nome da intenção precisa existir no dicionário `patterns` do processador. Novas funcionalidades ainda exigem código; novas maneiras de falar e responder, não.
+The intent name must exist in the processor's `patterns` dictionary. New
+functionality still requires code; additional phrasing and responses do not.

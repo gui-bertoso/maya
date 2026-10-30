@@ -116,7 +116,7 @@ class SetupWindow(Reporter):
         )
         self.title_label.grid(row=0, column=0, sticky="ew", padx=22, pady=(18, 6))
 
-        self.status_var = tk.StringVar(value="Preparando uma Maya mais bonita e menos largada...")
+        self.status_var = tk.StringVar(value='Preparing Maya for installation...')
         self.status_label = tk.Label(
             self.root,
             textvariable=self.status_var,
@@ -140,7 +140,7 @@ class SetupWindow(Reporter):
 
         self.log_title = tk.Label(
             log_panel,
-            text="PROGRESSO DA INSTALAÇÃO",
+            text='INSTALLATION PROGRESS',
             font=("Segoe UI", 11, "bold"),
             bg="#090b16",
             fg="#c9c3ff",
@@ -172,7 +172,7 @@ class SetupWindow(Reporter):
 
         self.changes_title = tk.Label(
             changes_panel,
-            text="NOVIDADES DESTA VERSÃO",
+            text='WHAT IS NEW IN THIS VERSION',
             font=("Segoe UI", 11, "bold"),
             bg="#090b16",
             fg="#c9c3ff",
@@ -197,10 +197,10 @@ class SetupWindow(Reporter):
         changes_scrollbar.grid(row=1, column=1, sticky="ns")
         self.changes_text.configure(yscrollcommand=changes_scrollbar.set, state="disabled")
         self._set_changes("Glow up da Maya", [
-            "Novo command center com atalhos e status ao vivo.",
-            "Rotinas A e B, XP, streak e resumo semanal.",
-            "Lembretes e agenda que se adapta quando voce acorda atrasado.",
-            "Interface refinada e totalmente integrada ao Windows.",
+            'New command center with shortcuts and live status.',
+            'A/B routines, XP, streaks and weekly summaries.',
+            'Reminders and a schedule that adapts when you wake up late.',
+            'A refined interface fully integrated with Windows.',
         ])
 
         footer = tk.Frame(self.root, bg="#090b16")
@@ -213,7 +213,7 @@ class SetupWindow(Reporter):
 
         self.close_button = tk.Button(
             footer,
-            text="Minimizar",
+            text='Minimize',
             command=self._on_close,
             font=("Segoe UI", 10, "bold"),
             bg="#7c5cff",
@@ -278,7 +278,7 @@ class SetupWindow(Reporter):
             self.status_var.set(message)
             self._append(f"ERROR: {message}")
             self.progress.stop()
-            self.close_button.configure(text="Fechar")
+            self.close_button.configure(text='Close')
             self._allow_close = True
             return
 
@@ -300,7 +300,7 @@ class SetupWindow(Reporter):
         if kind == "close_error":
             self.status_var.set(message)
             self.progress.stop()
-            self.close_button.configure(text="Fechar")
+            self.close_button.configure(text='Close')
             self._allow_close = True
 
     def _append(self, message):
@@ -382,7 +382,7 @@ def install_bundled_app(payload, reporter=None):
     target = install_dir / f"{APP_NAME}.exe"
     install_dir.mkdir(parents=True, exist_ok=True)
     if reporter:
-        reporter.info("Instalando Maya 1.2.0...")
+        reporter.info('Installing Maya 1.2.0...')
     if is_windows():
         subprocess.run(
             ["taskkill", "/IM", f"{APP_NAME}.exe", "/F"],
@@ -397,7 +397,7 @@ def install_bundled_app(payload, reporter=None):
     (install_dir / "version.txt").write_text("1.2.0\n", encoding="utf-8")
     create_windows_shortcuts(target, reporter=reporter)
     if reporter:
-        reporter.info("Atalhos criados. Iniciando a Maya...")
+        reporter.info('Shortcuts created. Starting Maya...')
     subprocess.Popen([str(target)], cwd=install_dir, **windows_subprocess_kwargs())
 
 
@@ -747,8 +747,8 @@ def run_bootstrap(reporter):
     if payload is not None:
         reporter.release_notes("Maya 1.2.0", [
             "Novo command center e interface renovada.",
-            "Rotinas pessoais, XP, streak e lembretes.",
-            "Instalacao local com atalhos do Windows.",
+            'Personal routines, XP, streaks and reminders.',
+            'Local installation with Windows shortcuts.',
         ])
         install_bundled_app(payload, reporter=reporter)
         reporter.close_success()

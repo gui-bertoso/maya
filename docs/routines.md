@@ -1,22 +1,28 @@
-# Rotinas pessoais
+# Personal routines
 
-O `RoutineManager` mantém o planejamento diário em `data/routine.json`.
+`RoutineManager` maintains daily plans in `data/routine.json`.
 
 ## Presets
 
-- Rotina A: treino às 06:00 e blocos de trabalho/estudo ao longo do dia.
-- Rotina B: treino às 14:00 e manhã ajustada para trabalho e descanso.
+- Routine A: a 06:00 workout with work/study blocks throughout the day.
+- Routine B: a 14:00 workout with a morning adjusted for work and rest.
 
-Atividades podem estar pendentes, em andamento, concluídas ou ignoradas. Conclusões concedem XP somente uma vez; o streak considera dias com progresso real.
+Activities can be pending, in progress, completed or skipped. Completion awards
+XP only once; streaks count days with actual progress.
 
-## Adaptação
+## Adaptation
 
-`!awake HH:MM` desloca blocos flexíveis quando o usuário acorda atrasado, preservando compromissos fixos. A prioridade atual é: compromissos fixos, trabalho, Rust, inglês, planejamento internacional e lazer.
+`!awake HH:MM` shifts flexible blocks after a late start while preserving fixed
+appointments. Current priority: fixed appointments, work, Rust, English,
+international planning and leisure.
 
-## Persistência
+## Persistence
 
-O arquivo contém versão do esquema, rotina ativa, dias registrados e preferências. Mudanças futuras devem incluir migração explícita do esquema e nunca apagar histórico silenciosamente.
+The file stores a schema version, active routine, recorded days and preferences.
+Future changes must include an explicit migration and must never silently erase history.
 
-## Lembretes
+## Reminders
 
-O runtime verifica lembretes por minuto e registra os já enviados para evitar repetição. Futuras quiet hours devem bloquear interrupções sem perder o evento pendente.
+The runtime checks reminders once per minute and records delivered reminders to
+avoid duplicates. Future quiet hours should suppress interruptions without losing
+pending events.

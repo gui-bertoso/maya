@@ -1,42 +1,47 @@
-# Desenvolvimento
+# Development
 
-## Ambiente recomendado
+## Recommended environment
 
-- Python 3.11
-- Windows 10/11
-- `requirements-windows.txt`
-- modelos Vosk armazenados em `models/`
+- Python 3.11.
+- Windows 10/11 for the default branch.
+- `requirements-windows.txt`.
+- Vosk models stored in `models/`.
 
-## Testar
+Linux work is maintained on the `IA_Improvementes` branch.
+
+## Tests
 
 ```powershell
 uv run --python 3.11 --with-requirements requirements-windows.txt python -m unittest discover -s tests -v
 ```
 
-Testes de SQLite, quando adicionados, devem rodar serialmente para evitar bloqueio de banco no Windows.
+SQLite tests should run serially to avoid database locks on Windows.
 
-## Regras de organização
+## Organization
 
-- Código de domínio em `core/`; I/O em `input/` e `output/`.
-- Integrações opcionais em `helpers/`.
-- Um módulo novo deve ter teste correspondente em `tests/`.
-- Estado, cache, log e binários gerados não entram no Git.
-- Não versionar `.env`, dados pessoais ou áudio capturado.
-- Alterações de configuração precisam aparecer na UI e na documentação quando forem relevantes ao usuário.
+- Domain code belongs in `core/`; input/output belongs in `input/` and `output/`.
+- Optional integrations belong in `helpers/`.
+- New modules should have corresponding tests under `tests/`.
+- Keep generated state, caches, logs and binaries out of Git.
+- Never commit `.env`, personal data or captured audio.
+- User-facing configuration changes should appear in the interface and documentation.
 
-## Build Windows
+## Windows build
 
 ```powershell
 .\scripts\build_windows.ps1
 .\scripts\build_setup_windows.ps1
 ```
 
-O executável do instalador deve ser publicado como artefato de release, acompanhado de versão, hash e, futuramente, assinatura digital. Não deve ser commitado no repositório.
+Publish installers as release assets with a version and checksum. Digital signing
+remains planned. Do not commit generated executables.
 
-## Checklist de mudança
+## Change checklist
 
-1. Preserve compatibilidade dos arquivos JSON ou forneça migração.
-2. Execute testes relacionados e a suíte completa.
-3. Valide inicialização, escuta e ao menos uma resposta falada.
-4. Revise `git diff --check` e não inclua dados locais.
-5. Faça commit pequeno e push após a alteração validada.
+1. Preserve JSON compatibility or provide an explicit migration.
+2. Run related tests and the full suite.
+3. Validate startup, listening and at least one spoken response on the target platform.
+4. Run `git diff --check` and exclude local data.
+5. Commit small, validated changes before pushing.
+
+Use English Conventional Commit messages, such as `fix: handle a missing microphone`.
