@@ -34,9 +34,9 @@ def archive(files):
 class LinuxInstallerTests(unittest.TestCase):
     def test_failed_step_preserves_output_and_exit_code_in_log(self):
         with tempfile.TemporaryDirectory() as folder, patch.object(backend, 'ROOT', Path(folder)):
-            with self.assertRaisesRegex(RuntimeError, 'código 7') as error:
+            with self.assertRaisesRegex(RuntimeError, 'code 7') as error:
                 backend.run([sys.executable, '-c', 'print("missing test library"); raise SystemExit(7)'],
-                            Reporter(), cwd=folder, failure_message='falha no módulo de teste')
+                            Reporter(), cwd=folder, failure_message='test module failure')
             self.assertIn('missing test library', str(error.exception))
             log = Path(folder) / 'logs/installer.log'
             self.assertIn('missing test library', log.read_text())
@@ -228,7 +228,7 @@ class LinuxInstallerTests(unittest.TestCase):
                      io.BytesIO(archive({'../../escaped': 'bad'}))]
         with tempfile.TemporaryDirectory() as folder, patch.dict('os.environ', {'XDG_DATA_HOME': folder}), \
              patch.object(setup.urllib.request, 'urlopen', side_effect=responses):
-            with self.assertRaisesRegex(RuntimeError, 'caminho inválido'):
+            with self.assertRaisesRegex(RuntimeError, 'invalid path'):
                 setup.download_linux_source(Reporter())
             self.assertFalse((Path(folder) / 'escaped').exists())
 
@@ -239,7 +239,7 @@ class LinuxInstallerTests(unittest.TestCase):
             responses = [io.BytesIO(json.dumps({'sha': 'c'*40}).encode()),
                          io.BytesIO(archive({'maya-c/app.py': '# old'}))]
             with patch.object(setup.urllib.request, 'urlopen', side_effect=responses):
-                with self.assertRaisesRegex(RuntimeError, 'ainda não contém'):
+                with self.assertRaisesRegex(RuntimeError, 'does not contain'):
                     setup.download_linux_source(Reporter())
             self.assertEqual(existing.read_text(), 'keep')
             self.assertFalse((Path(folder) / 'maya/versions' / ('c'*40)).exists())
@@ -301,7 +301,7 @@ class LinuxInstallerTests(unittest.TestCase):
         payload = archive({'../escape': 'bad'})
         with tempfile.TemporaryDirectory() as folder, patch.object(backend, 'ROOT', Path(folder)), \
              patch.object(backend, 'urlopen', return_value=io.BytesIO(payload)):
-            with self.assertRaisesRegex(RuntimeError, 'estrutura inesperada'):
+            with self.assertRaisesRegex(RuntimeError, 'unexpected speech-model structure'):
                 backend.download_vosk(Reporter())
 
 

@@ -14,5 +14,5 @@ $python = Join-Path $projectRoot ".venv\Scripts\python.exe"
 & $python -m PyInstaller --noconfirm --clean setup.spec
 
 Write-Host ""
-Write-Host "Build finalizado."
+Write-Host "Build complete."
 Write-Host "Executavel: dist\setup.exe"

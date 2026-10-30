@@ -1,36 +1,42 @@
-# Arquitetura
+# Architecture
 
-## Fluxo principal
+## Main flow
 
 ```text
-Microfone / texto / hotkey / palmas
+Microphone / text / hotkey / claps
                 ↓
         Voice + wake detection
                 ↓
        AsyncInputPipeline
                 ↓
-        App → Process → ações
+        App → Process → actions
           ↙       ↓       ↘
-       dados   Renderer   Speaker
+        data   Renderer   Speaker
 ```
 
-`app.py` compõe os serviços e controla o ciclo de vida. Ele não deve concentrar regras específicas que possam viver em módulos menores.
+`app.py` composes services and controls their lifecycle. Domain-specific rules
+that can live in smaller modules should not accumulate there.
 
-## Responsabilidades
+## Responsibilities
 
-- `core/`: regras de domínio, intenções, memória, rotina e coordenação assíncrona.
-- `input/`: captura e interpretação de sinais de entrada.
-- `output/`: apresentação visual e sonora.
-- `helpers/`: adaptadores para sistema operacional e serviços externos.
-- `data/`: conteúdo editável e estado persistente local.
-- `scripts/`: tarefas operacionais que não fazem parte do runtime.
+- `core/`: domain rules, intents, memory, routines and asynchronous coordination.
+- `input/`: input-signal capture and interpretation.
+- `output/`: visual and audio presentation.
+- `helpers/`: operating-system and external-service adapters.
+- `data/`: editable content and persistent local state.
+- `scripts/`: operational tasks outside the application runtime.
 
-## Concorrência
+## Concurrency
 
-A captura do microfone, o reconhecimento, o processamento de comandos, a interface e o TTS trabalham fora uns dos outros. O `AsyncInputPipeline` impede que trabalho pesado bloqueie o áudio. Um semáforo serializa alterações de estado e outro limita entradas pendentes.
+Microphone capture, recognition, command processing, the interface and TTS run
+independently. `AsyncInputPipeline` keeps expensive work out of the audio path.
+One semaphore serializes state changes and another bounds pending input.
 
-Filas devem continuar limitadas. Criar mais threads sem medir não aumenta desempenho e pode piorar ordem, memória e desligamento.
+Keep queues bounded. Adding threads without measurement can worsen ordering,
+memory use and shutdown behavior rather than improve performance.
 
-## Dependências
+## Dependencies
 
-O núcleo depende de interfaces simples expostas pelo `App`. Integrações de sistema ficam em `helpers/`; o domínio não deve importar componentes visuais. Novos recursos grandes devem ganhar módulo e testes próprios.
+The core uses simple interfaces exposed by `App`. System integrations belong in
+`helpers/`; domain code should not import visual components. Substantial new
+features should have dedicated modules and tests.

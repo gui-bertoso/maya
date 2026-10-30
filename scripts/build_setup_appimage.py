@@ -36,13 +36,13 @@ def fetch_assets(cache):
         target = cache / name
         if target.is_file() and digest(target) == expected:
             continue
-        print(f'baixando {name}', flush=True)
+        print(f'downloading {name}', flush=True)
         temporary = target.with_suffix('.download')
         try:
             with urlopen(Request(url, headers={'User-Agent': 'Maya-AppImage-Builder'}), timeout=90) as response, temporary.open('wb') as output:
                 shutil.copyfileobj(response, output)
             if digest(temporary) != expected:
-                raise RuntimeError(f'checksum inválido: {name}')
+                raise RuntimeError(f'invalid checksum: {name}')
             temporary.replace(target)
         finally:
             temporary.unlink(missing_ok=True)
@@ -50,7 +50,7 @@ def fetch_assets(cache):
 
 def build(work, output):
     if platform.machine() != 'x86_64' or platform.system() != 'Linux':
-        raise RuntimeError('este build requer Linux x86_64')
+        raise RuntimeError('this build requires Linux x86_64')
     cache = work / 'downloads'
     fetch_assets(cache)
     appdir = work / 'MayaSetup.AppDir'
@@ -79,7 +79,7 @@ def build(work, output):
     (appdir / 'AppRun').chmod(0o755)
     (appdir / 'maya-setup.desktop').write_text(
         '[Desktop Entry]\nType=Application\nName=Maya Setup\n'
-        'Comment=Instalar ou atualizar a Maya\nExec=AppRun\n'
+        'Comment=Install or update Maya\nExec=AppRun\n'
         'Icon=maya-setup\nTerminal=false\nCategories=Utility;\n')
     shutil.copy2(ROOT / 'icon.png', appdir / 'maya-setup.png')
     (appdir / '.DirIcon').symlink_to('maya-setup.png')
@@ -99,7 +99,7 @@ def build(work, output):
     artifact.chmod(0o755)
     (output / (artifact.name + '.sha256')).write_text(f'{digest(artifact)}  {artifact.name}\n')
     (output / 'Maya-Setup-build.json').write_text(json.dumps(manifest, indent=2) + '\n')
-    print(f'appimage criado: {artifact}', flush=True)
+    print(f'appimage created: {artifact}', flush=True)
     return artifact
 
 

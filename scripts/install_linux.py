@@ -44,13 +44,13 @@ def run(command, reporter, cwd=ROOT, env=None, failure_message=None):
             log.write(line); log.flush()
         code = process.wait()
         if code:
-            status = f'código {code}'
+            status = f'code {code}'
             if code < 0:
                 try:
                     status += ' / ' + signal.Signals(-code).name
                 except ValueError:
                     pass
-            message = failure_message or 'esta etapa falhou'
+            message = failure_message or 'this step failed'
             details = '\n'.join(tail)[-2000:]
             message += f' ({status}). log: {logpath}'
             if details:
@@ -72,10 +72,10 @@ def qt_environment(open_app):
 def validate_runtime(python, reporter, open_app):
     env = qt_environment(open_app)
     for module in ('sounddevice', 'vosk', 'numpy', 'onnxruntime', 'espeakng_loader', 'phonemizer', 'kokoro_onnx'):
-        reporter.info(f'verificando o módulo {module}')
+        reporter.info(f'checking module {module}')
         command = [python, '-I', '-c', f'import {module}; print("{module}: ok", flush=True)']
         try:
-            run(command, reporter, env=env, failure_message=f'não foi possível carregar {module}')
+            run(command, reporter, env=env, failure_message=f'could not load {module}')
         except InstallerStepError as error:
             if error.returncode != -signal.SIGILL or module != 'onnxruntime' or platform.machine() != 'x86_64':
                 raise
@@ -86,17 +86,16 @@ def validate_runtime(python, reporter, open_app):
                 check=True, capture_output=True, text=True).stdout.strip()
             if version == '1.20.1':
                 raise
-            reporter.info('a biblioteca de voz encontrou uma instrução inválida; testando um runtime alternativo')
+            reporter.info('the speech library encountered an illegal instruction; trying an alternative runtime')
             run([python, '-m', 'pip', 'install', 'onnxruntime==1.20.1'], reporter)
             run([python, '-m', 'pip', 'check'], reporter)
             run(command, reporter, env=env,
-                failure_message='o runtime alternativo de voz também não carregou neste processador')
-    reporter.info('verificando a interface gráfica')
+                failure_message='the alternative speech runtime also failed to load on this processor')
+    reporter.info('checking the graphical interface')
     env['QT_DEBUG_PLUGINS'] = '1'
     run([python, '-I', '-c',
-         'from PySide6.QtWidgets import QApplication; a=QApplication([]); '
-         'print("interface gráfica: ok", flush=True)'], reporter, env=env,
-        failure_message='não foi possível iniciar a interface gráfica Qt')
+         'from PySide6.QtWidgets import QApplication; a=QApplication([]); print("graphical interface: ok", flush=True)'], reporter, env=env,
+        failure_message='could not initialize the Qt graphical interface')
 
 
 def install_system_dependencies(reporter, voice):
@@ -123,7 +122,7 @@ def install_system_dependencies(reporter, voice):
     if voice:
         packages.append('espeak-ng')
     if not manager or not query:
-        raise RuntimeError('o gerenciador de pacotes do sistema não está disponível neste ambiente.')
+        raise RuntimeError('the system package manager is unavailable in this environment.')
     missing = []
     for package in packages:
         result = subprocess.run([query, *query_args, package], capture_output=True, text=True)
@@ -136,28 +135,25 @@ def install_system_dependencies(reporter, voice):
         return
     pkexec = shutil.which('pkexec')
     if not pkexec:
-        raise RuntimeError('a instalação precisa da autorização do sistema, mas o serviço '
-                           'de autorização (polkit/pkexec) não está disponível neste desktop.')
-    reporter.info('instalando componentes do sistema; autorize na janela de senha do Linux')
-    reporter.detail('componentes necessários: ' + ', '.join(missing))
+        raise RuntimeError('installation requires system authorization, but the authorization service (polkit/pkexec) is unavailable on this desktop.')
+    reporter.info('installing system components; authorize in the Linux password dialog')
+    reporter.detail('required components: ' + ', '.join(missing))
     run([pkexec, '--disable-internal-agent', manager, 'install', '-y', *missing], reporter,
-        failure_message='não foi possível instalar os componentes do sistema. '
-        'se a autorização foi cancelada, clique em instalar novamente e autorize na janela do Linux. '
-        'caso contrário, confira a conexão e os detalhes acima.')
+        failure_message='could not install system components. If authorization was canceled, click Install again and authorize in the Linux dialog. Otherwise, check the connection and details above.')
 
 
 def preflight(voice):
     if not sys.platform.startswith('linux'):
-        raise RuntimeError('este instalador é para Linux.')
+        raise RuntimeError('this installer is for Linux.')
     libraries = [('xcb-cursor', 'libxcb-cursor0 (Ubuntu) / xcb-util-cursor (Fedora)'),
                  ('portaudio', 'libportaudio2 (Ubuntu) / portaudio (Fedora)')]
     if voice:
         libraries += [('espeak-ng', 'espeak-ng')]
     missing = [package for library, package in libraries if not ctypes.util.find_library(library)]
     if missing:
-        raise RuntimeError('instale estas dependências do sistema e tente novamente: ' + ', '.join(missing))
+        raise RuntimeError('install these system dependencies and try again: ' + ', '.join(missing))
     if shutil.disk_usage(ROOT).free < 2 * 1024 ** 3:
-        raise RuntimeError('reserve pelo menos 2 GB livres para instalar a maya.')
+        raise RuntimeError('reserve at least 2 GB of free space to install maya.')
 
 
 def download_vosk(reporter):
@@ -169,26 +165,26 @@ def download_vosk(reporter):
     with tempfile.TemporaryDirectory(prefix='.vosk-', dir=models) as temporary:
         stage = Path(temporary)
         archive_path = stage / 'model.zip'
-        reporter.detail('baixando reconhecimento de voz local em inglês (~40 MB).')
+        reporter.detail('downloading local English speech recognition (~40 MB).')
         with urlopen(VOSK_URL, timeout=60) as response, archive_path.open('wb') as output:
             received = 0
             while chunk := response.read(1024 * 1024):
                 received += len(chunk)
                 if received > 200 * 1024 ** 2:
-                    raise RuntimeError('o download do modelo excedeu o limite esperado.')
+                    raise RuntimeError('the model download exceeded the expected size limit.')
                 output.write(chunk)
         with zipfile.ZipFile(archive_path) as archive:
             if sum(item.file_size for item in archive.infolist()) > 300 * 1024 ** 2:
-                raise RuntimeError('o modelo descompactado excedeu o limite esperado.')
+                raise RuntimeError('the extracted model exceeded the expected size limit.')
             for item in archive.infolist():
                 destination = (stage / item.filename).resolve()
                 if not destination.is_relative_to(stage.resolve()) or not item.filename.startswith(VOSK_NAME + '/'):
-                    raise RuntimeError('estrutura inesperada no modelo de voz.')
+                    raise RuntimeError('unexpected speech-model structure.')
             archive.extractall(stage)
         if not (stage / VOSK_NAME / 'am' / 'final.mdl').is_file():
-            raise RuntimeError('download do modelo de voz incompleto.')
+            raise RuntimeError('incomplete speech-model download.')
         if target.exists():
-            raise RuntimeError(f'modelo incompleto em {target}; mova a pasta antes de tentar novamente.')
+            raise RuntimeError(f'incomplete model in {target}; move the folder before trying again.')
         shutil.move(stage / VOSK_NAME, target)
 
 
@@ -236,7 +232,7 @@ def ensure_environment(reporter):
         if check.returncode == 0:
             run([candidate, '-m', 'venv', ROOT / '.venv'], reporter)
             return python
-    reporter.detail('baixando Python 3.11 isolado para compatibilidade com os módulos de voz.')
+    reporter.detail('downloading an isolated Python 3.11 runtime for speech-module compatibility.')
     bootstrap = ROOT / '.installer'
     run([sys.executable, '-m', 'venv', bootstrap], reporter)
     run([bootstrap / 'bin/python', '-m', 'pip', 'install', 'uv'], reporter)
@@ -266,7 +262,7 @@ def require_closed(paths):
             if not any(arg == b'app.py' or arg.endswith(b'/app.py') for arg in args):
                 continue
             if (process / 'cwd').resolve() in paths:
-                raise RuntimeError('feche a maya pelo menu da bandeja antes de instalar/atualizar. depois abra o instalador novamente.')
+                raise RuntimeError('close maya from the tray menu before installing or updating, then reopen the installer.')
         except (OSError, PermissionError):
             continue
 
@@ -292,23 +288,23 @@ def migrate_state(previous):
 
 
 def install(reporter, voice=True, open_app=True, branch='IA_Improvementes', revision=None):
-    reporter.info('verificando a instalação Linux')
+    reporter.info('checking the Linux installation')
     previous = previous_install()
     require_closed({ROOT, Path(previous.get('path', str(ROOT)))})
     install_system_dependencies(reporter, voice)
     preflight(voice)
     migrate_state(previous)
-    reporter.info('Preparing runtime: instalando as dependências')
+    reporter.info('Preparing runtime: installing dependencies')
     python = ensure_environment(reporter)
     run([python, '-m', 'pip', 'install', '--upgrade', 'pip'], reporter)
     run([python, '-m', 'pip', 'install', '-r', ROOT / 'requirements.txt'], reporter)
     run([python, '-m', 'pip', 'check'], reporter)
     validate_runtime(python, reporter, open_app)
     if voice:
-        reporter.info('Preparing runtime: baixando os modelos de voz')
+        reporter.info('Preparing runtime: downloading speech models')
         download_vosk(reporter)
         run([python, ROOT / 'scripts/download_kokoro_models.py'], reporter)
-        reporter.detail('validando os modelos e gerando uma frase de teste, sem tocar áudio.')
+        reporter.detail('validating models and generating a test phrase without playing audio.')
         run([python, ROOT / 'scripts/check_linux_voice.py'], reporter)
     config = ROOT / '.env'
     if not config.exists():
@@ -318,7 +314,7 @@ def install(reporter, voice=True, open_app=True, branch='IA_Improvementes', revi
                           'TTS_ENGINE=kokoro\nTTS_VOICE_ID=af_heart\n', encoding='utf-8')
         config.chmod(0o600)
     else:
-        reporter.detail('configuração existente preservada; opções de voz se aplicam a instalações novas.')
+        reporter.detail('existing configuration preserved; voice options apply to new installations.')
     reporter.info('Launching: criando o atalho da maya')
     shortcuts()
     record = install_record_path()
@@ -342,5 +338,5 @@ def install(reporter, voice=True, open_app=True, branch='IA_Improvementes', revi
             pass
         else:
             if code:
-                raise RuntimeError('a maya não abriu; veja logs/session.log para o motivo.')
+                raise RuntimeError('maya did not start; check logs/session.log for the reason.')
     reporter.close_success()

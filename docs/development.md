@@ -1,62 +1,66 @@
-# Desenvolvimento
+# Development
 
-## Ambiente recomendado
+## Recommended environment
 
-- Python 3.11
-- Windows 10/11
-- `requirements-windows.txt`
-- modelos Vosk armazenados em `models/`
+- Python 3.11.
+- Windows 10/11 for the default branch.
+- `requirements-windows.txt`.
+- Vosk models stored in `models/`.
 
-## Testar
+Linux work is maintained on the `IA_Improvementes` branch.
+
+## Tests
 
 ```powershell
 uv run --python 3.11 --with-requirements requirements-windows.txt python -m unittest discover -s tests -v
 ```
 
-Testes de SQLite, quando adicionados, devem rodar serialmente para evitar bloqueio de banco no Windows.
+SQLite tests should run serially to avoid database locks on Windows.
 
-## Regras de organização
+## Organization
 
-- Código de domínio em `core/`; I/O em `input/` e `output/`.
-- Integrações opcionais em `helpers/`.
-- Um módulo novo deve ter teste correspondente em `tests/`.
-- Estado, cache, log e binários gerados não entram no Git.
-- Não versionar `.env`, dados pessoais ou áudio capturado.
-- Alterações de configuração precisam aparecer na UI e na documentação quando forem relevantes ao usuário.
+- Domain code belongs in `core/`; input/output belongs in `input/` and `output/`.
+- Optional integrations belong in `helpers/`.
+- New modules should have corresponding tests under `tests/`.
+- Keep generated state, caches, logs and binaries out of Git.
+- Never commit `.env`, personal data or captured audio.
+- User-facing configuration changes should appear in the interface and documentation.
 
-## Build Windows
+## Windows build
 
 ```powershell
 .\scripts\build_windows.ps1
 .\scripts\build_setup_windows.ps1
 ```
 
-O executável do instalador deve ser publicado como artefato de release, acompanhado de versão, hash e, futuramente, assinatura digital. Não deve ser commitado no repositório.
+Publish installers as release assets with a version and checksum. Digital signing
+remains planned. Do not commit generated executables.
 
-## Checklist de mudança
+## Change checklist
 
-1. Preserve compatibilidade dos arquivos JSON ou forneça migração.
-2. Execute testes relacionados e a suíte completa.
-3. Valide inicialização, escuta e ao menos uma resposta falada.
-4. Revise `git diff --check` e não inclua dados locais.
-5. Faça commit pequeno e push após a alteração validada.
+1. Preserve JSON compatibility or provide an explicit migration.
+2. Run related tests and the full suite.
+3. Validate startup, listening and at least one spoken response on the target platform.
+4. Run `git diff --check` and exclude local data.
+5. Commit small, validated changes before pushing.
 
-## Instalação local no Fedora
+Use English Conventional Commit messages, such as `fix: handle a missing microphone`.
 
-Use `scripts/start_maya.sh` para abrir o ambiente `.venv` e a interface de texto.
-O inicializador usa XWayland para posicionar o overlay; o atalho Delete + Page Up
-funciona nas janelas XWayland. Aplicativos Wayland nativos podem não repassar
-essa combinação. A chamada por voz continua disponível.
+## Local Fedora development
 
-A opção `app.py --show` abre a interface de texto ao iniciar. A configuração local `.env` seleciona idioma, modelo Vosk e motor de voz.
-O perfil atual de responsividade mantém inglês e a voz Kokoro `af_heart`;
-consulte `docs/update-bug-hunter.md`.
+Use `scripts/start_maya.sh` to activate `.venv` and show the text interface. The
+launcher uses XWayland for overlay positioning; Delete + Page Up works in XWayland
+windows. Native Wayland applications may not forward the shortcut. Voice input
+remains available.
 
-## Voz feminina offline
+`app.py --show` opens text input at startup. The local `.env` selects language,
+Vosk model and speech engine. The current responsiveness profile retains English
+and Kokoro `af_heart`.
 
-O motor `kokoro` usa o modelo local em `models/kokoro`. Instale os requisitos e
-execute `python scripts/download_kokoro_models.py` uma vez. Configure
-`TTS_ENGINE=kokoro`, `LANGUAGE=pt-BR` e `TTS_VOICE_ID=pf_dora` nas configurações.
-A Dora é uma voz feminina em português brasileiro. Depois do download, a síntese
-funciona sem rede, usando CPU. A voz sai no tom original, sem alterar o pitch.
-O campo de velocidade continua usando `TTS_RATE`, com 180 como velocidade normal.
+## Optional offline Portuguese voice
+
+Kokoro uses the local model under `models/kokoro`. Install requirements and run
+`python scripts/download_kokoro_models.py` once. To deliberately select Brazilian
+Portuguese, set `TTS_ENGINE=kokoro`, `LANGUAGE=pt-BR` and `TTS_VOICE_ID=pf_dora`.
+Dora is a female Brazilian Portuguese voice. After download, synthesis runs offline
+on the CPU at its original pitch. `TTS_RATE=180` is the normal speed.

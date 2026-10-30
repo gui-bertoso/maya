@@ -90,7 +90,7 @@ class SetupWindow(Reporter):
         "primary": "#3a4a50", "primary_hover": "#485c65", "focus": "#82999f",
         "green": "#90c3a4", "error": "#e49191",
     }
-    STAGES = ("verificar instalação", "preparar arquivos", "configurar a maya", "abrir a maya")
+    STAGES = ('check installation', 'prepare files', 'configure maya', "abrir a maya")
 
     def __init__(self):
         import tkinter as tk
@@ -105,7 +105,7 @@ class SetupWindow(Reporter):
         self._details_visible = False
         self.root = tk.Tk()
         c = self.COLORS
-        self.root.title("maya · instalação")
+        self.root.title('maya · installation')
         self.root.geometry("960x650")
         self.root.minsize(840, 590)
         self.root.configure(bg=c["background"])
@@ -151,17 +151,17 @@ class SetupWindow(Reporter):
         self.ring.create_oval(23, 23, 29, 29, fill=c["text"], outline="")
         self.title_label = self._label(header, "maya", size=25, color=c["text"])
         self.title_label.grid(row=0, column=1, sticky="sw")
-        self._label(header, "instalação e atualização", color=c["muted"]).grid(row=1, column=1, sticky="nw", pady=(2, 0))
-        self.badge = self._label(header, "em andamento", color=c["green"], background=c["surface"], padx=12, pady=7)
+        self._label(header, 'installation and updates', color=c["muted"]).grid(row=1, column=1, sticky="nw", pady=(2, 0))
+        self.badge = self._label(header, 'in progress', color=c["green"], background=c["surface"], padx=12, pady=7)
         self.badge.grid(row=0, column=2, rowspan=2, sticky="e")
 
         status = tk.Frame(self.root, bg=c["background"])
         status.grid(row=1, column=0, sticky="ew", padx=28, pady=(0, 23))
         status.grid_columnconfigure(0, weight=1)
-        self.status_var = tk.StringVar(value="preparando a maya")
+        self.status_var = tk.StringVar(value='preparing maya')
         self.status_label = self._label(status, variable=self.status_var, size=19, color=c["text"], wraplength=860)
         self.status_label.grid(row=0, column=0, sticky="ew")
-        self.subtitle_var = tk.StringVar(value="verificando o que precisa ser instalado neste computador.")
+        self.subtitle_var = tk.StringVar(value='checking what needs to be installed on this computer.')
         self._label(status, variable=self.subtitle_var, color=c["muted"], wraplength=860).grid(row=1, column=0, sticky="ew", pady=(8, 16))
         self.progress = ttk.Progressbar(status, mode="indeterminate", style="Maya.Horizontal.TProgressbar")
         self.progress.grid(row=2, column=0, sticky="ew")
@@ -174,7 +174,7 @@ class SetupWindow(Reporter):
         body.grid_rowconfigure(0, weight=1)
         steps = tk.Frame(body, bg=c["background"])
         steps.grid(row=0, column=0, sticky="nsew", padx=(0, 26))
-        self._label(steps, "instalação", color=c["body"], bold=True).pack(anchor="w", pady=(0, 12))
+        self._label(steps, 'installation', color=c["body"], bold=True).pack(anchor="w", pady=(0, 12))
         self._step_widgets = []
         for index, title in enumerate(self.STAGES):
             row = tk.Frame(steps, bg=c["background"], highlightbackground=c["border"], highlightthickness=1)
@@ -200,13 +200,13 @@ class SetupWindow(Reporter):
         notes_scroll = ttk.Scrollbar(notes, orient="vertical", command=self.changes_text.yview, style="Maya.Vertical.TScrollbar")
         notes_scroll.grid(row=1, column=1, sticky="ns", pady=(0, 16), padx=(0, 6))
         self.changes_text.configure(yscrollcommand=notes_scroll.set, state="disabled")
-        self._set_changes("com a maya", ["converse por voz ou texto.", "tenha a maya por perto numa interface flutuante.",
-                                            "ajuste voz, aparência e comportamento nas configurações."])
+        self._set_changes("com a maya", ['talk by voice or text.', 'keep maya nearby in a floating interface.',
+                                            'adjust voice, appearance and behavior in settings.'])
 
         details = tk.Frame(self.root, bg=c["background"])
         details.grid(row=3, column=0, sticky="ew", padx=28, pady=(10, 0))
         details.grid_columnconfigure(0, weight=1)
-        self.details_button = tk.Button(details, text="+ mostrar detalhes", command=self._toggle_details,
+        self.details_button = tk.Button(details, text='+ show details', command=self._toggle_details,
             bg=c["background"], fg=c["muted"], activebackground=c["background"], activeforeground=c["text"],
             font=(self._font, 10), relief="flat", borderwidth=0, highlightthickness=0, cursor="hand2", anchor="w", padx=0, pady=5)
         self.details_button.grid(row=0, column=0, sticky="w")
@@ -224,9 +224,9 @@ class SetupWindow(Reporter):
         footer = tk.Frame(self.root, bg=c["background"], highlightbackground=c["border"], highlightthickness=0)
         footer.grid(row=4, column=0, sticky="ew", padx=28, pady=(18, 22))
         footer.grid_columnconfigure(0, weight=1)
-        self.footer_var = tk.StringVar(value="você pode minimizar enquanto a maya é preparada.")
+        self.footer_var = tk.StringVar(value='you can minimize this window while maya is being prepared.')
         self._label(footer, variable=self.footer_var, color=c["muted"], wraplength=620).grid(row=0, column=0, sticky="w", padx=(0, 16))
-        self.close_button = ttk.Button(footer, text="minimizar", command=self._on_close, style="Primary.Maya.TButton")
+        self.close_button = ttk.Button(footer, text='minimize', command=self._on_close, style="Primary.Maya.TButton")
         self.close_button.grid(row=0, column=1, sticky="e")
         self._update_steps()
         self.root.after(40, self._animate_ring)
@@ -239,9 +239,9 @@ class SetupWindow(Reporter):
     @staticmethod
     def stage_for(message):
         text = str(message).lower()
-        if any(word in text for word in ("launching", "iniciando", "atalhos criados")): return 3
+        if any(word in text for word in ("launching", 'starting', 'shortcuts created')): return 3
         if any(word in text for word in ("runtime", "virtual environment", "building", "already built")): return 2
-        if any(word in text for word in ("downloading", "up to date", "instalando")): return 1
+        if any(word in text for word in ("downloading", "up to date", 'installing')): return 1
         return 0
 
     def _animate_ring(self):
@@ -261,18 +261,18 @@ class SetupWindow(Reporter):
             row.configure(highlightbackground=c["focus"] if active else c["border"])
             number.configure(fg=color, text="✓" if completed else f"{index+1:02}")
             name.configure(fg=color)
-            indicator.configure(text="parou aqui" if failed else "em curso" if active else "feito" if completed else "", fg=color)
+            indicator.configure(text="parou aqui" if failed else 'running' if active else "feito" if completed else "", fg=color)
 
     def _toggle_details(self):
         self._details_visible = not self._details_visible
         if self._details_visible:
             self.details_frame.grid()
-            self.details_button.configure(text="− ocultar detalhes")
+            self.details_button.configure(text='− hide details')
             if self.root.winfo_height() < 760:
                 self.root.geometry(f"{self.root.winfo_width()}x760")
         else:
             self.details_frame.grid_remove()
-            self.details_button.configure(text="+ mostrar detalhes")
+            self.details_button.configure(text='+ show details')
 
     def welcome_linux(self, worker):
         self._state = "ready"
@@ -282,12 +282,12 @@ class SetupWindow(Reporter):
         self.root.geometry("960x760")
         self.root.minsize(840, 720)
         self.badge.configure(text="linux", fg=self.COLORS["green"])
-        self.status_var.set("a maya vai morar por aqui")
-        self.subtitle_var.set("os arquivos são baixados quando você começar. se faltarem componentes do sistema, o Linux pedirá autorização.")
-        self.footer_var.set("internet necessária · 2 GB livres · feche a maya antes de atualizar")
-        self._set_changes("do seu jeito", ["interface flutuante, voz e texto.",
-            "código baixado do github; modelos de voz baixados separadamente.",
-            "atalho no menu de aplicativos, com o ícone da maya."])
+        self.status_var.set('maya will live here')
+        self.subtitle_var.set('files are downloaded when you begin. If system components are missing, Linux will request authorization.')
+        self.footer_var.set('internet required · 2 GB free · close maya before updating')
+        self._set_changes('your way', ['floating interface, voice and text.',
+            'source downloaded from github; speech models downloaded separately.',
+            'application-menu shortcut with the maya icon.'])
         self.close_button.master.grid_configure(row=8)
         saved_branch = "IA_Improvementes"
         try:
@@ -310,7 +310,7 @@ class SetupWindow(Reporter):
         self.branch_combo = self._ttk.Combobox(branch_frame, textvariable=self.branch_var, width=32,
                                               values=[self.branch_var.get()], style="Maya.TCombobox")
         self.branch_combo.pack(side="left")
-        self.branch_status = self._label(branch_frame, "buscando branches…", color=self.COLORS["muted"])
+        self.branch_status = self._label(branch_frame, 'fetching branches…', color=self.COLORS["muted"])
         self.branch_status.pack(side="left", padx=12)
         def fetch_branches():
             try:
@@ -328,7 +328,7 @@ class SetupWindow(Reporter):
         threading.Thread(target=fetch_branches, daemon=True).start()
         self.voice_option = self._tk.BooleanVar(value=True)
         self.open_option = self._tk.BooleanVar(value=True)
-        for row, (text, variable) in enumerate((("baixar voz offline (~400 MB)", self.voice_option),
+        for row, (text, variable) in enumerate((('download offline speech (~400 MB)', self.voice_option),
                                               ("abrir a maya ao terminar", self.open_option)), start=4):
             self._tk.Checkbutton(self.root, text=text, variable=variable,
                 bg=self.COLORS["background"], fg=self.COLORS["body"],
@@ -339,20 +339,20 @@ class SetupWindow(Reporter):
         def begin():
             self.linux_branch = self.branch_var.get().strip()
             if not self.linux_branch:
-                self.branch_status.configure(text="escolha uma branch")
+                self.branch_status.configure(text='choose a branch')
                 return
             self.branch_combo.configure(state="disabled")
             self.linux_voice = self.voice_option.get()
             self.linux_open = self.open_option.get()
             self._state = "running"
             self._allow_close = False
-            self.badge.configure(text="em andamento")
-            self.close_button.configure(text="minimizar", command=self._on_close)
+            self.badge.configure(text='in progress')
+            self.close_button.configure(text='minimize', command=self._on_close)
             self.progress.configure(mode="indeterminate")
             self.progress.start(16)
             threading.Thread(target=worker, daemon=True).start()
             self._animate_ring()
-        self.close_button.configure(text="instalar maya", command=begin)
+        self.close_button.configure(text='install maya', command=begin)
         self._update_steps()
         self.root.after(100, self._pump_queue)
         self.root.mainloop()
@@ -386,37 +386,37 @@ class SetupWindow(Reporter):
             self._append(message)
             if kind == "info" and self._state == "running":
                 self._stage = max(self._stage, self.stage_for(message))
-                titles = ("verificando sua instalação", "preparando os arquivos", "configurando a maya", "quase lá")
-                descriptions = ("conferindo o que já está disponível neste computador.",
-                    "obtendo os arquivos necessários para esta instalação.",
-                    "deixando tudo pronto para a maya funcionar.", "finalizando os últimos passos para abrir a maya.")
+                titles = ('checking your installation', 'preparing files', 'configuring maya', 'almost there')
+                descriptions = ('checking what is already available on this computer.',
+                    'fetching the files required for this installation.',
+                    'getting everything ready for maya.', 'finishing the last steps before opening maya.')
                 self.status_var.set(titles[self._stage]);self.subtitle_var.set(descriptions[self._stage])
                 self._update_steps()
             return
         if kind == "release_notes":
-            payload = message or {};self._set_changes(payload.get("title") or "novidades", payload.get("items") or [])
+            payload = message or {};self._set_changes(payload.get("title") or 'release notes', payload.get("items") or [])
             return
         if kind in ("error", "close_error"):
             self._state = "error";self._allow_close = True
-            self._append(f"[MAY-1001] {message}" if message else "[MAY-1001] instalação interrompida")
-            self.status_var.set("a instalação precisa de atenção")
-            self.subtitle_var.set("[MAY-1001] não foi possível concluir. consulte os detalhes antes de tentar novamente.")
-            self.badge.configure(text="precisa de atenção", fg=c["error"])
+            self._append(f"[MAY-1001] {message}" if message else '[MAY-1001] installation interrupted')
+            self.status_var.set('installation needs attention')
+            self.subtitle_var.set('[MAY-1001] could not complete. Review the details before trying again.')
+            self.badge.configure(text='needs attention', fg=c["error"])
             self.progress.stop();self.progress.configure(mode="determinate", value=0)
             self.ring.itemconfigure(self._ring_arc, outline=c["error"])
             self.close_button.configure(text="fechar")
-            self.footer_var.set("seus detalhes de instalação continuam disponíveis nesta janela.")
+            self.footer_var.set('your installation details remain available in this window.')
             self._update_steps()
             return
         if kind == "close_success" and self._state != "error":
             self._state = "success";self._allow_close = True
-            self.status_var.set("a maya está pronta")
-            self.subtitle_var.set("instalação concluída. você já pode usar a maya.")
-            self.badge.configure(text="concluído", fg=c["green"])
+            self.status_var.set('maya is ready')
+            self.subtitle_var.set('installation complete. maya is ready to use.')
+            self.badge.configure(text='complete', fg=c["green"])
             self.progress.stop();self.progress.configure(mode="determinate", value=100)
             self.ring.itemconfigure(self._ring_arc, extent=359, outline=c["green"])
             self.close_button.configure(text="fechar")
-            self.footer_var.set("tudo pronto. esta janela já pode ser fechada.")
+            self.footer_var.set('all done. you can close this window.')
             self._update_steps()
 
     def _append(self, message):
@@ -433,7 +433,7 @@ class SetupWindow(Reporter):
         if items:
             for item in items: self.changes_text.insert("end", f"{item}\n\n")
         else:
-            self.changes_text.insert("end", "nenhuma nota disponível para esta versão.")
+            self.changes_text.insert("end", 'no notes are available for this version.')
         self.changes_text.configure(state="disabled")
 
     def _on_close(self):
@@ -444,12 +444,12 @@ class SetupWindow(Reporter):
     def preview(self, state="running"):
         """Visual-only preview: never starts download, build or installation workers."""
         self._allow_close = True
-        self.root.title("maya · prévia do instalador")
+        self.root.title('maya · installer preview')
         self._handle_event("info", "Preparing Maya runtime...")
-        self._set_changes("nesta atualização", ["reconhecimento local com whisper.cpp.",
-            "respostas e controles mais consistentes.", "diagnósticos com códigos de erro."])
+        self._set_changes('in this update', ["reconhecimento local com whisper.cpp.",
+            'more consistent responses and controls.', 'diagnostics with error codes.'])
         if state == "success": self._handle_event("close_success", "")
-        elif state == "error": self._handle_event("error", "exemplo visual de falha; nenhuma instalação foi executada.")
+        elif state == "error": self._handle_event("error", 'visual failure example; no installation was performed.')
         self.root.mainloop()
 
 
@@ -507,7 +507,7 @@ def install_bundled_app(payload, reporter=None):
     target = install_dir / f"{APP_NAME}.exe"
     install_dir.mkdir(parents=True, exist_ok=True)
     if reporter:
-        reporter.info("Instalando Maya 1.2.0...")
+        reporter.info('Installing Maya 1.2.0...')
     if is_windows():
         subprocess.run(
             ["taskkill", "/IM", f"{APP_NAME}.exe", "/F"],
@@ -522,7 +522,7 @@ def install_bundled_app(payload, reporter=None):
     (install_dir / "version.txt").write_text("1.2.0\n", encoding="utf-8")
     create_windows_shortcuts(target, reporter=reporter)
     if reporter:
-        reporter.info("Atalhos criados. Iniciando a Maya...")
+        reporter.info('Shortcuts created. Starting Maya...')
     subprocess.Popen([str(target)], cwd=install_dir, **windows_subprocess_kwargs())
 
 
@@ -862,7 +862,7 @@ def sync_repo(project_dir, reporter=None):
 def download_linux_source(reporter):
     # Install into a fresh, versioned folder: never delete an existing install or its state.
     branch = getattr(reporter, "linux_branch", os.getenv("MAYA_INSTALL_REF", "IA_Improvementes"))
-    reporter.info(f"verificando atualizações da branch {branch}")
+    reporter.info(f"checking branch updates for {branch}")
     request = urllib.request.Request(
         f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/commits/{urllib.parse.quote(branch, safe='')}",
         headers={"User-Agent": "Maya-Linux-Setup"})
@@ -870,18 +870,18 @@ def download_linux_source(reporter):
         with urllib.request.urlopen(request, timeout=30) as response:
             revision = json.load(response)["sha"]
     except Exception as error:
-        raise RuntimeError("não foi possível acessar a branch; confira a internet e se o github está público.") from error
+        raise RuntimeError('could not access the branch; check your connection and public github access.') from error
     if len(revision) != 40 or any(c not in "0123456789abcdef" for c in revision):
-        raise RuntimeError("revisão do github inválida; abra o setup.sh novamente.")
+        raise RuntimeError('invalid github revision; reopen setup.sh.')
     root = Path(os.getenv("XDG_DATA_HOME") or Path.home() / ".local/share") / "maya" / "versions"
     target = root / revision
     reporter.linux_revision = revision
     if target.exists():
         if not (target / "scripts/install_linux.py").is_file():
-            raise RuntimeError(f"instalação incompleta em {target}; mova essa pasta e tente novamente.")
+            raise RuntimeError(f"incomplete installation in {target}; move that folder and try again.")
         return target
     root.mkdir(parents=True, exist_ok=True)
-    reporter.info("Downloading: baixando a maya do github")
+    reporter.info('Downloading: fetching Maya from GitHub')
     with tempfile.TemporaryDirectory(prefix=".download-", dir=root) as temporary:
         stage = Path(temporary)
         archive_path = stage / "maya.zip"
@@ -891,20 +891,20 @@ def download_linux_source(reporter):
             while chunk := response.read(1024 * 1024):
                 received += len(chunk)
                 if received > 100 * 1024 ** 2:
-                    raise RuntimeError("o pacote de código excedeu 100 MB.")
+                    raise RuntimeError('the source archive exceeded 100 MB.')
                 output.write(chunk)
         with zipfile.ZipFile(archive_path) as archive:
             if sum(item.file_size for item in archive.infolist()) > 300 * 1024 ** 2:
-                raise RuntimeError("pacote descompactado maior que o esperado.")
+                raise RuntimeError('extracted package exceeds the expected size.')
             for item in archive.infolist():
                 if not (stage / item.filename).resolve().is_relative_to(stage.resolve()):
-                    raise RuntimeError("caminho inválido no pacote do github.")
+                    raise RuntimeError('invalid path in the github archive.')
             archive.extractall(stage)
         candidates = [p for p in stage.iterdir() if p.is_dir()]
         if len(candidates) != 1 or not (candidates[0] / "scripts/install_linux.py").is_file():
-            raise RuntimeError("esta revisão ainda não contém o instalador Linux.")
+            raise RuntimeError('this revision does not contain the Linux installer yet.')
         shutil.move(str(candidates[0]), str(target))
-    reporter.detail(f"código instalado em {target}")
+    reporter.detail(f"source installed in {target}")
     return target
 
 
@@ -921,8 +921,8 @@ def run_bootstrap(reporter):
     if payload is not None:
         reporter.release_notes("Maya 1.2.0", [
             "Novo command center e interface renovada.",
-            "Rotinas pessoais, XP, streak e lembretes.",
-            "Instalacao local com atalhos do Windows.",
+            'Personal routines, XP, streaks and reminders.',
+            'Local installation with Windows shortcuts.',
         ])
         install_bundled_app(payload, reporter=reporter)
         reporter.close_success()

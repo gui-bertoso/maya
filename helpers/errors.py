@@ -180,7 +180,8 @@ def user_message(key, language="en"):
     return f"[{definition.code}] {title}. {action}"
 
 
-def format_error(key, detail=None):
+def format_error(key, detail=None, language="en"):
     definition = error_code(key)
     suffix = f": {detail}" if detail else ""
-    return f"[{definition.code}] {definition.title}{suffix}"
+    title = definition.title if str(language).lower().startswith("pt") else definition.title_en
+    return f"[{definition.code}] {title}{suffix}"

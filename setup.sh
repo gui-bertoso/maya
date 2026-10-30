@@ -11,20 +11,20 @@ find_installer_python() {
 }
 if ! find_installer_python; then
     if ! command -v pkexec >/dev/null 2>&1; then
-        printf '%s\n' 'não foi possível abrir a autorização do Linux (polkit/pkexec indisponível).' >&2
+        printf '%s\n' 'could not open Linux authorization (polkit/pkexec unavailable).' >&2
         exit 1
     fi
-    printf '%s\n' 'preparando a janela do instalador; autorize os componentes na janela de senha do Linux.'
+    printf '%s\n' 'preparing the installer window; authorize components in the Linux password dialog.'
     if command -v dnf >/dev/null 2>&1; then
         pkexec --disable-internal-agent "$(command -v dnf)" install -y python3 python3-tkinter || exit 1
     elif command -v apt-get >/dev/null 2>&1; then
         pkexec --disable-internal-agent "$(command -v apt-get)" install -y python3 python3-venv python3-tk || exit 1
     else
-        printf '%s\n' 'a preparação automática requer Fedora ou Ubuntu/Debian/Mint.' >&2
+        printf '%s\n' 'automatic preparation requires Fedora or Ubuntu/Debian/Mint.' >&2
         exit 1
     fi
     if ! find_installer_python; then
-        printf '%s\n' 'não foi possível preparar Python 3.10 ou mais novo com a interface gráfica.' >&2
+        printf '%s\n' 'could not prepare Python 3.10 or later with the graphical interface.' >&2
         exit 1
     fi
 fi
@@ -54,12 +54,12 @@ try:
     except Exception:
         pass
 except Exception as error:
-    message = 'não foi possível baixar o instalador do github. confira a internet e se o repositório está público.\n' + str(error)
+    message = 'could not download the installer from github. Check the connection and public repository access.\n' + str(error)
     try:
         import tkinter as tk
         from tkinter import messagebox
         root = tk.Tk(); root.withdraw()
-        messagebox.showerror('maya · instalação', message, parent=root)
+        messagebox.showerror('maya · installation', message, parent=root)
         root.destroy()
     except Exception:
         pass

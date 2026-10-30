@@ -1,30 +1,20 @@
-# Contexto nativo
+# Native conversation context
 
-A conversa usa `core/dialogue.py` e `data/dialogue_catalog.json`, sem modelo de linguagem, serviço ou instalação adicional. O catálogo contém 32 assuntos com oito interações escritas por assunto: introdução, motivo, aplicação, cuidado, desafio, exemplo, reflexão e próximo passo.
+Conversation uses `core/dialogue.py` and `data/dialogue_catalog.json`, without a language model, service or additional installation. The catalog contains 32 topics with eight authored interactions each: introduction, rationale, application, caution, challenge, example, reflection and next step.
 
-Exemplo:
+The catalog currently retains Portuguese conversation phrases. English desktop commands remain available. Examples of exact supported phrases:
 
-- `me fala de bugs`
-- `e por que?`
-- `me dá um exemplo`
-- `um desafio`
+- `me fala de bugs` opens the bugs topic.
+- `e por que?`, `me dá um exemplo`, `um desafio` continue the active topic.
+- `meu jogo se chama Remnants`, `ele usa Godot` store explicit entities.
+- `lembra do meu jogo?`, `resume nossa conversa`, `limpa o contexto` retrieve, summarize or clear context.
 
-Entidades e lembranças:
+Statements beginning with `acho que`, `pra mim`, `eu penso que`, `o problema é`, `eu prefiro`, `tenho dificuldade com` or `não consegui` may be saved under the active topic. Retrieved information is attributed to the user. Missing facts are never invented.
 
-- `meu jogo se chama Remnants`
-- `ele usa Godot`
-- `lembra do meu jogo?`
-- `resume nossa conversa`
-- `limpa o contexto`
+## Application references
 
-Observações iniciadas com `acho que`, `pra mim`, `eu penso que`, `o problema é`, `eu prefiro`, `tenho dificuldade com` ou `não consegui` podem ser guardadas no contexto do assunto ativo. A recuperação aponta que a informação veio do usuário. Não inventa um fato ausente.
+`open spotify` opens Spotify. After a successful launch, `joga ele pra esquerda` moves that window left. `agora pra direita` reuses the reference for three minutes. `fecha ele` requires a recent reference, which is cleared after a successful close.
 
-Aplicativos:
+Actions still use the original parser. Approximate scoring applies only to conversation. Once a window is identified, its ID accompanies subsequent movement of the same reference to avoid selecting another window by name.
 
-- `open spotify` e, após abertura bem-sucedida, `joga ele pra esquerda`.
-- `agora pra direita` reaproveita a referência durante três minutos.
-- `fecha ele` exige uma referência recente; fechar com sucesso a limpa.
-
-As ações continuam no parser original. A pontuação aproximada é exclusiva da conversa. Quando uma janela já foi identificada, o ID acompanha a próxima movimentação da mesma referência, evitando selecionar outra janela pelo nome.
-
-Limites: o motor recupera e combina conteúdo estruturado; não é compreensão geral ou um modelo generativo. Entidades reconhecidas usam formatos explícitos, como os exemplos acima. O catálogo novo é em português; os comandos originais em inglês continuam disponíveis. Desativar `DIALOGUE_ENABLED` nas settings retorna ao fluxo original.
+The engine retrieves and combines structured content; it is not a generative model or general language understanding. Entities use explicit formats. Disable `DIALOGUE_ENABLED` in settings to restore the original flow.

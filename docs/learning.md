@@ -1,32 +1,34 @@
-# Ensino e pesquisa nativos
+# Native teaching and research
 
-Não usa modelo de linguagem. A pesquisa extrai frases relacionadas ao tema de fontes com endereço registrado. Resultados pesquisados ficam marcados como não verificados pelo usuário e nunca são executados como código ou comandos.
+This feature uses no language model. Research extracts topic-related sentences from attributed sources. Research results are marked as unverified by the user and are never executed as code or commands.
 
-## Ensinar respostas
+## Teach responses
 
-- `aprenda: onde fica meu projeto? => na pasta Remnants`
-- `quando eu disser "quem manda aqui", responda o pato, infelizmente`
-- `corrija: onde fica meu projeto? => na pasta Jogos/Remnants`
-- `corrige isso: na pasta Jogos/Remnants` corrige o aprendizado consultado ou ensinado mais recentemente.
-- `fonte disso` mostra a origem do aprendizado recente.
-- `esqueça o aprendizado sobre onde fica meu projeto?` remove esse registro.
-- `lista aprendizados` lista perguntas e frases ensinadas.
+The native learning grammar currently supports these Portuguese aliases (quoted exactly for compatibility):
 
-## Ensinar frases para ações existentes
+- `aprenda: onde fica meu projeto? => na pasta Remnants` teaches a response.
+- `quando eu disser "quem manda aqui", responda o pato, infelizmente` teaches a phrase.
+- `corrija: onde fica meu projeto? => na pasta Jogos/Remnants` corrects an answer.
+- `corrige isso: na pasta Jogos/Remnants` corrects the most recently consulted or taught entry.
+- `fonte disso` shows the recent entry's source.
+- `esqueça o aprendizado sobre onde fica meu projeto?` removes the entry.
+- `lista aprendizados` lists taught questions and phrases.
+
+## Teach phrases for existing actions
 
 `quando eu disser "bora ouvir", faça open spotify`
 
-Salvar não executa. Ao dizer `bora ouvir`, o comando passa pelo parser e executor originais. Frases são comparadas de forma normalizada e exata; ações não são escolhidas por semelhança aproximada. A implementação atual aceita um comando por frase e rejeita conflitos com ações nativas. Ações novas que o motor não conhece ainda exigem implementação; ensinar uma explicação não instala uma habilidade executável.
+Saving a phrase does not execute it. Saying `bora ouvir` later routes the command through the original parser and executor. Matching is normalized and exact; approximate similarity never selects actions. Each phrase supports one command, and conflicts with native actions are rejected. New actions still require implementation. Teaching an explanation does not install an executable skill.
 
-## Pesquisar
+## Research
 
 - `pesquise e aprenda sobre Python programming language`
 - `aprenda sobre Python programming language usando https://www.python.org/about/`
 
-A pesquisa consulta abstracts com fontes e artigos da Wikipedia, valida uma relação lexical mínima, evita páginas de desambiguação e não transforma RelatedTopics em resposta. Também pode extrair conteúdo de uma página HTTPS indicada pelo usuário. Erros de rede ou ausência de evidência retornam uma falha compreensível, sem registrar uma resposta vazia.
+Research consults attributed abstracts and Wikipedia articles, checks a minimum lexical relationship, avoids disambiguation pages and does not turn RelatedTopics into an answer. It can also extract text from a user-specified HTTPS page. Network errors or missing evidence return a readable failure without saving an empty answer.
 
-Esse critério de relevância é uma heurística, não verificação factual. O resumo é extrativo: seleciona trechos, sem compreensão geral de tutoriais. A fonte fica disponível para conferência e correção pelo usuário.
+Relevance is heuristic, not fact checking. The summary selects source excerpts; it does not understand arbitrary tutorials. Sources remain available for user review and correction.
 
-## Persistência
+## Persistence
 
-`KnowledgeBase` preserva as respostas legadas e acrescenta registros com origem, fontes, horário UTC, estado e até dez versões anteriores de uma resposta corrigida. Entradas antigas sem fonte são identificadas como legadas. A escrita usa arquivo temporário e substituição atômica; falhas restauram também o estado anterior na memória. A base original não foi limpa ou descartada na atualização.
+`KnowledgeBase` preserves legacy answers and adds records containing provenance, sources, UTC timestamps, state and up to ten previous versions of corrected answers. Entries without sources are identified as legacy. Writes use a temporary file and atomic replacement; failure also restores the prior in-memory state. Updates do not clear the original knowledge base.

@@ -1,43 +1,46 @@
 # Data Expansions
 
-Os containers `data/expansions/DataExpansionN.myde` ampliam a Maya sem alterar o processador principal. `.myde` significa **Maya Data Expansion**: é um arquivo UTF-8 com JSON por dentro, então continua fácil de ler e editar.
+Containers in `data/expansions/DataExpansionN.myde` extend Maya without changing
+the main processor. `.myde` means **Maya Data Expansion**: a UTF-8 file containing
+JSON, designed to remain readable and editable.
 
 ```json
 {
   "format": "maya-data-expansion",
   "format_version": 1,
-  "name": "nome-do-pacote",
+  "name": "package-name",
   "version": 1,
   "commands": {
-    "asks_joke": ["nova forma de pedir uma piada"]
+    "asks_joke": ["another way to ask for a joke"]
   },
   "responses": {
-    "asks_joke_pt": ["nova resposta"]
+    "asks_joke_en": ["an additional response"]
   }
 }
 ```
 
-## Funcionamento
+## Behavior
 
-- Os arquivos são descobertos automaticamente e carregados pela ordem numérica: `0`, `1`, `2`…
-- Todo `.myde` precisa declarar `format` e `format_version`; versões desconhecidas são recusadas com segurança.
-- Containers `.json` antigos continuam aceitos para compatibilidade, mas novos pacotes devem usar `.myde`.
-- Comandos e respostas repetidos são removidos durante a união.
-- Um container inválido é ignorado sem derrubar os demais.
-- Mudanças são detectadas durante o uso, no máximo um segundo depois de salvar o arquivo.
-- Não é necessário editar `core/process.py` para adicionar conteúdo a uma intenção existente.
+- Files are discovered automatically and loaded in numeric order: `0`, `1`, `2`, and so on.
+- Each `.myde` must declare `format` and `format_version`; unknown versions are safely rejected.
+- Older `.json` containers remain supported, but new packages should use `.myde`.
+- Duplicate commands and responses are removed during merging.
+- An invalid container is skipped without preventing others from loading.
+- Changes are detected during use, at most one second after a file is saved.
+- Adding content to an existing intent does not require editing `core/process.py`.
 
-O nome da intenção precisa existir no dicionário `patterns` do processador. Novas funcionalidades ainda exigem código; novas maneiras de falar e responder, não.
+The intent name must exist in the processor's `patterns` dictionary. New
+functionality still requires code; additional phrasing and responses do not.
 
-## Conhecimento consultável
+## Queryable knowledge
 
-Um `.myde` também pode declarar `knowledge`, sem remover `commands` ou `responses`:
+A `.myde` may also declare `knowledge` alongside `commands` and `responses`:
 
 ```json
 {
   "format": "maya-data-expansion",
   "format_version": 1,
-  "name": "exemplo",
+  "name": "example",
   "version": 1,
   "knowledge": [{
     "questions": ["what is a python list", "explain python list"],
@@ -47,8 +50,19 @@ Um `.myde` também pode declarar `knowledge`, sem remover `commands` ou `respons
 }
 ```
 
-As consultas são normalizadas e exatas: isso é recuperação de registros, não geração livre de respostas. Perguntas diferentes precisam de aliases explícitos. Fontes são obrigatórias; texto dos pacotes nunca é executado. `source` ou `fonte disso` mostra as fontes do último registro consultado. Um aprendizado pessoal para a mesma pergunta tem prioridade sobre o pacote; correções não alteram o arquivo distribuído. Remover um pacote remove seu conhecimento após a próxima atualização, sem apagar a memória pessoal.
+Queries are normalized, exact lookups, not free-form generation. Different
+questions require explicit aliases. Sources are mandatory; package text is never
+executed. `source` displays sources for the latest record. Personal learning takes
+priority over packaged knowledge for the same question; corrections do not modify
+the distributed file. Removing a package removes its knowledge after refresh
+without deleting personal memory.
 
-Cada container é validado integralmente antes de entrar em uso. Um pacote com seção ou fonte inválida é recusado sem publicar seus aliases parcialmente. Perguntas que conflitam com um pacote anterior recusam o pacote posterior, com erro disponível em `expansion_loader.errors`.
+Each container is validated completely before use. Invalid sections or sources
+reject the entire package rather than partially publishing aliases. A question
+conflicting with an earlier package rejects the later package and records an
+error in `expansion_loader.errors`.
 
-Pacotes novos: `DataExpansion4` (Python), `5` (Godot), `6` (Git), `7` (arquivos e caminhos Linux), `8` (computação e web). São 100 registros escritos em inglês e 600 aliases de consulta, com links para documentação primária. Exemplos: `what is python list`, `explain godot signal`, `what is git staging area`, `linux inode`, `what is javascript event loop`.
+DataExpansion4–8 cover Python, Godot, Git, Linux files/paths, and computing/web.
+They include 100 English records and 600 aliases linked to primary documentation.
+Examples: `what is python list`, `explain godot signal`, `what is git staging area`,
+`linux inode`, `what is javascript event loop`.

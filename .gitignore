@@ -34,3 +34,22 @@ data/routine.json
 
 # Isolated installer tooling; downloaded on demand.
 .installer/
+
+# Local tooling
+.codex
+.ai/
+.claude/
+.cursor/
+.cline/
+.roo/
+.clinerules
+.cursorrules
+.windsurfrules
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+
+__pycache__/
+*.egg-info/
+.idea/
+.vs/

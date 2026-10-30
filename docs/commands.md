@@ -1,17 +1,19 @@
-# Comandos da Maya
+# Maya commands
 
-A Maya entende variações naturais em português e inglês. Não é necessário decorar uma frase exata.
+Maya accepts natural variations in English and Portuguese; exact phrasing is not required.
 
-## Exemplos
+## Examples
 
-- Apps: `abre o Spotify`, `fecha o Firefox`, `open Discord`
-- Janelas: `move Discord to another monitor`, `mova o Spotify para outra tela`
-- Música: `toca Dua Lipa no Spotify`, `play an 80s playlist`
-- Rotina: `!today`, `!status`, `!done rust`, `!skip english`, `!week`
-- Informação: `manda as manchetes`, `como tá o tempo`, `qual a data de hoje`
-- Foco: `me tira da procrastinação`, `preciso de motivação`, `minha cabeça não para`
-- Memória: `o que você lembra sobre mim?`, `como eu me chamo?`
-- Interface: `abre as configurações`, `tira esse popup`, `fica no fundo`
-- Modos: `quero codar`, `ativa o modo pensativo`, `show open windows`
+- Applications: `open Spotify`, `close Firefox`, `open Discord`.
+- Windows: `move Discord to another monitor`.
+- Music: `play Dua Lipa on Spotify`, `play an 80s playlist`.
+- Routines: `!today`, `!status`, `!done rust`, `!skip english`, `!week`.
+- Information: `show the headlines`, `what is the weather`, `what is today's date`.
+- Focus: `help me stop procrastinating`, `I need motivation`.
+- Memory: `what do you remember about me`, `what is my name`.
+- Interface: `open settings`, `close the popup`, `stay in the background`.
+- Modes: `I want to code`, `enable thoughtful mode`, `show open windows`.
 
-As formas adicionais ficam em `data/command_aliases.json`. Novas respostas podem ser adicionadas em `data/response_expansions.json` sem inflar o processador principal.
+Additional forms are stored in `data/command_aliases.json`. Add responses in
+`data/response_expansions.json` without expanding the main processor. Portuguese
+aliases remain supported as an additional language.

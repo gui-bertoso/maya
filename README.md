@@ -1,60 +1,107 @@
 # Maya
 
-Assistente pessoal local-first para Windows, feita em Python. A Maya escuta comandos em português, automatiza o desktop, acompanha sua rotina e responde por uma interface flutuante ou por voz.
+A local-first personal desktop assistant written in Python. Maya supports natural
+English and Portuguese commands, desktop automation, routines, a floating interface
+and spoken responses. This branch supports Linux and Windows, including a graphical Linux installer.
 
-> Projeto funcional e experimental. O foco atual é baixa latência, privacidade local e evolução incremental com testes.
+> Functional and experimental. Current priorities are low latency, local privacy
+> and incremental improvements backed by tests.
 
-## Destaques
+## Highlights
 
-- reconhecimento offline com Vosk e wake words `Maya` / `Maia`;
-- supressão adaptativa de ruído e encerramento rápido de fala;
-- pipeline assíncrono com filas limitadas e semáforos;
-- TTS do Windows pré-aquecido, com Piper e Edge opcionais;
-- rotinas A/B, recálculo por atraso, lembretes, XP e streak;
-- overlay PySide6, quick input, notificações e configurações;
-- memória, vocabulário e respostas persistidos localmente;
-- automações para aplicativos, web, Spotify e ambientes de trabalho;
-- instalador gráfico e inicialização automática.
+- Offline Vosk recognition with the `Maya` / `Maia` wake words.
+- Adaptive noise suppression and fast speech endpoint detection.
+- Asynchronous processing with bounded queues and semaphores.
+- Prewarmed Windows TTS, with optional Piper and Edge engines.
+- A/B routines, late-start rescheduling, reminders, XP and streaks.
+- PySide6 overlay, quick input, notifications and settings.
+- Locally persisted memory, vocabulary and responses.
+- Application, web, Spotify and workspace automation.
+- Graphical installer and automatic startup.
 
-## Instalação visual no Linux
+## Graphical Linux installation
 
-Para instalar sem preparar Python, baixe **Maya-Setup-x86_64.AppImage** nas [releases](https://github.com/gui-bertoso/maya/releases). Nas propriedades do arquivo, permita executá-lo como programa e abra com dois cliques. O pacote inclui Python e a interface do setup; a Maya e os modelos são baixados durante a instalação. Disponível para Linux x86_64.
+Download **Maya-Setup-x86_64.AppImage** from the [releases](https://github.com/gui-bertoso/maya/releases).
+Allow execution in the file properties and open it with a double-click. The x86_64
+package includes Python and the setup interface; Maya and speech models are
+downloaded during installation.
 
-O setup guarda seu runtime em `~/.local/share/maya/setup-runtimes/` (ou `$XDG_DATA_HOME/maya/setup-runtimes/`). Assim, o ambiente instalado continua funcionando quando o AppImage é fechado, movido ou apagado. Para verificar o pacote em um desktop, execute-o com `--self-test`: o teste abre a interface e verifica um ambiente Python novo, os headers e os certificados HTTPS.
+The setup keeps its runtime in `~/.local/share/maya/setup-runtimes/`, or
+`$XDG_DATA_HOME/maya/setup-runtimes/`. The installation keeps working after the
+AppImage is closed, moved or removed. On a desktop, `--self-test` opens the
+interface and checks a fresh Python environment, headers and HTTPS certificates.
 
-Para gerar o pacote a partir do código, use Python 3.12 ou mais novo: `python3 scripts/build_setup_appimage.py`. O build baixa versões fixas do Python standalone e das ferramentas AppImage, verifica SHA256 e grava o AppImage, seu checksum e o manifesto em `dist/`. Não inclui modelos de voz nem dados pessoais.
+Build with Python 3.12 or later:
 
-Alternativamente, use o bootstrap pequeno:
+```bash
+python3 scripts/build_setup_appimage.py
+```
 
-Baixe `setup.sh` da branch `IA_Improvementes` e execute:
+The builder downloads pinned Python standalone and AppImage tools, verifies SHA256
+and writes the AppImage, checksum and manifest under `dist/`. Speech models and
+personal data are not bundled.
+
+Alternatively, download `setup.sh` from `IA_Improvementes` and run:
 
 ```bash
 bash setup.sh
 ```
 
-A janela permite escolher a branch do GitHub, baixar a voz offline e abrir a Maya ao terminar. O arquivo inicial é pequeno: código, dependências, Python compatível (se necessário) e modelos são baixados durante a instalação. O repositório precisa estar público para instalação e atualização sem autenticação.
+The window lets you select a GitHub branch, download offline speech and open Maya.
+The bootstrap stays small: code, dependencies, a compatible Python runtime if
+needed, and models are fetched during installation. Unauthenticated installation
+and updates require a public repository.
 
-No Fedora e Ubuntu/Debian/Mint, o setup prepara os componentes do sistema automaticamente, incluindo a interface do instalador, as bibliotecas de áudio e o XWayland. Quando necessário, o Linux abre sua janela de autorização: informe a senha ali e a instalação continua, sem comandos adicionais. É necessário um desktop com polkit/pkexec e um agente gráfico de autenticação ativo. Se você cancelar a autorização, basta iniciar a instalação novamente.
+On Fedora and Ubuntu/Debian/Mint, the setup prepares missing system components,
+including the installer interface, audio libraries and XWayland. Enter your
+password only in the Linux authorization window. A desktop with polkit/pkexec and
+a graphical authentication agent is required. If authorization is canceled, start
+installation again. Other distributions require these components in advance.
 
-Somente o gerenciador de pacotes recebe privilégios de administrador; o instalador, o ambiente Python e a Maya continuam como seu usuário. Pacotes já instalados não são reinstalados. No Linux, o atalho usa `python-xlib` diretamente via X11/XWayland: `pynput` e `evdev` não são dependências da instalação, e o setup não exige compilador nem headers para o atalho. Em Wayland, o alcance do atalho depende dos aplicativos conectados ao XWayland; a abertura pelo menu de aplicativos continua disponível. Em outras distribuições, os componentes do sistema precisam estar disponíveis previamente.
+Only the system package manager runs with administrator privileges. The installer,
+Python environment and Maya run as your user. Already installed packages are not
+reinstalled. The hotkey uses `python-xlib` with X11/XWayland; it does not require
+`pynput`, `evdev`, a compiler or development headers. Under Wayland, hotkey coverage
+depends on which applications use XWayland. Launching from the application menu
+remains available.
 
-O setup instala também as bibliotecas XCB/XKB e OpenGL/EGL usadas pelo Qt, evita carregar plugins de outra versão do Qt do desktop e testa a interface e cada módulo de áudio separadamente. Se uma etapa falhar, os detalhes incluem seu código de saída (ou sinal de falha nativa) e ficam salvos em `logs/installer.log` na pasta da versão. `pip check` verifica dependências Python; bibliotecas nativas e a sessão gráfica são verificadas nas etapas seguintes.
+The setup installs Qt's XCB/XKB and OpenGL/EGL libraries, avoids host Qt plugin
+conflicts and checks the interface and audio modules separately. Failure details
+include the exit code or native signal and are saved to the version's
+`logs/installer.log`. `pip check` validates Python dependencies; subsequent probes
+check native libraries and the graphical session.
 
-Em Linux x86_64, se a importação de ONNX Runtime encerrar com `SIGILL`, o setup tenta uma única vez a versão 1.20.1, aceita pelo Kokoro 0.6.1, e verifica novamente as dependências e a importação. A voz `af_heart` é mantida. Isso não garante suporte a todo processador antigo: se a alternativa também falhar, a instalação para com o diagnóstico, sem continuar com uma voz que derrubaria a Maya. NumPy, ONNX Runtime e as demais dependências do Kokoro são testados em processos separados para localizar a biblioteca que falhou.
+On Linux x86_64, if importing ONNX Runtime exits with `SIGILL`, the setup tries
+version 1.20.1 once, as allowed by Kokoro 0.6.1, then checks dependencies and import
+again. Voice `af_heart` is preserved. This does not guarantee compatibility with
+every older processor: if the alternative fails, installation stops with a
+diagnostic instead of enabling a crashing voice backend. NumPy, ONNX Runtime and
+Kokoro dependencies are probed in separate processes.
 
-No Linux, o NumPy fica em `>=2.0.2,<2.4`, mantendo o mínimo exigido pelo Kokoro e evitando a nova baseline x86-64-v2 do NumPy 2.4. Essa mudança pode causar `SIGILL` na importação de `_multiarray_umath` em CPUs antigas. A restrição também corrige ambientes existentes ao executar novamente o instalador. Veja as [notas oficiais do NumPy 2.4](https://numpy.org/doc/stable/release/2.4.0-notes.html#modulate-dispatched-x86-cpu-features).
+Linux NumPy is constrained to `>=2.0.2,<2.4`, satisfying Kokoro while avoiding
+NumPy 2.4's x86-64-v2 baseline, which can cause `SIGILL` in `_multiarray_umath` on
+older processors. Rerunning the installer also repairs existing environments.
+See the [NumPy 2.4 release notes](https://numpy.org/doc/stable/release/2.4.0-notes.html#modulate-dispatched-x86-cpu-features).
 
-A instalação usa `~/.local/share/maya/versions/`, cria um atalho no menu e o comando `~/.local/bin/maya`. Em Wayland, é necessário XWayland. O reconhecimento inicial é Vosk em inglês, com voz Kokoro `af_heart`; nenhum modelo de conversação é baixado ou ativado.
+Versions are installed under `~/.local/share/maya/versions/`. The setup creates an
+application-menu shortcut and `~/.local/bin/maya`. Initial recognition uses English
+Vosk and Kokoro voice `af_heart`. No conversational model is downloaded or enabled.
 
-Para atualizar, rode `setup.sh` novamente, use **Atualizar Maya…** no menu da bandeja ou envie `update maya`, `atualizar maya` ou `!update`. O instalador lembra a branch. Feche a Maya pela bandeja **antes de clicar em instalar**: a versão nova recebe uma cópia das configurações e dos dados pessoais, reaproveita os modelos e mantém a pasta anterior. A troca do atalho ocorre somente depois de preparar a instalação. Se uma branch antiga não tiver o backend Linux, o instalador informa isso.
+For updates, rerun `setup.sh`, choose **Update Maya…** in the tray menu or send
+`update maya` / `!update`. The installer remembers the branch. Close Maya from the
+tray **before clicking Install**: a new version copies settings and personal data,
+reuses models and retains the previous folder. The shortcut changes only after
+the new installation is prepared. A branch without Linux support is rejected.
 
-Executar `bash setup.sh --local-source` instala a cópia local, sem baixar o código do GitHub (voltado a desenvolvimento). Instalações existentes mantêm suas opções de voz.
+For development, `bash setup.sh --local-source` installs the local checkout without
+downloading GitHub source. Existing installations retain their voice settings.
 
-## Início rápido no Windows
+## Windows quick start
 
-Pressione **Delete + Page Up** para mostrar a Maya de qualquer lugar. Se ela já estiver aberta, iniciar o programa novamente apenas traz a janela existente para frente.
+Press **Delete + Page Up** to show Maya from anywhere. Starting a second instance
+brings the existing window to the front.
 
-Requisitos: Python 3.11, Git e um microfone funcional.
+Requirements: Python 3.11, Git and a working microphone.
 
 ```powershell
 py -3.11 -m venv .venv
@@ -62,62 +109,62 @@ py -3.11 -m venv .venv
 .\.venv\Scripts\python.exe app.py
 ```
 
-Com `uv`:
+With `uv`:
 
 ```powershell
 uv run --python 3.11 --with-requirements requirements-windows.txt python app.py
 ```
 
-Para baixar vozes neurais opcionais:
+Optional Portuguese neural voices:
 
 ```powershell
 .\.venv\Scripts\python.exe scripts\download_piper_models.py --model pt
 ```
 
-## Comandos de rotina
+## Routine commands
 
-| Comando | Função |
+| Command | Action |
 |---|---|
-| `!today` | Mostra o plano de hoje |
-| `!done <atividade>` | Conclui uma atividade e concede XP |
-| `!skip <atividade>` | Ignora uma atividade |
-| `!routine a` / `b` | Alterna entre treino às 06:00 ou 14:00 |
-| `!status` | Exibe progresso, XP e streak |
-| `!week` | Resume a semana |
-| `!awake HH:MM` | Recalcula o dia após acordar atrasado |
+| `!today` | Show today's plan |
+| `!done <activity>` | Complete an activity and award XP |
+| `!skip <activity>` | Skip an activity |
+| `!routine a` / `b` | Choose the 06:00 or 14:00 workout routine |
+| `!status` | Show progress, XP and streak |
+| `!week` | Summarize the week |
+| `!awake HH:MM` | Reschedule the day after waking up late |
 
-## Estrutura
+## Structure
 
 ```text
 maya/
-├── app.py          # composição e ciclo de vida
-├── core/           # processamento, memória, rotina e concorrência
-├── input/          # microfone, Vosk, ruído e palmas
-├── output/         # interface e síntese de voz
-├── helpers/        # integrações e utilitários
-├── data/           # conteúdo e estado local em JSON
-├── models/         # modelos locais de voz
-├── scripts/        # execução, downloads e builds
-├── tests/          # testes automatizados
-└── docs/           # documentação por assunto
+├── app.py          # composition and lifecycle
+├── core/           # processing, memory, routines and concurrency
+├── input/          # microphone, Vosk, noise suppression and claps
+├── output/         # interface and speech synthesis
+├── helpers/        # integrations and utilities
+├── data/           # JSON content and local state
+├── models/         # local speech models
+├── scripts/        # launchers, downloads and builds
+├── tests/          # automated tests
+└── docs/           # topic-based documentation
 ```
 
-## Documentação
+## Documentation
 
-- [Visão geral em português](docs/overview.pt-BR.md)
-- [Overview in English](docs/overview.en.md)
-- [Arquitetura](docs/architecture.md)
-- [Pipeline de voz](docs/voice-pipeline.md)
-- [Rotinas pessoais](docs/routines.md)
-- [Desenvolvimento e testes](docs/development.md)
-- [Códigos de erro](docs/error-codes.md)
-- [Comandos e exemplos](docs/commands.md)
-- [Containers DataExpansion](docs/data-expansions.md)
+- [Overview](docs/overview.en.md)
+- [Architecture](docs/architecture.md)
+- [Voice pipeline](docs/voice-pipeline.md)
+- [Personal routines](docs/routines.md)
+- [Development and tests](docs/development.md)
+- [Error codes](docs/error-codes.md)
+- [Commands and examples](docs/commands.md)
+- [Data Expansion containers](docs/data-expansions.md)
 - [Roadmap](docs/roadmap.md)
+- [Additional Portuguese overview](docs/overview.pt-BR.md)
 
-Mapa visual: [Maya — Arquitetura, Fluxos e Roadmap](https://miro.com/app/board/uXjVHr5wgpk=/)
+Visual map: [Maya — Architecture, Flows and Roadmap](https://miro.com/app/board/uXjVHr5wgpk=/).
 
-## Testes
+## Tests
 
 ```powershell
 uv run --python 3.11 --with-requirements requirements-windows.txt python -m unittest discover -s tests -v
@@ -130,12 +177,19 @@ uv run --python 3.11 --with-requirements requirements-windows.txt python -m unit
 .\scripts\build_setup_windows.ps1
 ```
 
-Artefatos como `setup.exe`, `build/`, `dist/`, logs e caches não pertencem ao Git. Gere-os localmente ou publique-os em uma release.
+Generated installers, `build/`, `dist/`, logs and caches do not belong in Git.
+Build them locally or distribute them as release assets.
 
-## Privacidade
+## Privacy
 
-O reconhecimento Vosk e os dados pessoais funcionam localmente. Áudio não é gravado por padrão. Motores e integrações online são opcionais e devem ser ativados conscientemente.
+Vosk recognition and personal data remain local. Audio is not recorded by default.
+Online engines and integrations are optional and require deliberate configuration.
 
-## Estado atual
+## Current status
 
-A base já é utilizável, mas ainda precisa de telemetria real de latência, diagnóstico de áudio, barge-in robusto, assinatura do instalador e testes em máquina limpa. Consulte o [roadmap](docs/roadmap.md).
+The base is usable. Remaining work includes measured latency, audio diagnostics,
+robust barge-in, installer signing and clean-machine tests. See the [roadmap](docs/roadmap.md).
+
+## License
+
+The author's code uses the [MIT License](LICENSE). Third-party materials retain their original licenses.

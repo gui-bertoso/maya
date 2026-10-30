@@ -1,37 +1,37 @@
-# Ponte local para whisper.cpp
+# Local whisper.cpp bridge
 
-A escolha `STT_ENGINE=whisper.cpp` nas settings usa `WhisperVoice`, mantendo o mesmo callback de texto recebido pelo `App`. `STT_ENGINE=vosk` restaura o backend anterior. A voz de saída Kokoro/af_heart é independente dessa escolha.
+Selecting `STT_ENGINE=whisper.cpp` in settings uses `WhisperVoice`, preserving the text callback received by `App`. `STT_ENGINE=vosk` restores the previous backend. Kokoro output with `af_heart` is independent of this setting.
 
 ```mermaid
 flowchart LR
-  A[Microfone 16 kHz] --> B[Gate de ruído e fim de frase]
-  B --> C[Fila limitada]
-  C --> D[whisper-server local com modelo residente]
-  D --> E[Texto final]
-  E --> F[Wake word e parser existentes da Maya]
+  A[16 kHz microphone] --> B[Noise gate and sentence endpoint]
+  B --> C[Bounded queue]
+  C --> D[Local whisper-server with resident model]
+  D --> E[Final text]
+  E --> F[Existing Maya wake word and parser]
 ```
 
-O servidor é um processo filho da Maya ligado somente a `127.0.0.1`, em porta escolhida dinamicamente. WAV mono PCM é montado na memória, enviado a `/inference` e descartado depois da resposta. O áudio do microfone não é salvo. Modelo e código são locais após o download inicial. `/health` confirma que o modelo carregou antes da captura ser anunciada como pronta. Parar/trocar o backend encerra o processo pertencente à instância.
+The server is a Maya child process bound only to `127.0.0.1` on a dynamically selected port. Mono PCM WAV is assembled in memory, sent to `/inference` and discarded after the response. Microphone audio is not saved. Code and model remain local after the initial download. `/health` confirms model readiness before capture is announced as ready. Stopping or switching the backend terminates the process owned by that instance.
 
-O Whisper transcreve frases completas; esta integração não fornece texto parcial palavra a palavra. A captura continua em sua thread enquanto outra transcreve. Há no máximo uma frase aguardando, além da que estiver sendo processada. Trechos menores que dois blocos de fala são ignorados e frases são limitadas a 15 segundos. Os nomes em `WHISPER_PROMPT` são pistas de vocabulário, não uma promessa de acerto.
+Whisper transcribes complete sentences; this integration does not provide partial word-by-word text. Capture continues on its thread while another thread transcribes. At most one sentence waits alongside the current transcription. Segments shorter than two speech blocks are ignored; sentences are limited to 15 seconds. Names in `WHISPER_PROMPT` are vocabulary hints, not accuracy guarantees.
 
-Por enquanto o Whisper funciona em meia comunicação: enquanto a Maya fala, o áudio não é encaminhado para transcrição. Isso reduz o reconhecimento da própria voz, mas não oferece interrupção por voz durante TTS. Atalho e interface de texto continuam disponíveis.
+Capture currently uses half-duplex operation: audio is not sent for transcription while Maya speaks. This reduces recognition of its own voice but does not support voice interruption during TTS. Keyboard shortcuts and text input remain available.
 
-## Instalação desta máquina
+## Reference installation
 
-- fonte oficial `ggml-org/whisper.cpp`, tag `v1.9.5`, em `.runtime/whisper.cpp`;
-- binário `.runtime/whisper.cpp/build/bin/whisper-server`;
-- backend Vulkan compilado para usar a GPU AMD;
-- modelo `models/whisper/ggml-small.en.bin`;
-- SHA-256 do modelo: `c6138d6d58ecc8322097e0f987c32f1be8bb0a18532a3f88f734d1bbf9c41e5d`;
-- headers Vulkan/SPIR-V e compilador glslc de RPMs Fedora com assinaturas verificadas, extraídos em pasta local; sem instalação de pacotes no sistema.
+- Official source: `ggml-org/whisper.cpp`, tag `v1.9.5`, under `.runtime/whisper.cpp`.
+- Server: `.runtime/whisper.cpp/build/bin/whisper-server`.
+- Vulkan backend for the AMD GPU.
+- Model: `models/whisper/ggml-small.en.bin`.
+- Model SHA-256: `c6138d6d58ecc8322097e0f987c32f1be8bb0a18532a3f88f734d1bbf9c41e5d`.
+- Vulkan/SPIR-V headers and glslc from signature-verified Fedora RPMs extracted locally, without system package installation.
 
-As dependências de desenvolvimento extraídas estão no diretório de trabalho desta conversa. Uma recompilação em outra máquina precisa de compilador C++, CMake, Ninja, Vulkan Headers, SPIRV-Headers e glslc, ou um build somente CPU. Não é necessário recompilar para executar os binários locais já produzidos.
+This describes the original development machine. Rebuilding elsewhere requires C++, CMake, Ninja, Vulkan Headers, SPIRV-Headers and glslc, or a CPU-only build. Existing local binaries do not require rebuilding to run.
 
 ## Settings
 
-`STT_ENGINE`, `WHISPER_CPP_SERVER`, `WHISPER_MODEL_PATH`, `WHISPER_THREADS`, `WHISPER_USE_GPU` e `WHISPER_PROMPT` ficam na categoria Voice. A captura deve ser 16000 Hz. O experimento inicial usa `small.en`, seis threads e Vulkan.
+`STT_ENGINE`, `WHISPER_CPP_SERVER`, `WHISPER_MODEL_PATH`, `WHISPER_THREADS`, `WHISPER_USE_GPU` and `WHISPER_PROMPT` appear under Voice. Capture must use 16000 Hz. The initial configuration used `small.en`, six threads and Vulkan.
 
-Para reproduzir o build com as dependências já disponíveis, rode CMake no repositório oficial com `GGML_VULKAN=ON`, informe o prefixo local das dependências se necessário, e compile os targets `whisper-server` e `whisper-cli`. Para CPU, desative `GGML_VULKAN` e configure `WHISPER_USE_GPU=false`.
+Configure the official repository with `GGML_VULKAN=ON`, supply the local dependency prefix if necessary, and build `whisper-server` and `whisper-cli`. For CPU operation, disable `GGML_VULKAN` and set `WHISPER_USE_GPU=false`.
 
-Fontes: [servidor e protocolo](https://github.com/ggml-org/whisper.cpp/tree/v1.9.5/examples/server), [suporte Vulkan](https://github.com/ggml-org/whisper.cpp#vulkan-gpu-support), [distribuição de modelos](https://huggingface.co/ggerganov/whisper.cpp).
+References: [server protocol](https://github.com/ggml-org/whisper.cpp/tree/v1.9.5/examples/server), [Vulkan support](https://github.com/ggml-org/whisper.cpp#vulkan-gpu-support), [model distribution](https://huggingface.co/ggerganov/whisper.cpp).

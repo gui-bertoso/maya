@@ -1,19 +1,22 @@
-# Pipeline de voz
+# Voice pipeline
 
-## Entrada
+## Input
 
-1. `sounddevice` captura áudio mono em 16 kHz e blocos de 125 ms.
-2. O supressor remove offset DC, estima o ruído ambiente e aplica um noise gate adaptativo.
-3. Um pequeno hangover preserva finais de palavras e pausas naturais.
-4. A fila limitada descarta o pacote mais antigo quando há atraso, evitando respostas para áudio velho.
-5. Vosk produz resultados parciais e finais localmente.
-6. O fast endpoint encerra uma frase reconhecida após 375 ms de silêncio configurado.
+1. `sounddevice` captures 16 kHz mono audio in 125 ms blocks.
+2. The suppressor removes DC offset, estimates ambient noise and applies an adaptive noise gate.
+3. A short hangover preserves word endings and natural pauses.
+4. A bounded queue drops the oldest packet when delayed, avoiding responses to stale audio.
+5. Vosk produces partial and final results locally.
+6. Fast endpoint detection ends a recognized phrase after the configured 375 ms of silence.
 
-## Processamento e saída
+## Processing and output
 
-O callback final apenas valida o wake word e envia o comando ao pipeline assíncrono. A thread do reconhecimento volta a ouvir imediatamente. A resposta segue para o `Speaker`, cuja thread prepara o TTS do Windows no startup e prepara um novo motor após cada fala.
+The final callback validates the wake word and sends the command to the
+asynchronous pipeline. Recognition immediately resumes listening. Responses go
+to `Speaker`, whose thread prewarms Windows TTS at startup and prepares a fresh
+engine after each utterance.
 
-## Configurações principais
+## Main settings
 
 - `VOICE_BLOCK_SIZE=2000`
 - `VOICE_NOISE_SUPPRESSION=true`
@@ -22,15 +25,16 @@ O callback final apenas valida o wake word e envia o comando ao pipeline assínc
 - `VOICE_SPEECH_HANGOVER=4`
 - `VOICE_FAST_ENDPOINT=true`
 - `VOICE_ENDPOINT_SILENCE_MS=375`
-- `VOSK_MODEL_PATH=models/vosk-model-small-pt-0.3`
+- `VOSK_MODEL_PATH=models/vosk-model-small-pt-0.3` for the Portuguese recognition model.
 - `TTS_ENGINE=system`
 
-## Latência
+## Latency
 
-As faixas atuais são estimativas, não telemetria:
+These ranges are estimates rather than measured telemetry:
 
-- versão original: 1100–2550 ms;
-- reconhecimento otimizado: 560–1300 ms;
-- com TTS pré-aquecido: 415–780 ms.
+- Original version: 1100–2550 ms.
+- Optimized recognition: 560–1300 ms.
+- Prewarmed TTS: 415–780 ms.
 
-O próximo passo correto é registrar timestamps monotônicos em captura, endpoint, processamento, enqueue do TTS e primeiro áudio reproduzido.
+The next step is to record monotonic timestamps at capture, endpoint detection,
+processing, TTS enqueue and the first played audio sample.
