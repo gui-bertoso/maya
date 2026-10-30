@@ -50,7 +50,7 @@ essa combinação. A chamada por voz continua disponível.
 
 A opção `app.py --show` abre a interface de texto ao iniciar. A configuração local `.env` seleciona idioma, modelo Vosk e motor de voz.
 O perfil atual de responsividade mantém inglês e a voz Kokoro `af_heart`;
-consulte `docs/update-bug-hunter.md`.
+see the regression tests in `tests/`.
 
 ## Voz feminina offline
 

@@ -41,7 +41,7 @@ class AppImageSetupTests(unittest.TestCase):
             root = Path(folder)
             bundle = self.bundle(root)
             (bundle / 'bundle.json').write_text(json.dumps({'bundle_id': '../../escape'}))
-            with self.assertRaisesRegex(RuntimeError, 'identificador'):
+            with self.assertRaisesRegex(RuntimeError, 'identifier'):
                 launcher.prepare_runtime(bundle, root / 'data')
             self.assertFalse((root / 'data').exists())
 
@@ -51,7 +51,7 @@ class AppImageSetupTests(unittest.TestCase):
             bundle = self.bundle(root)
             target = launcher.prepare_runtime(bundle, root / 'data')
             (target / 'python/bin/python3').unlink()
-            with self.assertRaisesRegex(RuntimeError, 'incompleto'):
+            with self.assertRaisesRegex(RuntimeError, 'incomplete'):
                 launcher.prepare_runtime(bundle, root / 'data')
 
 
