@@ -105,3 +105,7 @@ O reconhecimento Vosk e os dados pessoais funcionam localmente. Áudio não é g
 ## Estado atual
 
 A base já é utilizável, mas ainda precisa de telemetria real de latência, diagnóstico de áudio, barge-in robusto, assinatura do instalador e testes em máquina limpa. Consulte o [roadmap](docs/roadmap.md).
+
+## License
+
+The author's code uses the [MIT License](LICENSE). Third-party materials retain their original licenses.
