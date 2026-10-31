@@ -55,13 +55,23 @@ class ConversationPolicy:
         counts[key] = index + 1
         return choices[index % len(choices)]
 
-    def reply(self, text, clean, frame):
-        state = frame.setdefault('conversation', {'topic': None, 'mode': None, 'turns': [], 'idle': 0})
-        # Boundaries also apply outside an active emotional conversation.
+    @staticmethod
+    def boundary(clean):
+        # Explicit identity and immediate-risk boundaries run before open generation.
         if re.search(r'\b(?:so preciso de voce|so voce me entende|nao preciso de (?:mais )?ninguem|voce e humana|voce tem sentimentos)\b', clean):
             return 'sou uma ia, sem sentimentos ou vivências humanas. posso conversar e ajudar a organizar ideias, mas não substituo relações com pessoas. o que está faltando nas suas conversas fora daqui?'
-        if re.search(r'\b(?:quero me matar|vou me matar|vou me machucar|quero acabar com minha vida)\b', clean):
+        for intent in re.finditer(r'\b(?:quero me matar|vou me matar|vou me machucar|quero acabar com minha vida)\b', clean):
+            # Negation belongs to this clause, not every intent elsewhere in the turn.
+            if re.search(r'\bnao\s*$', clean[:intent.start()]):
+                continue
             return 'vou levar isso a sério. você está em perigo imediato ou já se machucou? procure alguém de confiança para ficar com você agora e, se houver risco imediato, acione o serviço de emergência local. afaste de você o que poderia usar para se ferir, se conseguir fazer isso com segurança.'
+        return None
+
+    def reply(self, text, clean, frame):
+        boundary = self.boundary(clean)
+        if boundary:
+            return boundary
+        state = frame.setdefault('conversation', {'topic': None, 'mode': None, 'turns': [], 'idle': 0})
         mode = next((name for name, pattern in self.MODES.items() if re.search(pattern, clean)), None)
         topic = next((name for name, pattern in self.TOPICS if re.search(pattern, clean)), None)
         # Abstract discussions remain in the knowledge catalog.
@@ -105,6 +115,6 @@ class ConversationPolicy:
         if followup and topic == previous and clean not in {'continua', 'continue', 'e por que', 'por que', 'como assim', 'nao sei', 'sim'}:
             return self._pick(state, topic + ':followup', (
                 f'você disse: “{text.strip()[:180]}”. qual parte disso pesa mais agora?',
-                'isso muda o foco da conversa. você quer explorar o motivo ou pensar no que fazer com essa situação?',
+                'você quer explorar o motivo ou pensar no que fazer com essa situação?',
             ))
         return self._pick(state, topic, self.REPLIES[topic])

@@ -271,8 +271,7 @@ class App:
                 prompt=get_env("WHISPER_PROMPT", "Maya, Steam, Spotify, Firefox, Godot, Blender, VS Code."),
                 can_capture=lambda: not self.speaker.is_speaking,
             )
-        return voice_class(
-            **backend_options,
+        shared_options = dict(
             model_path=get_env("VOSK_MODEL_PATH", "models/vosk-model-small-pt-0.3"),
             sample_rate=get_env("VOICE_SAMPLE_RATE", 16000, int),
             block_size=get_env("VOICE_BLOCK_SIZE", 2000, int),
@@ -283,6 +282,19 @@ class App:
             fast_endpoint=get_env("VOICE_FAST_ENDPOINT", "true").lower() == "true",
             endpoint_silence_ms=get_env("VOICE_ENDPOINT_SILENCE_MS", 375, int),
         )
+        primary = voice_class(**backend_options, **shared_options)
+        if voice_class is not Voice and get_env('STT_FALLBACK_ENABLED', 'false').lower() == 'true':
+            from input.failover_voice import FailoverVoice, GuardedVoskVoice
+            def fallback_notice(engine):
+                if self.LANGUAGE.lower().startswith('pt'):
+                    message = 'whisper indisponível; tentando reconhecimento pelo vosk. repita a última frase quando estiver pronto.'
+                else:
+                    message = 'whisper unavailable; switching to vosk. please repeat the last sentence when ready.'
+                self.send_event('response_text', message)
+            return FailoverVoice(primary,
+                lambda: GuardedVoskVoice(can_capture=lambda: not self.speaker.is_speaking, **shared_options),
+                on_engine_change=fallback_notice)
+        return primary
 
     @staticmethod
     def _parse_wake_words(raw_value):

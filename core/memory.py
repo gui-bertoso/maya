@@ -63,14 +63,14 @@ class Memory:
                 cleaned.append(normalized)
         return cleaned
 
-    def add_message(self, role, content):
+    def add_message(self, role, content, source=None):
         if not content:
             return
 
-        self.short_term.append({
-            "role": role,
-            "content": content.strip()
-        })
+        message = {"role": role, "content": content.strip()}
+        if source is not None:
+            message['source'] = source
+        self.short_term.append(message)
 
         self.short_term = self.short_term[-max(1, self.short_term_limit):]
 

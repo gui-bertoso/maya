@@ -205,6 +205,8 @@ PT_BR_UI.update({
 
 PT_BR_UI.update({
     "category_Conversation": "Conversa",
+    "field_LOCAL_DIALOGUE_ENABLED_label": "Modelo local (experimental)",
+    "field_LOCAL_DIALOGUE_ENABLED_help": "Usa o modelo instalado para conversar com contexto. Carrega quando necessário; o tempo de descanso da GPU pode ser ajustado. O motor nativo continua disponível como alternativa.",
     "field_DIALOGUE_ENABLED_label": "Contexto nativo",
     "field_DIALOGUE_ENABLED_help": "Relaciona assuntos, perguntas de continuação e referências recentes a aplicativos usando o motor da Maya.",
 })
@@ -222,3 +224,23 @@ def localize_env_field(field, language=None):
         "help_text": help_text,
         "category": category,
     }
+
+
+from helpers.dialogue_settings import SETTINGS as _DIALOGUE_SETTINGS, OPTION_PT as _OPTION_PT
+PT_BR_UI.update({'category_Local model': 'Modelo local — desempenho',
+                 'category_Conversation memory': 'Memória da conversa',
+                 'category_Conversation style': 'Jeito de conversar'})
+for _setting in _DIALOGUE_SETTINGS:
+    PT_BR_UI['field_' + _setting.key + '_label'] = _setting.pt_label
+    PT_BR_UI['field_' + _setting.key + '_help'] = _setting.pt_help
+
+
+def localize_env_option(field, option, language=None):
+    if field.key.startswith('CONVERSATION_') and is_portuguese(language):
+        return _OPTION_PT.get(option, option)
+    return option
+
+PT_BR_UI.update({
+    'field_STT_FALLBACK_ENABLED_label': 'Vosk de reserva automático',
+    'field_STT_FALLBACK_ENABLED_help': 'Se o Whisper falhar, encerra sua captura e tenta o Vosk configurado. Reinicie o reconhecimento para tentar o Whisper novamente.',
+})

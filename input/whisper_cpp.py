@@ -23,7 +23,7 @@ class WhisperServer:
     def __init__(self, binary, model, language='en', threads=6, use_gpu=True, prompt='', timeout=30):
         self.binary = Path(binary)
         self.model = Path(model)
-        self.language = language
+        self.language = (str(language or 'en').strip().replace('_', '-').split('-')[0] or 'en')
         self.threads = max(1, int(threads))
         self.use_gpu = use_gpu
         self.prompt = prompt
@@ -143,9 +143,13 @@ class WhisperVoice(Voice):
 
     def load_voice(self, on_status_change=None):
         self.set_status('loading', on_status_change)
+        if self.DEBUG_MODE:
+            print(f'[stt] loading whisper: {self.backend.model.name}', flush=True)
         try:
             self.backend.start()
             self.is_loaded = not self._stop_requested.is_set()
+            if self.DEBUG_MODE and self.is_loaded:
+                print('[stt] whisper server ready', flush=True)
         except Exception as error:
             self.last_error = str(error)
             if not self._stop_requested.is_set():

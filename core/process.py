@@ -1629,10 +1629,27 @@ class Process:
         else:
             self.memory.set_last_topic("conversation")
 
+    def _trace_dialogue_route(self, route):
+        self.last_route = route
+        if self.memory and 'dialogue' in self.memory.state:
+            self.memory.state['dialogue']['last_engine'] = route
+        if not self.DEBUG_MODE:
+            return
+        detail = ''
+        if route == 'local_model':
+            from helpers.local_dialogue import runtime_status
+            status = runtime_status()
+            detail = f" model={status.get('model', 'unknown')} elapsed={status.get('elapsed_seconds', '?')}s"
+        elif route == 'native_fallback' and self.memory:
+            detail = ' reason=' + self.memory.state.get('dialogue', {}).get('model_failure_reason', 'model_unavailable')
+        print(f'[dialogue] route={route}{detail}', flush=True)
+
     def handle_input(self, my_input):
         my_input = my_input.strip()
+        self.last_route = 'pending'
 
         if not my_input:
+            self._trace_dialogue_route('native_empty')
             response = self.pick_response("input_empty")
             if self.parent is not None:
                 self.parent.send_event("response_text", response)
@@ -1661,9 +1678,10 @@ class Process:
         from core.learning import LearningEngine
         handled, learned_response, learned_command = LearningEngine().handle(my_input, self)
         if handled and learned_response is not None:
+            self._trace_dialogue_route('learned_or_catalog')
             if self.memory:
                 self.memory.add_message("user", my_input)
-                self.memory.add_message("assistant", learned_response)
+                self.memory.add_message("assistant", learned_response, source=self.last_route)
             if self.parent is not None:
                 self.parent.send_event("response_text", learned_response)
             return learned_response
@@ -1672,9 +1690,10 @@ class Process:
 
         routine_response = self.routine_manager.handle_command(my_input)
         if routine_response is not None:
+            self._trace_dialogue_route('routine')
             if self.memory:
                 self.memory.add_message("user", my_input)
-                self.memory.add_message("assistant", routine_response)
+                self.memory.add_message("assistant", routine_response, source=self.last_route)
                 self.memory.set_last_topic("routine")
             if self.parent is not None:
                 self.parent.send_event("response_text", routine_response)
@@ -1685,20 +1704,33 @@ class Process:
             self.dialogue = DialogueEngine()
         resolved_input, clarification = self.dialogue.resolve_action(my_input, self.memory)
         response = clarification
+        route = 'native_clarification'
         if response is None:
             preview_patterns = self.detect_patterns(resolved_input)
-            response = self.dialogue.reply(resolved_input, self.memory, preview_patterns)
+            from helpers.self_knowledge import reply as self_reply, prompt_snapshot
+            if not any(preview_patterns.get(flag) for flag in DialogueEngine.ACTIONS):
+                response = self_reply(resolved_input, self)
+                if response is not None:
+                    route = 'self_inspection'
+            if response is None:
+                if self.memory and 'dialogue' in self.memory.state:
+                    self.memory.state['dialogue']['last_engine'] = 'native_dialogue'
+                response = self.dialogue.reply(resolved_input, self.memory, preview_patterns,
+                                               capabilities=prompt_snapshot(self))
+                route = (self.memory.state.get('dialogue', {}).get('last_engine') or 'native_dialogue') if self.memory else 'native_dialogue'
         if response is not None:
+            self._trace_dialogue_route(route)
             if self.memory:
                 self.memory.short_term_limit = max(self.memory.short_term_limit, 80)
                 self.memory.add_message("user", my_input)
-                self.memory.add_message("assistant", response)
+                self.memory.add_message("assistant", response, source=self.last_route)
             if self.parent is not None:
                 self.parent.send_event("response_text", response)
             return response
         my_input = resolved_input
 
         if my_input == "print":
+            self._trace_dialogue_route('native_print')
             print(vocabulary_manager.get_text())
             response = self.pick_response("print_command_done")
             if self.parent is not None:
@@ -1729,9 +1761,10 @@ class Process:
         self.apply_memory_updates(patterns, my_input)
 
         response = self.generate_response(my_input, patterns)
+        self._trace_dialogue_route('native_action' if any(patterns.get(flag) for flag in DialogueEngine.ACTIONS) else 'native_parser')
 
         if self.memory:
-            self.memory.add_message("assistant", response)
+            self.memory.add_message("assistant", response, source=self.last_route)
 
         if self.DEBUG_MODE:
             print("intent:", intent)

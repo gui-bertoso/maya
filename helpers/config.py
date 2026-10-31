@@ -4,6 +4,7 @@ import math
 import tempfile
 import shutil
 import sys
+from helpers.dialogue_settings import SETTINGS as DIALOGUE_SETTINGS
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -132,6 +133,7 @@ ENV_FIELDS = (
     EnvField("DAILY_BRIEF_LOCATION", "", str, "Wake", "Daily Brief Location", "Optional weather location for the startup daily brief."),
     EnvField("VOICE_IGNORE_COOLDOWN", "1.2", float, "Voice", "Voice Ignore Cooldown", "Cooldown for low-signal voice input suppression."),
     EnvField("MICROPHONE_ENABLED", "true", str, "Voice", "Microphone Enabled", "Enable microphone-driven voice recognition and clap wake.", ("true", "false")),
+    EnvField("STT_FALLBACK_ENABLED", "false", str, "Voice", "Automatic Vosk fallback", "If Whisper fails, stop it and try the configured Vosk model. Restart recognition to retry Whisper.", ("true", "false")),
     EnvField("STT_ENGINE", "vosk", str, "Voice", "Speech recognition engine", "Vosk streaming or local whisper.cpp sentence transcription.", ("vosk", "whisper.cpp")),
     EnvField("WHISPER_CPP_SERVER", ".runtime/whisper.cpp/build/bin/whisper-server", str, "Voice", "Whisper server binary", "Local compiled whisper-server executable."),
     EnvField("WHISPER_MODEL_PATH", "models/whisper/ggml-small.en.bin", str, "Voice", "Whisper model", "Local ggml model file; small.en is the initial English experiment."),
@@ -186,6 +188,7 @@ ENV_FIELDS = (
     EnvField('RESPONSE_BUBBLE_MIN_SECONDS', '6', float, "Text replies", 'Minimum display time', 'Minimum seconds before a reply disappears.', ()),
     EnvField('RESPONSE_BUBBLE_MAX_SECONDS', '120', float, "Text replies", 'Maximum display time', 'Maximum seconds for long replies.', ()),
     EnvField('RESPONSE_BUBBLE_MS_PER_CHAR', '65', int, "Text replies", 'Reading time per character', 'Milliseconds per character; higher values keep replies longer.', ()),
+    EnvField("LOCAL_DIALOGUE_ENABLED", "false", str, "Conversation", "Local language model (experimental)", "Use the installed local model for open conversation, with contextual memory and native fallback. Loads on demand and sleeps after 3 minutes.", ("true", "false")),
     EnvField("DIALOGUE_ENABLED", "true", str, "Conversation", "Native context", "Connect topics, follow-up questions and recent app references using Maya's own engine.", ("true", "false")),
     EnvField("MAX_BACKUPS_PER_FILE", "5", int, "Files", "Max Backups Per File", "How many backups helper tools keep."),
     EnvField("VOCAB_PATH", "data/vocabulary.json", str, "Files", "Vocabulary Path", "Path to the learned vocabulary JSON file."),
@@ -197,6 +200,8 @@ ENV_FIELDS = (
     EnvField("ROUTINE_PATH", "data/routine.json", str, "Files", "Routine Path", "Path to personal routine progress and settings."),
     EnvField("DEV_PROJECTS_PATH", "generated_projects", str, "Files", "Dev Projects Path", "Base folder where Maya creates generated development projects."),
 )
+
+ENV_FIELDS += tuple(EnvField(s.key, s.default, s.cast, s.category, s.label, s.help, s.options) for s in DIALOGUE_SETTINGS)
 
 ENV_FIELD_MAP = {field.key: field for field in ENV_FIELDS}
 
@@ -210,6 +215,10 @@ def reload_env():
 
 def get_env(key, default=None, cast=str):
     value = os.getenv(key, default)
+    # Desktop terminals may export an empty gettext LANGUAGE. It must not shadow
+    # Maya's saved language and then become an invalid STT language argument.
+    if key == 'LANGUAGE' and not str(value or '').strip():
+        value = dotenv_values(ENV_FILE).get('LANGUAGE') or default or 'en'
 
     if value is None:
         return None
@@ -263,6 +272,8 @@ NUMERIC_LIMITS = {
     "WINDOW_WIDTH": (80, 2000), "WINDOW_HEIGHT": (80, 2000), "WINDOW_MARGIN": (0, 1000),
 }
 
+
+NUMERIC_LIMITS.update({s.key: s.bounds for s in DIALOGUE_SETTINGS if s.bounds})
 
 def save_env_values(values):
     current = get_env_values()

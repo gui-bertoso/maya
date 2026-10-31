@@ -22,15 +22,17 @@ from PySide6.QtWidgets import (
     QPlainTextEdit,
     QPushButton,
     QScrollArea,
+    QSpinBox,
+    QDoubleSpinBox,
     QSizePolicy,
     QSystemTrayIcon,
     QVBoxLayout,
     QWidget,
 )
 
-from helpers.config import get_env, get_env_defaults, get_env_fields, get_env_values, get_resource_path
+from helpers.config import get_env, get_env_defaults, get_env_fields, get_env_values, get_resource_path, NUMERIC_LIMITS
 from helpers.dev_workspace import DevWorkspaceOrchestrator
-from helpers.i18n import is_portuguese, localize_env_field, ui_text
+from helpers.i18n import is_portuguese, localize_env_field, localize_env_option, ui_text
 from helpers.thoughtful_workspace import ThoughtfulWorkspaceOrchestrator
 from helpers.version import get_version_display
 from helpers.window_showcase import WindowShowcaseBackend
@@ -599,7 +601,9 @@ class ResponseBubble(QWidget):
                 border: 1px solid rgba(170,185,195,35); border-radius: 16px; }
             QLabel { color: #e2e6e9; background: transparent;
                 font-family: "Noto Sans"; font-size: 14px; border: none; }
-            QScrollArea, QScrollArea > QWidget > QWidget {
+            QScrollArea,
+    QSpinBox,
+    QDoubleSpinBox, QScrollArea > QWidget > QWidget {
                 background: transparent; border: none; }
         '''.replace('235', str(round(max(10, min(100, get_env('RESPONSE_BUBBLE_OPACITY', 92, int))) * 2.55))))
         self.label.setStyleSheet(f"font-size: {max(10, min(32, get_env('RESPONSE_BUBBLE_FONT_SIZE', 14, int)))}px;")
@@ -1082,8 +1086,15 @@ class SettingsWindow(QWidget):
                 control = ColorSettingInput(self.renderer, field.default)
             elif field.options:
                 control = QComboBox()
-                control.addItems(list(field.options))
+                for option in field.options:
+                    control.addItem(localize_env_option(field, option, self.renderer.language), option)
                 control.setEditable(False)
+            elif field.key.startswith('LOCAL_DIALOGUE_') and field.cast in (int, float):
+                control = QSpinBox() if field.cast is int else QDoubleSpinBox()
+                control.setRange(*NUMERIC_LIMITS[field.key])
+                if field.cast is float:
+                    control.setDecimals(2)
+                    control.setSingleStep(.05 if field.key.endswith(('TEMPERATURE', 'TOP_P')) else 1)
             else:
                 control = QLineEdit()
                 control.setPlaceholderText(field.default)
@@ -1167,7 +1178,7 @@ class SettingsWindow(QWidget):
             QLabel#settingsHelp { color: #929da3; font-size: 12px; }
             QLabel#settingsStatus { color: #adbec1; padding-left: 4px; }
             QFrame#settingsActions { background: #181b1e; border: none; border-top: 1px solid #33383c; border-radius: 0; padding-top: 8px; }
-            QLineEdit, QComboBox { min-height: 32px; border-radius: 5px; border: 1px solid #3a4044; background: #121517; color: #e2e7e9; padding: 0 10px; selection-background-color: #415d65; }
+            QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox { min-height: 32px; border-radius: 5px; border: 1px solid #3a4044; background: #121517; color: #e2e7e9; padding: 0 10px; selection-background-color: #415d65; }
             QLineEdit:focus, QComboBox:focus { border-color: #82999f; background: #14181b; }
             QComboBox::drop-down { width: 28px; border: none; }
             QComboBox QAbstractItemView { background: #22272b; color: #e0e5e7; border: 1px solid #414a4f; selection-background-color: #3a484e; }
@@ -1202,6 +1213,9 @@ class SettingsWindow(QWidget):
             row["label"].setText(localized["label"])
             row["label"].setToolTip(localized["help_text"])
             row["control"].setToolTip(localized["help_text"])
+            if isinstance(row["control"], QComboBox):
+                for i, option in enumerate(row["field"].options):
+                    row["control"].setItemText(i, localize_env_option(row['field'], option, self.renderer.language))
             if isinstance(row["control"], ColorSettingInput):
                 row["control"].retranslate_ui()
             if row["help_label"] is not None:
@@ -1212,11 +1226,18 @@ class SettingsWindow(QWidget):
     def _set_control_value(self, control, value):
         text = "" if value is None else str(value)
         if isinstance(control, QComboBox):
-            index = control.findText(text, Qt.MatchFixedString)
+            index = control.findData(text)
+            if index < 0:
+                index = control.findText(text, Qt.MatchFixedString)
             if index >= 0:
                 control.setCurrentIndex(index)
             elif control.count() > 0:
                 control.setCurrentIndex(0)
+        elif isinstance(control, (QSpinBox, QDoubleSpinBox)):
+            try:
+                control.setValue(float(text) if isinstance(control, QDoubleSpinBox) else int(text))
+            except ValueError:
+                control.setValue(control.minimum())
         elif isinstance(control, ColorSettingInput):
             control.set_color_text(text)
         else:
@@ -1224,7 +1245,9 @@ class SettingsWindow(QWidget):
 
     def _get_control_value(self, control):
         if isinstance(control, QComboBox):
-            return control.currentText().strip()
+            return str(control.currentData() if control.currentData() is not None else control.currentText()).strip()
+        if isinstance(control, (QSpinBox, QDoubleSpinBox)):
+            return str(control.value())
         if isinstance(control, ColorSettingInput):
             return control.color_text().strip()
         return control.text().strip()

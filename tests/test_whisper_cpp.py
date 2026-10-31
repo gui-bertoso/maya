@@ -31,6 +31,17 @@ class WhisperBridgeTests(unittest.TestCase):
             self.assertIn(b'Spotify, Steam',captured[0][1])
         finally:server.shutdown();server.server_close();worker.join(1)
 
+    def test_empty_and_regional_languages_are_normalized_at_server_boundary(self):
+        for language, expected in [('', 'en'), (None, 'en'), ('pt-BR', 'pt'), ('en_US', 'en')]:
+            self.assertEqual(WhisperServer('unused', 'unused', language=language).language, expected)
+
+    def test_empty_desktop_language_uses_saved_maya_language(self):
+        from helpers import config
+        with patch.dict('os.environ', {'LANGUAGE': ''}), patch.object(config, 'dotenv_values', return_value={'LANGUAGE': 'pt-BR'}):
+            self.assertEqual(config.get_env('LANGUAGE', 'en'), 'pt-BR')
+        with patch.dict('os.environ', {'LANGUAGE': ''}), patch.object(config, 'dotenv_values', return_value={}):
+            self.assertEqual(config.get_env('LANGUAGE', 'en'), 'en')
+
     def make_voice(self):
         return WhisperVoice(binary='missing',whisper_model='missing',noise_suppression=False)
 
@@ -98,7 +109,8 @@ class WhisperBridgeTests(unittest.TestCase):
         app=App.__new__(App);app.LANGUAGE='en';app.speaker=Mock()
         from helpers.config import get_env as real_get_env
         with patch('app.get_env',side_effect=lambda key,*args: 'whisper.cpp' if key=='STT_ENGINE' else real_get_env(key,*args)):
-            self.assertIsInstance(app._create_voice(),WhisperVoice)
+            voice=app._create_voice()
+            self.assertIsInstance(getattr(voice,'primary',voice),WhisperVoice)
         from input.voice import Voice
         with patch('app.get_env',side_effect=lambda key,*args: 'vosk' if key=='STT_ENGINE' else real_get_env(key,*args)):
             self.assertIs(type(app._create_voice()),Voice)

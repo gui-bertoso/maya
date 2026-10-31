@@ -8,6 +8,7 @@ from difflib import SequenceMatcher
 from pathlib import Path
 from helpers.config import get_env, get_resource_path
 from core.conversation import ConversationPolicy
+from core.local_conversation import LocalConversation
 
 
 def normalize(text):
@@ -80,8 +81,12 @@ class DialogueEngine:
                 return key
         return 'intro'
 
-    def reply(self, text, memory, patterns):
-        if not memory or get_env('DIALOGUE_ENABLED', 'true').lower() != 'true':
+    def reply(self, text, memory, patterns, capabilities=None):
+        if get_env('DIALOGUE_ENABLED', 'true').lower() != 'true':
+            from helpers.local_dialogue import release_runtime
+            release_runtime()
+            return None
+        if not memory:
             return None
         memory.short_term_limit = max(memory.short_term_limit, 80)
         frame = self.frame(memory)
@@ -92,6 +97,13 @@ class DialogueEngine:
             return 'contexto da conversa limpo. suas preferências e fatos salvos continuam guardados.'
         if any(patterns.get(flag) for flag in self.ACTIONS):
             return None
+        LocalConversation.remember_names(text, frame)
+        if re.search(r'\b(?:qual|lembra|como)\b.*\b(?:nome|chama|chamava)\b', clean):
+            named = next((entity for kind, entity in frame.get('entities', {}).items()
+                          if re.search(r'\b' + re.escape(kind) + r'\b', clean)), None)
+            if named:
+                frame['last_engine'] = 'native_recall'
+                return f"você chamou {named['kind']} de {named['name']}."
         # Named user entities are explicit statements, not guesses from questions.
         match = re.fullmatch(r'(?:meu|minha) (jogo|projeto|app|aplicativo|personagem) (?:se chama|chama|e chamado|e chamada) (.{1,80})', clean)
         if match:
@@ -118,7 +130,9 @@ class DialogueEngine:
             return f"você me disse que seu {entity['kind']} se chama {entity['name']}." + (f' também disse: {details}.' if details else '')
         if clean in {'resume nossa conversa', 'resuma nossa conversa', 'o que conversamos', 'resuma o contexto'}:
             personal = frame.get('conversation', {}).get('turns', [])[-3:]
+            episodes = frame.get('episodes', [])[-3:]
             notes = frame['notes'][-3:] + [f"você disse: {turn['text']}" for turn in personal]
+            notes += [f"você disse: {episode['user']}" for episode in episodes]
             topic = self.by_id.get(frame.get('topic'))
             pieces = ([f"o assunto mais recente foi {topic['title']}"] if topic else []) + notes
             return ('até aqui: ' + '; '.join(pieces) + '.') if pieces else 'ainda não tenho contexto suficiente pra resumir. me conta o que você está fazendo.'
@@ -126,11 +140,19 @@ class DialogueEngine:
         if re.search(r'\b(lembra|lembre|recorda)\b.*\b(sobre|de|do|da)\b', clean):
             query = tokens(clean) - {'lembra', 'lembre', 'recorda'}
             personal = frame.get('conversation', {}).get('turns', [])
-            facts = [*frame['notes'], *memory.get_known_facts(), *(turn['text'] for turn in personal)]
+            facts = [*frame['notes'], *memory.get_known_facts(), *(turn['text'] for turn in personal),
+                     *(episode['user'] for episode in frame.get('episodes', []))]
             matches = [(len(tokens(fact) & query), fact) for fact in facts]
             matches = sorted((m for m in matches if m[0]), reverse=True)
             if matches:
                 return 'você me contou: ' + '; '.join(f for _, f in matches[:3]) + '.'
+        boundary = ConversationPolicy.boundary(clean)
+        if boundary:
+            frame['last_engine'] = 'native_boundary'
+            return boundary
+        generated = LocalConversation().reply(text, memory, frame, patterns, capabilities)
+        if generated is not None:
+            return generated
         conversational = ConversationPolicy().reply(text, clean, frame)
         if conversational is not None:
             return conversational
@@ -160,6 +182,8 @@ class DialogueEngine:
         followup = bool(re.fullmatch(r'(?:e )?(?:por que|porque|como assim|me da um exemplo|um exemplo|exemplo|como comecar|como aplicar|e depois|depois disso|proximo passo|outra dica|mais uma|continua|continue|me explica melhor|qual o cuidado|qual o erro|um desafio|me desafia|uma pergunta)(?: entao)?', clean))
         topic = ranked[0][1] if ranked else (self.by_id.get(frame.get('topic')) if followup else None)
         if topic is None:
+            if frame.get('model_failure'):
+                return 'o modelo local não respondeu agora. tenta de novo daqui a pouco; as funções e o diálogo nativo continuam disponíveis.'
             if followup:
                 return 'sobre qual assunto? ainda não tenho uma referência clara pra continuar.'
             return None
@@ -192,7 +216,9 @@ class DialogueEngine:
         clean = re.sub(r'^(?:agora|now|entao)\s+', '', clean)
         # Resolve only explicit command shapes. Never replace words inside stories.
         move = re.fullmatch(r'(?:move|mova|arrasta|arraste|joga|jogue|coloca|coloque)\s+(?:ele|ela|isso|it|essa janela|esse app)\s+(?:para|pra|pro|to)\s+(.+)', clean)
-        short = re.fullmatch(r'(?:para|pra|pro|to)\s+(.+)', clean)
+        short = re.fullmatch(r'(?:para|pra|pro)\s+(.+)', clean)
+        if short is None:
+            short = re.fullmatch(r'to\s+((?:(?:the|top|bottom)\s+)?(?:left|right|center|top|bottom))', clean)
         close = re.fullmatch(r'(?:fecha|feche|close)\s+(?:ele|ela|isso|it|essa janela|esse app)', clean)
         if not (move or short or close):
             return text, None

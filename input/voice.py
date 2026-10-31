@@ -234,12 +234,15 @@ class Voice:
                                 on_partial_text(partial_text)
 
                         if self._should_fast_finalize(latest_partial, silent_blocks):
+                            # Let Vosk finish/rescore the utterance instead of executing
+                            # a provisional partial (especially important for big models).
+                            final_text = json.loads(self.recognizer.FinalResult()).get('text', '').strip() or latest_partial
                             if self.DEBUG_MODE:
-                                print("fast final:", latest_partial)
+                                print("fast final:", final_text)
                             if on_status_change:
                                 on_status_change("ready")
                             if on_final_text:
-                                on_final_text(latest_partial)
+                                on_final_text(final_text)
                             self.recognizer.Reset()
                             latest_partial = ""
                             silent_blocks = 0

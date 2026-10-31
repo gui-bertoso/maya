@@ -1,6 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+args=()
+for argument in "$@"; do
+    case "$argument" in
+        --debug) export DEBUG_MODE=true ;;
+        --help|-h)
+            printf '%s\n' 'uso: maya [--debug] [opções da aplicação]' '  maya          abre a maya' '  maya --debug  abre com mensagens de debug no terminal'
+            exit 0
+            ;;
+        *) args+=("$argument") ;;
+    esac
+done
 cd "$ROOT_DIR"
 # XWayland supports Maya's floating overlay positioning and keyboard listener.
 export QT_QPA_PLATFORM=xcb
@@ -16,4 +27,9 @@ if [[ -n "${XAUTHORITY:-}" && -f "$XAUTHORITY" && -n "${XDG_RUNTIME_DIR:-}" ]]; 
     export XAUTHORITY="$(.venv/bin/python scripts/prepare_linux_session.py)"
 fi
 mkdir -p logs
-exec .venv/bin/python -u app.py --show "$@" >> logs/session.log 2>&1
+if [[ -t 1 || "${DEBUG_MODE:-false}" == true ]]; then
+    exec .venv/bin/python -u app.py --show "${args[@]}"
+else
+    # Desktop launchers have no terminal; retain their existing session log.
+    exec .venv/bin/python -u app.py --show "${args[@]}" >> logs/session.log 2>&1
+fi
